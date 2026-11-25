@@ -21,3 +21,15 @@ Vite production builds will use `/faculty/` and `/admin/` base paths. Their clie
 ## Design continuity
 
 Reuse the existing CampusPulse homepage/portal styles and preserve each portal's persistent dark-mode control and outward radial transition. No visual redesign is part of this deployment correction.
+
+## Remediation execution (PS-03)
+
+The graph plan from `campuspulse_remediation_plan_execution_prompt.txt` has been executed through N8 in source:
+
+- **N1** — `scripts/seed-demo-users.mjs` seeds college, role-verified profiles, courses, enrolments, notices and assignments idempotently (loopback + explicit opt-in guards retained).
+- **N2** — `supabase/tests/database/security.test.sql` now carries 58 assertions including a cross-college/cross-role behavioural matrix; migration 008 adds only additive policies plus MIME/extension constraints.
+- **N3** — every `/manus-storage/...` dependency replaced by six committed SVG illustrations; server and production build rewrite to local paths.
+- **N4** — `get-signed-url` Edge Function (JWT + RLS ownership proof + magic-byte sniff + 30/min throttle) and shared signature modules for Deno and the browser.
+- **N5/N6/N7** — Faculty, Student and Admin portals wired to live tables for the PS-03 vertical slice.
+- **N8** — `npm test` (65), `npm run scan:secrets`, `npm run build:student-css`, `npm run build:vercel` and a same-origin HTTP smoke test all pass.
+- **N9** — operator step: deploy the four functions with secrets, configure Auth redirect URLs, then capture the PPT/video using `docs/demo-walkthrough.md`.

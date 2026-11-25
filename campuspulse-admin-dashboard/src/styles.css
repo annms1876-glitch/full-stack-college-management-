@@ -239,3 +239,7 @@ html.dark .campuspulse-theme-toggle-floating{background:#d8f078;color:#17241e;bo
 .campuspulse-theme-reveal{position:fixed;z-index:20000;width:24px;height:24px;left:0;top:0;border-radius:50%;pointer-events:none;transform:scale(0);transform-origin:center;animation:campuspulse-radial-reveal .68s cubic-bezier(.2,.72,.18,1) forwards}
 @keyframes campuspulse-radial-reveal{to{transform:scale(var(--reveal-scale))}}
 @media(prefers-reduced-motion:reduce){.campuspulse-theme-toggle-floating{transition:none}.campuspulse-theme-reveal{display:none}}
+
+/* Live Supabase-backed console surfaces */
+.live-enrol,.live-role,.live-download{white-space:nowrap}
+.enrol-inline select{min-width:0}

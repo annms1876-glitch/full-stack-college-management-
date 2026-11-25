@@ -47,14 +47,16 @@ const MIME_TYPES = {
   ".webp": "image/webp",
 };
 
+// Every illustration ships from this repository, so a standalone deployment has
+// no external image dependency and no broken legacy image request.
 const IMAGE_REPLACEMENTS = {
-  "ALJJyrDerPS2l3M99": "/assets/campuspulse-campus-hero.png",
-  "ALJJyrBWzizFfB_K": "/assets/campuspulse-campus-hero.png",
+  "ALJJyrDerPS2l3M99": "/assets/campuspulse-hero-campus.svg",
+  "ALJJyrBWzizFfB_K": "/assets/campuspulse-campus-library.svg",
   "ALJJyrD27Av7MK_": "/brand/campus-logo-144-712f764a4b82.webp",
-  "ALJJyrBXDQY-wzzb": "/assets/campuspulse-campus-hero.png",
-  "ALJJyrC_eoL-ICo": "/assets/campuspulse-campus-hero.png",
-  "ALJJyrDF4dExuwU9": "/assets/campuspulse-campus-hero.png",
-  "ALJJyrABqBD-QY0j": "/assets/campuspulse-campus-hero.png",
+  "ALJJyrBXDQY-wzzb": "/assets/campuspulse-campus-quad.svg",
+  "ALJJyrC_eoL-ICo": "/assets/campuspulse-campus-lab.svg",
+  "ALJJyrDF4dExuwU9": "/assets/campuspulse-campus-lecture.svg",
+  "ALJJyrABqBD-QY0j": "/assets/campuspulse-campus-events.svg",
 };
 
 const server = http.createServer((req, res) => {

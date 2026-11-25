@@ -38,7 +38,9 @@ export async function startPortalAuth({ onAuthorized }) {
     enterDemo();
     return;
   }
-  if (LOCAL_DEV_BYPASS) {
+  // The anonymous demo is an explicit opt-in during local development so a
+  // seeded local Supabase session can still sign in normally.
+  if (LOCAL_DEV_BYPASS && new URLSearchParams(location.search).get('demo') === '1') {
     enterDemo();
     return;
   }
@@ -60,6 +62,11 @@ export async function startPortalAuth({ onAuthorized }) {
     }
   } catch (error) {
     if (client) await client.auth.signOut().catch(() => {});
+    // A local checkout without Supabase env still opens the clearly marked demo.
+    if (LOCAL_DEV_BYPASS && (!client || /configuration|SUPABASE_URL/i.test(error.message || ''))) {
+      enterDemo();
+      return;
+    }
     authView(error.message || 'Authentication setup failed.');
     setMessage(error.message || 'Authentication setup failed.', true);
     document.querySelector('#portal-anonymous-demo')?.addEventListener('click', enterDemo);

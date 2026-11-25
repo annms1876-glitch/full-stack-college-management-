@@ -19,11 +19,13 @@ const built = spawnSync(tailwind, ['-i', 'campuspulse-frontend/public/tailwind-i
 if (built.status !== 0) process.exit(built.status ?? 1);
 await cp(path.join(output, 'home.html'), path.join(output, 'index.html'));
 const replace = new Map([
-  ['ALJJyrDerPS2l3M99', '/brand/campus-logo.png'], ['ALJJyrBWzizFfB_K', '/brand/campus-logo.png'],
+  ['ALJJyrDerPS2l3M99', '/assets/campuspulse-hero-campus.svg'],
+  ['ALJJyrBWzizFfB_K', '/assets/campuspulse-campus-library.svg'],
   ['ALJJyrD27Av7MK_', '/brand/campus-logo-144-712f764a4b82.webp'],
-  ['ALJJyrBXDQY-wzzb', '/assets/campuspulse-campus-hero.png'],
-  ['ALJJyrC_eoL-ICo', '/assets/campuspulse-campus-hero.png'],
-  ['ALJJyrDF4dExuwU9', '/assets/campuspulse-campus-hero.png'], ['ALJJyrABqBD-QY0j', '/assets/campuspulse-campus-hero.png'],
+  ['ALJJyrBXDQY-wzzb', '/assets/campuspulse-campus-quad.svg'],
+  ['ALJJyrC_eoL-ICo', '/assets/campuspulse-campus-lab.svg'],
+  ['ALJJyrDF4dExuwU9', '/assets/campuspulse-campus-lecture.svg'],
+  ['ALJJyrABqBD-QY0j', '/assets/campuspulse-campus-events.svg'],
 ]);
 async function processDirectory(dir) {
   for (const entry of await readdir(dir, { withFileTypes: true })) {

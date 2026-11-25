@@ -1,41 +1,105 @@
-import { callerClient, authenticatedUser, publicConfig } from "../_shared/supabase.ts";
-import { corsHeaders, isUuid, jsonResponse } from "../_shared/http.ts";
-import { createClient } from "npm:@supabase/supabase-js@2";
+import { callerClient, authenticatedUser, consumeLimit, publicConfig } from "../_shared/supabase.ts";
+import { boundedText, corsHeaders, jsonResponse } from "../_shared/http.ts";
+import { readObjectHead, signatureMatchesMime, sniffMime, UPLOAD_ALLOWLIST } from "../_shared/file-signature.ts";
 
-const allowedBuckets = new Set(["assignments", "post-media"]);
-const safePath = (value: unknown) => typeof value === "string" && value.length > 0 && value.length <= 500 && !value.includes("..") && !value.startsWith("/");
+const UUID = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
+const ASSIGNMENT_PATH = new RegExp(`^assignments/${UUID}/${UUID}/${UUID}/[A-Za-z0-9][A-Za-z0-9._-]{0,199}$`, "i");
+const POST_MEDIA_PATH = new RegExp(`^${UUID}/[A-Za-z0-9][A-Za-z0-9._-]{0,199}$`, "i");
+const DEFAULT_TTL = 120;
+const MIN_TTL = 30;
+const MAX_TTL = 300;
+
+type Target = { bucket: "assignments" | "post-media"; path: string; mimeType: string | null };
+
+function validPath(bucket: string, objectPath: string): boolean {
+  if (!objectPath || objectPath.length > 512) return false;
+  if (objectPath.startsWith("/") || objectPath.includes("..") || objectPath.includes("//")) return false;
+  if (/\s/.test(objectPath)) return false;
+  return bucket === "assignments" ? ASSIGNMENT_PATH.test(objectPath) : POST_MEDIA_PATH.test(objectPath);
+}
+
+/**
+ * Prove access with the caller's own JWT so RLS (not this function) decides who
+ * may reference a private object. A missing row means "not authorized".
+ */
+async function resolveTarget(
+  caller: ReturnType<typeof callerClient>,
+  bucket: "assignments" | "post-media",
+  objectPath: string,
+): Promise<Target | null> {
+  if (bucket === "assignments") {
+    const { data, error } = await caller
+      .from("assignment_submissions")
+      .select("mime_type")
+      .eq("file_path", objectPath)
+      .maybeSingle();
+    if (error || !data) return null;
+    const mimeType = typeof data.mime_type === "string" ? data.mime_type : null;
+    if (mimeType && !UPLOAD_ALLOWLIST.has(mimeType)) return null;
+    return { bucket, path: objectPath, mimeType };
+  }
+  const { data, error } = await caller
+    .from("posts")
+    .select("id")
+    .contains("media_urls", [objectPath])
+    .maybeSingle();
+  if (error || !data) return null;
+  return { bucket, path: objectPath, mimeType: null };
+}
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return jsonResponse({ error: "Method not allowed" }, 405);
-  const authorization = req.headers.get("authorization");
-  if (!authorization?.startsWith("Bearer ")) return jsonResponse({ error: "Unauthorized" }, 401);
+  const auth = req.headers.get("authorization");
+  if (!auth?.startsWith("Bearer ")) return jsonResponse({ error: "Unauthorized" }, 401);
+
   try {
-    const caller = callerClient(authorization);
+    const caller = callerClient(auth);
     const user = await authenticatedUser(caller);
     if (!user) return jsonResponse({ error: "Unauthorized" }, 401);
-    const body = await req.json().catch(() => null);
-    const bucket = body?.bucket;
-    const path = body?.path;
-    if (!allowedBuckets.has(bucket) || !safePath(path)) return jsonResponse({ error: "Invalid file reference" }, 400);
+    if (!await consumeLimit(caller, "get-signed-url", 30, 60)) return jsonResponse({ error: "Rate limit exceeded" }, 429);
 
-    if (bucket === "assignments") {
-      const parts = path.split("/");
-      if (parts.length !== 5 || parts[0] !== "assignments" || !isUuid(parts[1]) || !isUuid(parts[2]) || !isUuid(parts[3])) return jsonResponse({ error: "Invalid assignment path" }, 400);
-      const { data, error } = await caller.from("assignment_submissions").select("id,file_path,assignment:assignments!inner(course_id)").eq("file_path", path).maybeSingle();
-      if (error || !data || data.file_path !== path || data.assignment?.course_id !== parts[1]) return jsonResponse({ error: "Forbidden" }, 403);
-    } else {
-      const [postId] = path.split("/");
-      if (!isUuid(postId)) return jsonResponse({ error: "Invalid post-media path" }, 400);
-      const { data, error } = await caller.from("posts").select("id").eq("id", postId).maybeSingle();
-      if (error || !data) return jsonResponse({ error: "Forbidden" }, 403);
+    let body: Record<string, unknown>;
+    try {
+      const parsed: unknown = await req.json();
+      if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) {
+        return jsonResponse({ error: "Invalid request" }, 400);
+      }
+      body = parsed as Record<string, unknown>;
+    } catch {
+      return jsonResponse({ error: "Invalid request" }, 400);
     }
-    const { url } = publicConfig();
-    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-    if (!serviceKey) return jsonResponse({ error: "Service unavailable" }, 503);
-    const storage = createClient(url, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } });
-    const { data, error } = await storage.storage.from(bucket).createSignedUrl(path, 300);
-    if (error || !data?.signedUrl) return jsonResponse({ error: "Could not issue signed URL" }, 500);
-    return jsonResponse({ signedUrl: data.signedUrl, expiresIn: 300 });
-  } catch { return jsonResponse({ error: "Invalid request" }, 400); }
+
+    const bucket = body.bucket;
+    const objectPath = typeof body.path === "string" ? boundedText(body.path, 512) : "";
+    const requestedTtl = Number(body.expires_in ?? DEFAULT_TTL);
+    if (bucket !== "assignments" && bucket !== "post-media") {
+      return jsonResponse({ error: "Invalid request" }, 400);
+    }
+    if (!validPath(bucket, objectPath)) return jsonResponse({ error: "Invalid request" }, 400);
+    const expiresIn = Number.isFinite(requestedTtl)
+      ? Math.min(MAX_TTL, Math.max(MIN_TTL, Math.trunc(requestedTtl)))
+      : DEFAULT_TTL;
+
+    const target = await resolveTarget(caller, bucket, objectPath);
+    // Deliberately identical response for "does not exist" and "not yours".
+    if (!target) return jsonResponse({ error: "Forbidden" }, 403);
+
+    // Magic-byte verification before a short-lived URL is minted. The ranged GET
+    // runs with the caller's JWT, so Storage RLS applies a second time.
+    const { url, anon } = publicConfig();
+    const token = auth.slice("Bearer ".length).trim();
+    const head = await readObjectHead(url, anon, `Bearer ${token}`, target.bucket, target.path);
+    if (!head) return jsonResponse({ error: "Attachment unavailable" }, 503);
+    const sniffed = sniffMime(head);
+    if (!sniffed || !UPLOAD_ALLOWLIST.has(sniffed) || !signatureMatchesMime(sniffed, target.mimeType)) {
+      return jsonResponse({ error: "File content does not match its declared type" }, 422);
+    }
+
+    const { data, error } = await caller.storage.from(target.bucket).createSignedUrl(target.path, expiresIn);
+    if (error || !data?.signedUrl) return jsonResponse({ error: "Signed URL unavailable" }, 503);
+    return jsonResponse({ signedUrl: data.signedUrl, expiresIn, mimeType: sniffed });
+  } catch {
+    return jsonResponse({ error: "Service unavailable" }, 503);
+  }
 });

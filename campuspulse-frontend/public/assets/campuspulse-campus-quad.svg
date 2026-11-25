@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-label="Campus quadrangle with trees and a clock tower">
+  <rect width="640" height="420" fill="#f7f6f1"/>
+  <circle cx="520" cy="86" r="46" fill="#d8f078"/>
+  <path d="M0 300h640v120H0z" fill="#e8eddf"/>
+  <path d="M96 300V168l112-58 112 58v132z" fill="#345f47"/>
+  <path d="M208 110 96 168h224z" fill="#2a4c39"/>
+  <rect x="182" y="214" width="52" height="86" rx="6" fill="#f7f6f1"/>
+  <circle cx="208" cy="196" r="16" fill="#d8f078"/>
+  <path d="M208 186v12l9 6" stroke="#17241e" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M372 300V196l92-46 92 46v104z" fill="#4b7358"/>
+  <rect x="426" y="222" width="30" height="34" rx="4" fill="#f7f6f1"/>
+  <rect x="472" y="222" width="30" height="34" rx="4" fill="#f7f6f1"/>
+  <g fill="#345f47">
+    <circle cx="70" cy="270" r="30"/><rect x="66" y="292" width="8" height="26" fill="#5b4433"/>
+    <circle cx="592" cy="262" r="34"/><rect x="587" y="288" width="9" height="28" fill="#5b4433"/>
+  </g>
+  <path d="M232 340h180" stroke="#c9cfc0" stroke-width="6" stroke-linecap="round"/>
+</svg>
