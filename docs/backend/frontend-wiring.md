@@ -1,6 +1,6 @@
 # Frontend wiring status
 
-This document records the current static-screen frontend integration. The layout, existing HTML, and color tokens were preserved. No live Supabase project or deployment was used; API results and database policies have not been integration-tested.
+This document records the current static-screen frontend integration. The public landing page and login were redesigned, while the existing student feed and other screen layouts remain. No live Supabase project or deployment was used; API results and database policies have not been integration-tested.
 
 ## Runtime config and client
 
@@ -10,8 +10,11 @@ This document records the current static-screen frontend integration. The layout
 
 | Screen / control | Behavior | Authentication |
 |---|---|---|
-| Login: `#btn-login-submit` | Calls `signInWithPassword`; validates required fields; disables button during request, surfaces errors and routes successful sign-in to feed. | Email/password required. |
-| Login: `#btn-signup-submit` | Calls Supabase signup using email/password and optional full name; enforces minimum 8-character password; displays confirmation-email or signed-in success. No role is sent. | Public signup; Supabase confirmation settings apply. |
+| `/` landing page | Modern public entry page; links to `/login`, `/feed`, and campus role descriptions. | Public. |
+| Login: `#login-form` | Calls `signInWithPassword`, reads the signed-in user's `profiles.role`, sends students to `/feed`, and confirms faculty/admin roles without pretending their separate portals share this session. | Email/password; valid profile role required. |
+| Signup: `#signup-form` | Calls Supabase signup using email, password, and full name. It does not send a role; the database bootstrap assigns `student`. | Public student signup; Supabase confirmation settings apply. |
+| Password recovery | `Forgot password?` requests a Supabase reset email; the recovery link opens a form that calls `auth.updateUser({ password })`. Add the local `/login` URL to Supabase Auth redirect allow-list. | Supabase recovery session. |
+| Local demo account panel | Loads `GET /api/demo-accounts` only when demo mode is enabled and Supabase URL is localhost; fills credentials but still signs in through Supabase Auth. Accounts are seeded by a loopback-only service-role script. | Local/dev only. |
 | Session state | `onAuthStateChange` maintains `html[data-authenticated]` and reveals `[data-auth-required]`; route checks provide a sign-in prompt for profile/study. | Session-driven. |
 | Sign-out | `#btn-signout` or `[data-action=signout]`, if present, calls `auth.signOut()` and routes to login. | Signed-in user. |
 | Profile | Reads current user's own `profiles` row and reports loading/success/error status. It does not update profile fields because the screen's edit control has no form/input contract. | Signed-in. |
@@ -31,7 +34,8 @@ API helper methods also include `rsvp(eventId)` with auth check, but the current
 | Faculty search controls | Directory query is real; any local search/filter remains client-side presentation. No teacher dashboard screen exists. |
 | Profile edit, notifications, direct messages, tabs, day pills, welfare toggles, and upload affordances | Existing presentation-only controls without corresponding implemented form/action or safe backend mapping. |
 | Study doubts, upvotes, “Add Solution”, contribute/download/sample notes | Static demo content and local filtering only; no matching backend tables/contracts for questions or notes. |
-| Login forgot-password, OTP digit flow, upload-profile-picture, and alternate auth buttons | Not wired to a reset/OTP/storage flow. Forgot password explains that no reset form is connected. Password visibility toggle remains local. |
+| Old OTP digit verification | Removed from the new login flow; authentication is email/password. Supabase email confirmation/reset behavior is configured in Supabase Auth, not simulated in the UI. |
+| Faculty/admin portal session | Login verifies the profile role, but the separate Vite portals still use mock data and do not consume the shared Supabase session. Do not treat a role confirmation as a wired dashboard. |
 | Event register controls | No event row IDs in static markup; no fake local registration is recorded. Backend RSVP helper exists for future ID-bound UI. |
 | Post/comment creation | Current feed markup has no post/comment form bound to backend records. No compose UI was invented. |
 
@@ -41,4 +45,4 @@ No assignment-submission upload UI was added to the **study page**: its assignme
 
 ## Verification and constraints
 
-No service key, client-side role claim, or deployment is included. RLS remains authoritative. Check config endpoint with environment variables set and unset; use a disposable Supabase project to test auth confirmation, RLS-denied cases, joins, and directory/feed behavior before release. Self-enrollment is known to be denied by the current migration policy; the frontend does not work around that policy gap. The existing faculty dashboard API in `public/api.ts` is not mounted as a screen or claimed as wired.
+No service key, client-side role claim, or deployment is included. RLS remains authoritative. The local seeder is restricted to loopback URLs, requires `CAMPUSPULSE_ALLOW_DEMO_SEED=true`, and the server's credential endpoint is also loopback-only. Use the local seed accounts listed in the root README; they have not been provisioned in the supplied live project. Test auth confirmation, reset redirect, RLS-denied cases, joins, and directory/feed behavior on a disposable project before release. Self-enrollment is known to be denied by the current migration policy; the frontend does not work around that policy gap. The existing faculty dashboard API in `public/api.ts` is not mounted as a screen or claimed as wired.

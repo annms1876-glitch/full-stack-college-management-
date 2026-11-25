@@ -1,0 +1,5 @@
+[
+  {"role":"student","name":"CampusPulse Demo Student","email":"student.demo@campuspulse.test","password":"CampusPulse.Student!2026"},
+  {"role":"faculty","name":"CampusPulse Demo Faculty","email":"faculty.demo@campuspulse.test","password":"CampusPulse.Faculty!2026"},
+  {"role":"admin","name":"CampusPulse Demo Admin","email":"admin.demo@campuspulse.test","password":"CampusPulse.Admin!2026"}
+]

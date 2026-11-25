@@ -8,8 +8,17 @@ const SUPABASE_RUNTIME_CONFIG = {
   supabaseUrl: process.env.SUPABASE_URL || "",
   publishableKey: process.env.SUPABASE_PUBLISHABLE_KEY || "",
 };
+const DEMO_ACCOUNTS = require("../scripts/demo-accounts.json");
+let SUPABASE_HOST = "";
+try { SUPABASE_HOST = new URL(SUPABASE_RUNTIME_CONFIG.supabaseUrl).hostname; } catch {}
+const DEMO_MODE_ENABLED = process.env.NODE_ENV !== "production"
+  && process.env.CAMPUSPULSE_DEMO_MODE === "true"
+  && ["localhost", "127.0.0.1", "::1"].includes(SUPABASE_HOST);
+const LISTEN_HOST = DEMO_MODE_ENABLED ? "127.0.0.1" : "0.0.0.0";
 const ROUTES = {
-  "/": "/screens/light/feed.html",
+  "/": "/home.html",
+  "/home": "/home.html",
+  "/index.html": "/home.html",
   "/feed": "/screens/light/feed.html",
   "/login": "/screens/light/login.html",
   "/faculty": "/screens/light/faculty.html",
@@ -17,7 +26,7 @@ const ROUTES = {
   "/study": "/screens/light/study.html",
   "/clubs": "/screens/light/clubs.html",
   "/dark/feed": "/screens/dark/feed.html",
-  "/dark/login": "/screens/dark/login.html",
+  "/dark/login": "/screens/light/login.html",
   "/dark/faculty": "/screens/dark/faculty.html",
   "/dark/profile": "/screens/dark/profile.html",
   "/dark/study": "/screens/dark/study.html",
@@ -57,6 +66,18 @@ const server = http.createServer((req, res) => {
     const payload = JSON.stringify({ supabaseUrl: SUPABASE_RUNTIME_CONFIG.supabaseUrl, publishableKey: SUPABASE_RUNTIME_CONFIG.publishableKey }).replace(/</g, "\\u003c");
     res.writeHead(200, { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" });
     return res.end(req.method === "HEAD" ? undefined : payload);
+  }
+  if (endpoint === "/api/demo-accounts") {
+    if (req.method !== "GET" && req.method !== "HEAD") {
+      res.writeHead(405, { Allow: "GET, HEAD", "Content-Type": "application/json; charset=utf-8" });
+      return res.end(JSON.stringify({ error: "Method Not Allowed" }));
+    }
+    if (!DEMO_MODE_ENABLED) {
+      res.writeHead(404, { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" });
+      return res.end(req.method === "HEAD" ? undefined : JSON.stringify({ error: "Not found" }));
+    }
+    res.writeHead(200, { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" });
+    return res.end(req.method === "HEAD" ? undefined : JSON.stringify({ accounts: DEMO_ACCOUNTS.map(({ role, email, password }) => ({ role, email, password })) }));
   }
   if (req.method !== "GET" && req.method !== "HEAD") {
     res.writeHead(405, { Allow: "GET, HEAD", "Content-Type": "text/plain; charset=utf-8" });
@@ -103,6 +124,6 @@ const server = http.createServer((req, res) => {
   });
 });
 
-server.listen(PORT, "0.0.0.0", () => {
-  console.log(`CampusPulse listening on 0.0.0.0:${PORT}`);
+server.listen(PORT, LISTEN_HOST, () => {
+  console.log(`CampusPulse listening on ${LISTEN_HOST}:${PORT}`);
 });

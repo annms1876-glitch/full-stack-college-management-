@@ -6,7 +6,7 @@ CampusPulse is a student-focused college community product with separate student
 
 ### 1. Student app — `campuspulse-frontend/`
 
-The original student-facing, light/dark mobile UI: home feed, login, faculty directory, profile, study hub, clubs, and events. Static Node server: `campuspulse-frontend/server.js`. Screen assets are in `campuspulse-frontend/public/screens/{light,dark}/`; the design system is `campuspulse-frontend/public/design-system.md`.
+The student-facing app includes a new public landing page at `/`, a Supabase email/password login and student-only signup at `/login`, and the existing light/dark feed, faculty directory, profile, study hub, clubs, and events. Static Node server: `campuspulse-frontend/server.js`. Screen assets are in `campuspulse-frontend/public/screens/{light,dark}/`; the design system is `campuspulse-frontend/public/design-system.md`.
 
 The public folder also contains Supabase auth helpers (`auth.js`) and API client/types (`api.ts`, `api.js`, `api.d.ts`). Some auth/runtime behavior is wired, but the screens still contain sample data. Feed cards and event/club entries without real database IDs cannot persist actions safely. See the [frontend wiring map](docs/backend/frontend-wiring.md).
 
@@ -73,7 +73,7 @@ SUPABASE_PUBLISHABLE_KEY="YOUR_PUBLISHABLE_KEY" \
 node server.js
 ```
 
-Student UI opens at `http://localhost:3000/`. For the separate Vite apps, install and run them independently:
+Student landing page opens at `http://localhost:3000/`; sign-in is at `/login` and the student feed at `/feed`. For the separate Vite apps, install and run them independently:
 
 ```bash
 cd campuspulse-frontend/faculty-dashboard
@@ -85,6 +85,29 @@ npm install && npm run dev
 ```
 
 Each app's README lists its routes and build commands. Do not commit `.env` files or keys. In deployed environments, use the host's environment/secret configuration and HTTPS.
+
+## Local demo logins
+
+Demo accounts are deliberately limited to a local Supabase instance. They are **not provisioned in the supplied live Supabase project**. Start local Supabase, apply the migrations, then supply the local API URL and local service-role key from `supabase status -o env` to the seed script. The script refuses remote hosts and requires the explicit `CAMPUSPULSE_ALLOW_DEMO_SEED=true` opt-in:
+
+```bash
+supabase start
+supabase db reset
+SUPABASE_URL="http://127.0.0.1:54321" \
+SUPABASE_SERVICE_ROLE_KEY="<local service-role key from supabase status -o env>" \
+CAMPUSPULSE_ALLOW_DEMO_SEED=true \
+node scripts/seed-demo-users.mjs
+```
+
+The sample test credentials are in `scripts/demo-accounts.json` and use the reserved `.test` domain:
+
+- Student: `student.demo@campuspulse.test` / `CampusPulse.Student!2026`
+- Faculty: `faculty.demo@campuspulse.test` / `CampusPulse.Faculty!2026`
+- Admin: `admin.demo@campuspulse.test` / `CampusPulse.Admin!2026`
+
+To show them on the login page and enable the one-click autofill buttons, run the student server against local Supabase with `CAMPUSPULSE_DEMO_MODE=true`. The server only exposes demo credentials when `SUPABASE_URL` points to `localhost`, `127.0.0.1`, or `::1`; never deploy demo mode or use these credentials for real accounts. See [`scripts/README.md`](scripts/README.md) for the seeding details.
+
+The login reads each account's role from `public.profiles`. Student sign-in proceeds to `/feed`. Faculty and admin sign-in is authenticated and role-checked, but those separate Vite portals remain mock-data apps and do not yet share this session. No self-service role picker is provided.
 
 ## Local Supabase validation
 
@@ -100,7 +123,7 @@ The pgTAP suite is `supabase/tests/database/security.test.sql`. The implementati
 
 ## Verification status
 
-Completed locally: `npm test` (**11 tests passed**), heuristic `npm run scan:secrets`, JavaScript syntax checks, and `git diff --check`. Static RLS, Storage, and Edge Function reviews found no confirmed high/critical source-level issues after documented remediations.
+Completed locally: `npm test` (**17 tests passed**), heuristic `npm run scan:secrets`, JavaScript syntax checks, `git diff --check`, and HTTP smoke checks for `/`, `/login`, `/feed`, the generated hero image, runtime config, and the loopback-only demo endpoint (including its remote-URL denial path). Static RLS, Storage, and Edge Function reviews found no confirmed high/critical source-level issues after documented remediations.
 
 Not verified: application of migrations to a live/local database; pgTAP execution; real Storage policy/upload behavior; Deno Edge Function runtime/typecheck; production CORS, secrets, and concurrent rate limiting. Static review is not a deployment security certification.
 

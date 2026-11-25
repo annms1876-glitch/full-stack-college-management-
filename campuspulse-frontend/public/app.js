@@ -1,7 +1,6 @@
 import { api, supabase } from "/api.js";
 const screens=["feed","login","faculty","profile","study","clubs"], path=location.pathname.replace(/\/$/,"")||"/", dark=path.startsWith("/dark/"), prefix=dark?"/dark":"";
 const route=s=>`${prefix}/${s}`;
-if(path==="/"&&localStorage.getItem("campuspulse-theme")==="dark"){location.replace("/dark/feed");}
 if(dark)localStorage.setItem("campuspulse-theme","dark");else if(path!=="/")localStorage.setItem("campuspulse-theme","light");
 function toast(msg){let el=document.getElementById("campuspulse-toast");if(!el){el=document.createElement("div");el.id="campuspulse-toast";el.setAttribute("role","status");el.setAttribute("aria-live","polite");Object.assign(el.style,{position:"fixed",left:"50%",bottom:"88px",zIndex:10000,transform:"translateX(-50%)",maxWidth:"min(90vw,420px)",padding:"11px 16px",borderRadius:"999px",background:dark?"#34343a":"#1a1b21",color:"#fff",font:"500 13px/1.35 sans-serif",boxShadow:"0 8px 28px #0003"});document.body.append(el)}el.textContent=msg;clearTimeout(toast.t);toast.t=setTimeout(()=>el.remove(),3200)}
 function statusBox(message, bad=false){let el=document.getElementById("backend-status");if(!el){el=document.createElement("p");el.id="backend-status";el.setAttribute("role","status");el.setAttribute("aria-live","polite");el.style.cssText="margin:12px 0;padding:8px 12px;border-radius:8px;font:14px/1.4 sans-serif;background:var(--surface-container-low,#f1f1f1);color:var(--on-surface,#222)";document.querySelector("main")?.prepend(el)}el.textContent=message;el.dataset.error=String(bad)}

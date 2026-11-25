@@ -8,6 +8,8 @@ const result = async (promise) => { const { data, error } = await promise; if (e
 export const api = {
   signUp: ({ email, password, fullName, collegeId }) => client().auth.signUp({ email: email.trim().toLowerCase(), password, options: { data: { full_name: (fullName || "").trim().slice(0, 160), ...(collegeId ? { college_id: collegeId } : {}) } } }),
   signIn: ({ email, password }) => client().auth.signInWithPassword({ email: email.trim().toLowerCase(), password }),
+  resetPassword: (email) => client().auth.resetPasswordForEmail(email.trim().toLowerCase(), { redirectTo: `${location.origin}/login` }),
+  updatePassword: (password) => client().auth.updateUser({ password }),
   signOut: () => client().auth.signOut(), session: () => client().auth.getSession(), onAuth: (cb) => configured ? supabase.auth.onAuthStateChange(cb) : { data: { subscription: { unsubscribe() {} } } },
   profile: async (id) => result(client().from("profiles").select("*").eq("id", id).single()),
   feed: async () => result(client().from("posts").select("*,author:profiles!posts_author_id_fkey(id,full_name,avatar_url)").order("created_at", { ascending: false }).limit(30)),
