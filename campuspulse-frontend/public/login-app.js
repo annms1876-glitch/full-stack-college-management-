@@ -1,4 +1,4 @@
-import { api } from "/api.js";
+import { api, portalUrls } from "/api.js";
 
 const $ = (selector) => document.querySelector(selector);
 const message = $("#auth-message");
@@ -7,7 +7,6 @@ const tabs = [...document.querySelectorAll("[data-auth-tab]")];
 const formLogin = $("#login-form");
 const formSignup = $("#signup-form");
 const roleSuccess = $("#role-success");
-$("#student-anonymous-demo")?.addEventListener("click", () => { sessionStorage.setItem("campuspulse:student-demo", "1"); location.replace("/feed?demo=1"); });
 
 function announce(text, error = false) {
   if (!message) return;
@@ -58,7 +57,7 @@ function showRoleConfirmation(role, name) {
   }
   const portalLink = $("#role-portal-link");
   if (role === "faculty" || role === "admin") {
-    portalLink.href = `http://127.0.0.1:${role === "faculty" ? "3001" : "3002"}/`;
+    portalLink.href = role === "faculty" ? portalUrls.faculty : portalUrls.admin;
     portalLink.textContent = role === "faculty" ? "Open Faculty Portal ↗" : "Open Admin Portal ↗";
     portalLink.classList.remove("is-hidden");
   } else {

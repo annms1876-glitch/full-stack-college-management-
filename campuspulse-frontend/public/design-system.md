@@ -5,194 +5,51 @@ description: "Mobile-first college social and academic management design system 
 
 ## Overview
 
-CampusPulse is a mobile-first student platform for Vanguard Institute of Technology (VIT) that blends the effortless social rhythm of Instagram with the structured utility of a smart campus hub. The interface feels immediate, warm, and student-centric rather than administrative or bureaucratic.
+CampusPulse uses one shared visual system across the homepage, student app, faculty portal, and admin portal. The style is warm, clear, and campus-focused: soft paper backgrounds, deep forest-green actions, lime highlights, and Manrope/DM Sans typography.
 
-- **Audience:** Undergraduate and postgraduate students checking notices, classes, doubts, and campus life on their phones between lectures.
-- **Design Style:** **Minimalism paired with Modern Mobile Ergonomics** — crisp white and soft neutral surfaces, generous breathing room, rounded cards and avatars, subtle hairline dividers, and a restrained institute-branded navy-indigo primary accent.
+- **Audience:** Students, faculty, and administrators using the platform on mobile and desktop.
+- **Design Style:** Editorial minimalism with familiar social-feed ergonomics, restrained color, rounded cards, and legible academic metadata.
 
 ## Colors
 
-The palette is anchored in Vanguard Institute of Technology's deep **Academic Navy** (`#00236F` / `#1E3A8A`), which conveys institutional trust without feeling heavy. Clean off-white and subtle grey surface tiers separate feed cards, story trays, and navigation chrome without visual clutter. Warm **Amber Gold** (`#D97706`) and **Crimson Rose** (`#E11D48`) are reserved strictly for story rings, live status indicators, and verified official badges.
-
-- **Primary:** Institute navy for active navigation states, primary CTAs, and verified official notice badges.
-- **Surface Tiers:** Crisp white (`#FFFFFF`) for elevated post cards and modals over a soft neutral canvas (`#FAF8FF`) and subtle grey containers (`#F4F3FA` / `#EEEDF4`).
-- **Semantic Status:** Used strictly for academic alerts, attendance thresholds, and complaint tracking—never decoratively.
+The shared palette is defined in `home.css`, the Tailwind config, and both portal stylesheets. Green anchors navigation and primary actions; lime marks primary containers and highlights; orange is a secondary accent. Paper, white, and muted green-grey surfaces provide contrast without switching to a separate portal palette.
 
 ```yaml
 colors:
-  accent: "#D97706"
-  on-accent: "#2A2A2A"
-  story-rose: "#E11D48"
-  success: "#15803D"
-  on-success: "#FFFFFF"
-  success-container: "#DCFCE7"
-  on-success-container: "#14532D"
-  warning: "#B45309"
-  on-warning: "#FFFFFF"
-  warning-container: "#FEF3C7"
-  on-warning-container: "#78350F"
-  light:
-    primary: "#00236F"
-    on-primary: "#FFFFFF"
-    primary-container: "#1E3A8A"
-    on-primary-container: "#DCE1FF"
-    secondary: "#555D7E"
-    on-secondary: "#FFFFFF"
-    secondary-container: "#D0D8FF"
-    on-secondary-container: "#111A37"
-    tertiary: "#4B1C00"
-    on-tertiary: "#FFFFFF"
-    tertiary-container: "#6E2C00"
-    on-tertiary-container: "#FFDBCB"
-    error: "#BA1A1A"
-    on-error: "#FFFFFF"
-    error-container: "#FFDAD6"
-    on-error-container: "#93000A"
-    background: "#FAF8FF"
-    on-background: "#1A1B21"
-    surface: "#FAF8FF"
-    surface-dim: "#DAD9E1"
-    surface-bright: "#FFFFFF"
-    surface-container-lowest: "#FFFFFF"
-    surface-container-low: "#F4F3FA"
-    surface-container: "#EEEDF4"
-    surface-container-high: "#E9E7EF"
-    surface-container-highest: "#E3E1E9"
-    on-surface: "#1A1B21"
-    surface-variant: "#E1E1EF"
-    on-surface-variant: "#444651"
-    outline: "#757682"
-    outline-variant: "#C5C5D3"
-    inverse-surface: "#2F3036"
-    inverse-on-surface: "#F1F0F7"
-    inverse-primary: "#B6C4FF"
+  ink: "#17241e"
+  paper: "#f7f6f1"
+  surface: "#fffefa"
+  line: "#dedfd6"
+  muted: "#68746d"
+  green: "#345f47"
+  lime: "#d8f078"
+  orange: "#f2a176"
+  success: "#345f47"
+  warning: "#a35d38"
+  error: "#a64335"
   dark:
-    primary: "#B6C4FF"
-    on-primary: "#05297A"
-    primary-container: "#1E3A8A"
-    on-primary-container: "#DCE1FF"
-    secondary: "#BDC5EB"
-    on-secondary: "#262F4D"
-    secondary-container: "#3D4565"
-    on-secondary-container: "#DCE1FF"
-    tertiary: "#FFB691"
-    on-tertiary: "#552000"
-    tertiary-container: "#6E2C00"
-    on-tertiary-container: "#FFDBCB"
-    error: "#FFB4AB"
-    on-error: "#690005"
-    error-container: "#93000A"
-    on-error-container: "#FFDAD6"
-    background: "#121318"
-    on-background: "#E3E1E9"
-    surface: "#121318"
-    surface-dim: "#121318"
-    surface-bright: "#38393F"
-    surface-container-lowest: "#0D0E13"
-    surface-container-low: "#1A1B21"
-    surface-container: "#1E1F25"
-    surface-container-high: "#292A2F"
-    surface-container-highest: "#34343A"
-    on-surface: "#E3E1E9"
-    surface-variant: "#444651"
-    on-surface-variant: "#C5C5D3"
-    outline: "#8F909D"
-    outline-variant: "#444651"
-    inverse-surface: "#E3E1E9"
-    inverse-on-surface: "#2F3036"
-    inverse-primary: "#4059AA"
+    background: "#17241e"
+    surface: "#203428"
+    line: "#46524a"
+    primary: "#d8f078"
 ```
 
 ## Typography
 
-CampusPulse pairs **Alata** for crisp, geometric display and section titles with **Instrument Sans** for ultra-legible mobile body copy, captions, and academic metadata. **Spline Sans Mono** is used for roll numbers, timestamps, and course codes with tabular numerals.
+Use **Manrope** for display and heading text and **DM Sans** for body copy, navigation, controls, labels, and metadata. Keep the same pair in every portal; do not introduce a separate faculty/admin font stack. The student Tailwind theme maps its `display` and `headline` families to Manrope and its remaining families to DM Sans.
 
 ```yaml
 typography:
-  display-lg:
-    fontFamily: "Alata"
-    fontSize: 36px
-    fontWeight: 400
-    lineHeight: 44px
-    letterSpacing: -0.5px
-  display-lg-mobile:
-    fontFamily: "Alata"
-    fontSize: 28px
-    fontWeight: 400
-    lineHeight: 34px
-    letterSpacing: -0.25px
-  headline-lg:
-    fontFamily: "Alata"
-    fontSize: 24px
-    fontWeight: 400
-    lineHeight: 30px
-    letterSpacing: -0.2px
-  headline-md:
-    fontFamily: "Alata"
-    fontSize: 20px
-    fontWeight: 400
-    lineHeight: 26px
-    letterSpacing: 0px
-  title-lg:
-    fontFamily: "Instrument Sans"
-    fontSize: 18px
-    fontWeight: 600
-    lineHeight: 24px
-    letterSpacing: 0px
-  title-md:
-    fontFamily: "Instrument Sans"
-    fontSize: 16px
-    fontWeight: 600
-    lineHeight: 22px
-    letterSpacing: 0px
-  title-sm:
-    fontFamily: "Instrument Sans"
-    fontSize: 14px
-    fontWeight: 600
-    lineHeight: 20px
-    letterSpacing: 0px
-  body-lg:
-    fontFamily: "Instrument Sans"
-    fontSize: 15px
-    fontWeight: 400
-    lineHeight: 22px
-    letterSpacing: 0px
-  body-md:
-    fontFamily: "Instrument Sans"
-    fontSize: 14px
-    fontWeight: 400
-    lineHeight: 20px
-    letterSpacing: 0px
-  body-sm:
-    fontFamily: "Instrument Sans"
-    fontSize: 12px
-    fontWeight: 400
-    lineHeight: 16px
-    letterSpacing: 0.1px
-  label-lg:
-    fontFamily: "Instrument Sans"
-    fontSize: 14px
-    fontWeight: 600
-    lineHeight: 18px
-    letterSpacing: 0.1px
-  label-md:
-    fontFamily: "Instrument Sans"
-    fontSize: 12px
-    fontWeight: 600
-    lineHeight: 16px
-    letterSpacing: 0.2px
-  label-sm:
-    fontFamily: "Instrument Sans"
-    fontSize: 12px
-    fontWeight: 500
-    lineHeight: 16px
-    letterSpacing: 0.2px
-  mono-sm:
-    fontFamily: "Spline Sans Mono"
-    fontSize: 12px
-    fontWeight: 500
-    lineHeight: 16px
-    letterSpacing: 0.2px
+  display-lg: { fontFamily: "Manrope", fontSize: 36px, lineHeight: 44px, fontWeight: 400 }
+  display-lg-mobile: { fontFamily: "Manrope", fontSize: 28px, lineHeight: 34px, fontWeight: 400 }
+  headline-lg: { fontFamily: "Manrope", fontSize: 24px, lineHeight: 30px, fontWeight: 400 }
+  headline-md: { fontFamily: "Manrope", fontSize: 20px, lineHeight: 26px, fontWeight: 400 }
+  title-lg: { fontFamily: "DM Sans", fontSize: 18px, lineHeight: 24px, fontWeight: 600 }
+  title-md: { fontFamily: "DM Sans", fontSize: 16px, lineHeight: 22px, fontWeight: 600 }
+  title-sm: { fontFamily: "DM Sans", fontSize: 14px, lineHeight: 20px, fontWeight: 600 }
+  body-md: { fontFamily: "DM Sans", fontSize: 14px, lineHeight: 20px, fontWeight: 400 }
+  body-sm: { fontFamily: "DM Sans", fontSize: 12px, lineHeight: 16px, fontWeight: 400 }
+  label-md: { fontFamily: "DM Sans", fontSize: 12px, lineHeight: 16px, fontWeight: 600 }
 ```
 
 ## Layout & Spacing
@@ -216,7 +73,7 @@ spacing:
 
 ## Elevation & Depth
 
-Depth is communicated through **tonal surface layering** and **hairline outlines** (`1px solid` using `outline-variant` at subtle opacity) rather than heavy drop shadows. The sticky top header and bottom navigation bar use clean surface-lowest (`#FFFFFF`) backgrounds with subtle `1px` borders, while the prominent center **Study** button uses a soft primary-tinted elevation to anchor the navigation bar.
+Depth is communicated through **tonal surface layering** and **hairline outlines** (`1px solid` using `outline-variant` at subtle opacity) rather than heavy drop shadows. The sticky top header and bottom navigation bar use clean surface-lowest (`#fffefa`) backgrounds with subtle `1px` borders, while the prominent center **Study** button uses a soft primary-tinted elevation to anchor the navigation bar.
 
 ## Shapes
 

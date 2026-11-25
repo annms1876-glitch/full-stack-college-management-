@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 const read = (path) => readFile(new URL(path, import.meta.url), 'utf8');
-const [facultyAuth, adminAuth, facultyMain, adminApp, facultyVite, adminVite, facultyPackage, adminPackage, studentLogin] = await Promise.all([
+const [facultyAuth, adminAuth, facultyMain, adminApp, facultyVite, adminVite, facultyPackage, adminPackage, studentLogin, studentApi, studentServer] = await Promise.all([
   read('../../campuspulse-frontend/faculty-dashboard/src/portal-auth.js'),
   read('../../campuspulse-admin-dashboard/src/portal-auth.js'),
   read('../../campuspulse-frontend/faculty-dashboard/src/main.js'),
@@ -13,6 +13,8 @@ const [facultyAuth, adminAuth, facultyMain, adminApp, facultyVite, adminVite, fa
   read('../../campuspulse-frontend/faculty-dashboard/package.json'),
   read('../../campuspulse-admin-dashboard/package.json'),
   read('../../campuspulse-frontend/public/login-app.js'),
+  read('../../campuspulse-frontend/public/api.js'),
+  read('../../campuspulse-frontend/server.js'),
 ]);
 
 for (const [label, source, role] of [['faculty', facultyAuth, 'faculty'], ['admin', adminAuth, 'admin']]) {
@@ -58,7 +60,12 @@ test('faculty and admin use distinct loopback ports and Vite 6', () => {
   assert.match(adminApp, /demo-access-banner/);
 });
 
-test('student login offers the separate local faculty/admin portals after role verification', () => {
-  assert.match(studentLogin, /role === "faculty" \? "3001" : "3002"/);
+test('student login offers configured faculty/admin portal URLs after role verification', () => {
+  assert.match(studentLogin, /role === "faculty" \? portalUrls\.faculty : portalUrls\.admin/);
+  assert.match(studentApi, /faculty: config\.facultyPortalUrl \|\| "http:\/\/127\.0\.0\.1:3001\/"/);
+  assert.match(studentApi, /admin: config\.adminPortalUrl \|\| "http:\/\/127\.0\.0\.1:3002\/"/);
+  assert.match(studentServer, /FACULTY_PORTAL_URL/);
+  assert.match(studentServer, /ADMIN_PORTAL_URL/);
+  assert.match(studentServer, /url\.protocol !== "http:" && url\.protocol !== "https:"/);
   assert.match(studentLogin, /sessions are not shared between apps/);
 });

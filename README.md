@@ -26,7 +26,7 @@ Postgres schema, Row Level Security (RLS), Auth bootstrap, Storage policies, and
 
 ### Database and RLS migrations
 
-The six migrations below have been applied successfully to the supplied Supabase project and are recorded in its migration history. Its tables are currently empty; no demo Auth users were created there. For a fresh local database, `supabase db reset` applies the migrations from source. `CREATE TABLE IF NOT EXISTS` does not reconcile an existing database with schema drift, so inspect migration history before applying changes manually.
+The seven migrations below have been applied successfully to the supplied Supabase project and are recorded in its migration history. Its tables are currently empty; no demo Auth users were created there. For a fresh local database, `supabase db reset` applies the migrations from source. `CREATE TABLE IF NOT EXISTS` does not reconcile an existing database with schema drift, so inspect migration history before applying changes manually.
 
 | Order | File | Classification |
 |---|---|---|
@@ -36,16 +36,17 @@ The six migrations below have been applied successfully to the supplied Supabase
 | 4 | `supabase/migrations/202611260004_storage_buckets_and_policies.sql` | Avatar, private post media, private assignment buckets and object policies. |
 | 5 | `supabase/migrations/202611260005_edge_rate_limit_rpc.sql` | Fixed-window rate-limiter support. |
 | 6 | `supabase/migrations/202611260006_edge_security_hardening.sql` | Locks down rate-limit RPC and submission update privileges. |
+| 7 | `supabase/migrations/202611260007_invite_user_rate_limit.sql` | Adds the fixed 5/minute invitation limit while preserving the service-role-only RPC. |
 
-RLS—not UI visibility—is the authorization boundary. Role and college assignment are not ordinary client-editable profile fields. The current SQL does **not** permit student self-enrollment; this gap is documented rather than bypassed.
+RLS—not UI visibility—is the authorization boundary. Role and college assignment are not ordinary client-editable profile fields. The current SQL does **not** permit students to self-enroll in courses; this gap is documented rather than bypassed.
 
 ### Authentication and runtime config
 
-The student app's Node server reads `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` from its process environment and exposes only those public values through `GET /api/config`. The faculty/admin Vite runtime plugin provides the same endpoint from its server process environment during local Vite dev/preview. The key is designed for browser use; it is not an authorization mechanism. Never expose a Supabase service-role key or AI-provider key to any browser app. For a static production host, provide a secure runtime `/api/config` endpoint instead of embedding the key at build time.
+The student app's Node server reads `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` from its process environment and exposes only those public values plus the configured faculty/admin portal URLs through `GET /api/config`. Set `FACULTY_PORTAL_URL` and `ADMIN_PORTAL_URL` to public HTTPS origins when deploying; localhost ports 3001/3002 are the local defaults. The faculty/admin Vite runtime plugin provides the same Supabase values from its server process environment during local Vite dev/preview. The key is designed for browser use; it is not an authorization mechanism. Never expose a Supabase service-role key or AI-provider key to any browser app. For a static production host, provide a secure runtime `/api/config` endpoint instead of embedding the key at build time.
 
 New profiles default to `student`, independent of submitted signup role metadata. College-linked signup requires a valid college row and matching email domain. Configure and verify email confirmation behavior in Supabase Auth.
 
-The supplied project URL and publishable key are supplied at runtime only; no key is committed. Role checks read the signed-in user's own row from `public.profiles`; role is not accepted from signup metadata or client input. The published demo credentials below remain local-only; live sign-in requires privately provisioned Auth users with trusted profile roles.
+The supplied project URL and publishable key are supplied at runtime only; no key is committed. Role checks read the signed-in user's own row from `public.profiles`; role is not accepted from signup metadata or client input. Students may self-register, while faculty/admin Auth users are invited by a trusted administrator and receive a database-assigned role. The published demo credentials below remain local-only.
 
 ### Storage
 
@@ -57,11 +58,15 @@ Declared MIME type does not prove the file bytes are safe. Byte-level validation
 
 ### Edge Functions and AI
 
-`supabase/functions/ai-assistant/` verifies the caller, builds limited context from the database, rate-limits, and calls a configurable OpenAI-compatible provider. `supabase/functions/grant-role/` provides an admin-verified role/college change path with audit handling. These functions have not been deployed. Provider/service-role secrets must be configured only in Supabase Edge Function secrets. Set a strict `AI_ALLOWED_HOSTS` and exact production `APP_ORIGIN`. Render AI output as text, never raw HTML. See [Edge Function setup](docs/backend/edge-functions.md).
+`supabase/functions/invite-user/` exposes an admin-verified invitation flow for faculty/admin accounts, checks the selected college email domain, sets the trusted profile role server-side, rate-limits requests, and records the role change. It is deployed to the connected Supabase project with JWT verification enabled; an unauthenticated request was confirmed to receive HTTP 401. No invitation email was sent. Redeploy it with `supabase functions deploy invite-user`; invitation emails require working Supabase Auth SMTP/email delivery and a correct Auth Site URL/redirect allowlist. `supabase/functions/ai-assistant/` verifies the caller, builds limited context, rate-limits, and calls a configurable OpenAI-compatible provider. `supabase/functions/grant-role/` provides an admin-verified role/college change path with audit handling. The AI and role-grant functions are not deployed by this feature. Provider/service-role secrets must be configured only in Supabase Edge Function secrets. Set a strict `AI_ALLOWED_HOSTS` and exact production `APP_ORIGIN`. Render AI output as text, never raw HTML. See [Edge Function setup](docs/backend/edge-functions.md).
 
-## Anonymous browser demo (no account)
+## Account creation and demo access
 
-Each portal login page includes a **Continue as anonymous demo** button. The student button opens the static sample feed; the faculty and admin buttons open their sample dashboards. These demos are for interface testing only: they do not create a Supabase Auth session, grant a real role, read or write live records, or run backend actions. Demo state is kept in tab-scoped `sessionStorage` and is removed by Sign out. The ordinary email/password flow and trusted `public.profiles.role` checks are unchanged.
+Students can create an account from the Student Portal sign-in page using **Create account**. Public registration creates only the default `student` role; the form does not accept a role value. Faculty and admin accounts are invitation-only: sign in as a trusted administrator, open **Faculty Management → Invite User**, choose Faculty or Administrator, and send an invitation. The recipient sets their own password from the Supabase Auth email. The Edge Function verifies the administrator role from `public.profiles`, not user metadata. Optional college assignment requires an email domain matching the selected college. Do not add a public faculty/admin role picker.
+
+The student anonymous demo has been removed and student portal routes use the normal Supabase auth client. The faculty/admin portals retain separate local anonymous sample modes for interface exploration only; these do not create Supabase sessions or access live records. Ordinary password sign-in and trusted profile-role checks remain required for live portal access.
+
+To avoid running the Tailwind JIT compiler in every student page, the student screens use a shared generated stylesheet. After changing student screen classes, run `npm install` at the repository root and `npm run build:student-css`; the generated `campuspulse-frontend/public/campuspulse-tailwind.css` is committed for static-server use.
 
 ## Run locally and test demo logins
 
@@ -96,7 +101,7 @@ SUPABASE_URL="http://127.0.0.1:54321" SUPABASE_PUBLISHABLE_KEY="<local publishab
 SUPABASE_URL="http://127.0.0.1:54321" SUPABASE_PUBLISHABLE_KEY="<local publishable/anon key>" npm run dev
 ```
 
-Faculty runs at `http://127.0.0.1:3001/`; admin runs at `http://127.0.0.1:3002/`. Sign in separately on each portal; browser sessions are not shared across app origins. Each portal verifies the role from `public.profiles` before rendering. Their academic/admin dashboard content is still mock data and does not write to Supabase.
+Faculty runs at `http://127.0.0.1:3001/`; admin runs at `http://127.0.0.1:3002/`. Sign in separately on each portal; browser sessions are not shared across app origins. Each portal verifies the role from `public.profiles` before rendering. For deployment, set `FACULTY_PORTAL_URL` and `ADMIN_PORTAL_URL` on the student server to the public HTTPS portal origins; these URLs are returned in `/api/config` and replace the local defaults. Their academic/admin dashboard content is still mock data and does not write to Supabase.
 
 Local demo credentials (canonical source: `scripts/demo-accounts.json`):
 
@@ -106,7 +111,7 @@ Local demo credentials (canonical source: `scripts/demo-accounts.json`):
 | Faculty | `faculty.demo@campuspulse.test` | `CampusPulse.Faculty!2026` |
 | Admin | `admin.demo@campuspulse.test` | `CampusPulse.Admin!2026` |
 
-These credentials are for local testing only and must never be used for real accounts. The live project has no demo users; create real users and assign trusted roles through a secure administrator workflow before expecting live portal sign-in. No self-service role picker is provided. For setup details, see [`scripts/README.md`](scripts/README.md) and the app READMEs. Never commit `.env` files or keys; use host runtime/secret configuration and HTTPS when deploying.
+These credentials are for local testing only and must never be used for real accounts. The live project has no demo users. Use the public student signup or the trusted admin invitation workflow above for real accounts. For setup details, see [`scripts/README.md`](scripts/README.md) and the app READMEs. Never commit `.env` files or keys; use host runtime/secret configuration and HTTPS when deploying.
 
 ## Local Supabase validation
 
@@ -118,20 +123,20 @@ supabase db reset
 supabase test db
 ```
 
-The pgTAP suite is `supabase/tests/database/security.test.sql`. The connected project's migrations, public tables, and RLS enablement were verified through the authorized Supabase connection. A local Supabase CLI, `psql`, and Deno were unavailable for this implementation, so pgTAP execution, local seeded sign-in, and Edge Function runtime/type checks were not run. The pgTAP tests check structural policy/grant invariants but do not yet cover the full behavioral matrix for student A/B, faculty, and admin on every table and Storage policy. Review [testing instructions](docs/backend/testing.md) before relying on these checks.
+The pgTAP suite is `supabase/tests/database/security.test.sql`. The connected project's seven migrations, public tables, and RLS enablement were verified through the authorized Supabase connection. The deployed invite-user endpoint was smoke-tested only for no-auth rejection; end-to-end admin invitation, Auth email delivery, redirect behavior, and authenticated role assignment were not exercised. A local Supabase CLI, `psql`, and Deno were unavailable, so pgTAP execution, local seeded sign-in, and local Edge Function runtime/type checks were not run. The pgTAP tests check structural policy/grant invariants but do not yet cover the full behavioral matrix for student A/B, faculty, and admin on every table and Storage policy. Review [testing instructions](docs/backend/testing.md) before relying on these checks.
 
 ## Verification status
 
-Verified for this change: `npm test` (**24 tests passed**), heuristic `npm run scan:secrets`, JavaScript syntax checks, `git diff --check`, successful faculty/admin production builds, zero `npm audit` findings in both portals, and HTTP smoke checks for each Vite app, route manifest, and runtime config endpoint. The six database migrations and RLS enablement were verified on the connected project; no public demo users were created.
+Verified for this change: `npm test` (**36 tests passed**), heuristic `npm run scan:secrets`, JavaScript syntax checks, `git diff --check`, successful faculty/admin production builds, student-server HTTP smoke tests (canonical login, dark-login alias, feed runtime, and compiled CSS), and a deployed-function unauthenticated rejection check. The seven database migrations and RLS enablement were verified on the connected project; no public demo users or invitations were created.
 
-Not verified: end-to-end password sign-in with the local demo seed (local Supabase CLI unavailable); pgTAP execution; real Storage policy/upload behavior; Deno Edge Function runtime/typecheck; production CORS, secrets, and concurrent rate limiting. Static review is not a deployment security certification.
+Not verified: end-to-end password sign-in with the local demo seed (local Supabase CLI unavailable); pgTAP execution; real Storage policy/upload behavior; authenticated invite flow and email delivery; production CORS/site URL configuration; concurrent rate limiting; local Deno typecheck. Static review and an unauthenticated rejection check are not a deployment security certification.
 
 ## Known integration gaps
 
 - **Faculty and admin apps:** password authentication and trusted profile-role gates are connected, but dashboard content and actions remain local mock data and are not database-backed. Faculty dashboard routes are separate from the student app's `/faculty` directory page.
 - **Student app:** some handlers/config are wired, but sample feed/event/club cards lack real database IDs, so persistence is intentionally limited rather than simulating success.
 - **Assignment upload:** the private-bucket/API contract exists, but the current study screen has no real assignment rows or upload control.
-- **Self-enrollment:** RLS currently denies student self-enrollment; a reviewed signup/enrollment workflow is still required.
+- **Course self-enrollment:** RLS currently denies student self-enrollment in courses; a reviewed course-enrollment workflow is still required. Student Auth signup is public and creates only student-role accounts.
 - **College directory:** seed `public.colleges` through a trusted administrative process before college-linked signup.
 - **File validation:** no server-side byte inspection or malware scanning exists.
 - **Signed URLs:** no dedicated signed-URL Edge Function exists yet.
@@ -148,7 +153,7 @@ Not verified: end-to-end password sign-in with the local demo seed (local Supaba
 ├── campuspulse-admin-dashboard/         # Admin Vite portal (role-gated auth + mock data)
 ├── supabase/
 │   ├── migrations/                     # Ordered schema, RLS, Auth, Storage, Edge SQL
-│   ├── functions/                      # AI assistant, role grants, shared utilities
+│   ├── functions/                      # AI assistant, role grants, portal invitations, shared utilities
 │   └── tests/database/                 # pgTAP structural/security checks
 ├── tests/                               # Node API and Edge source-contract tests
 ├── scripts/secret-scan.mjs              # Heuristic source scan

@@ -3,10 +3,11 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 const read = (path) => readFile(new URL(path, import.meta.url), 'utf8');
-const [server, api, login, loginApp, seed, studentApp] = await Promise.all([
+const [server, api, login, darkLogin, loginApp, seed, studentApp] = await Promise.all([
   read('../../campuspulse-frontend/server.js'),
   read('../../campuspulse-frontend/public/api.js'),
   read('../../campuspulse-frontend/public/screens/light/login.html'),
+  read('../../campuspulse-frontend/public/screens/dark/login.html'),
   read('../../campuspulse-frontend/public/login-app.js'),
   read('../../scripts/seed-demo-users.mjs'),
   read('../../campuspulse-frontend/public/app.js'),
@@ -50,14 +51,21 @@ test('demo credentials are served and seeded only behind loopback development gu
   assert.match(seed, /SUPABASE_SERVICE_ROLE_KEY/);
 });
 
-test('student anonymous demo is tab-local and bypasses every Supabase API call', () => {
-  assert.match(login, /id="student-anonymous-demo"/);
-  assert.match(loginApp, /sessionStorage\.setItem\("campuspulse:student-demo", "1"\)/);
-  assert.match(studentApp, /const \{api,supabase\}=isStudentDemo\?\{api:null,supabase:null\}:await import\("\/api\.js"\)/);
-  assert.match(studentApp, /if\(!isStudentDemo\)api\.onAuth/);
-  assert.match(studentApp, /if\(!isStudentDemo&&path\.endsWith\("\/faculty"\)\)/);
-  assert.match(studentApp, /if\(!isStudentDemo&&path\.endsWith\("\/clubs"\)\)/);
-  assert.match(studentApp, /if\(!isStudentDemo&&\["\/profile","\/study"\]/);
-  assert.match(studentApp, /ANONYMOUS DEMO · Sample content only/);
-  assert.match(studentApp, /sessionStorage\.removeItem\(STUDENT_DEMO_KEY\)/);
+test('student login has no anonymous option and the student app always initializes Supabase auth', () => {
+  assert.doesNotMatch(login, /student-anonymous-demo|Continue as anonymous demo/i);
+  assert.doesNotMatch(darkLogin, /anonymous demo|OTP Verification|btn-login-submit|btn-signup-submit/i);
+  assert.doesNotMatch(loginApp, /student-anonymous-demo|campuspulse:student-demo/);
+  assert.doesNotMatch(studentApp, /isStudentDemo|STUDENT_DEMO_KEY|campuspulse:student-demo|ANONYMOUS DEMO/);
+  assert.match(studentApp, /const \{api,supabase\}=await import\("\/api\.js"\)/);
+  assert.match(studentApp, /api\.onAuth\(/);
+  assert.match(studentApp, /if\(path\.endsWith\("\/faculty"\)\)/);
+  assert.match(studentApp, /if\(path\.endsWith\("\/clubs"\)\)/);
+  assert.match(studentApp, /if\(\["\/profile","\/study"\]/);
+});
+
+test('all student sign-in paths use the trusted profile-role flow without legacy bypasses', () => {
+  assert.match(darkLogin, /href="\/login"/);
+  assert.match(loginApp, /roleAfterAuth/);
+  assert.doesNotMatch(studentApp, /api\.signIn\(|api\.signUp\(|btn-login-submit|btn-signup-submit/);
+  assert.ok(server.includes('if (!/^\\/screens\\/(?:light|dark)\\/login\\.html$/.test(mappedPath))'));
 });

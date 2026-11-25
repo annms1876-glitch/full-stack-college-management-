@@ -8,6 +8,17 @@ const SUPABASE_RUNTIME_CONFIG = {
   supabaseUrl: process.env.SUPABASE_URL || "",
   publishableKey: process.env.SUPABASE_PUBLISHABLE_KEY || "",
 };
+function publicPortalUrl(value, fallback) {
+  try {
+    const url = new URL(value || fallback);
+    if (url.protocol !== "http:" && url.protocol !== "https:") return fallback;
+    return url.toString().endsWith("/") ? url.toString() : `${url.toString()}/`;
+  } catch { return fallback; }
+}
+const PORTAL_RUNTIME_CONFIG = {
+  facultyPortalUrl: publicPortalUrl(process.env.FACULTY_PORTAL_URL, "http://127.0.0.1:3001/"),
+  adminPortalUrl: publicPortalUrl(process.env.ADMIN_PORTAL_URL, "http://127.0.0.1:3002/"),
+};
 const DEMO_ACCOUNTS = require("../scripts/demo-accounts.json");
 let SUPABASE_HOST = "";
 try { SUPABASE_HOST = new URL(SUPABASE_RUNTIME_CONFIG.supabaseUrl).hostname; } catch {}
@@ -63,7 +74,7 @@ const server = http.createServer((req, res) => {
       res.writeHead(405, { Allow: "GET, HEAD", "Content-Type": "application/json; charset=utf-8" });
       return res.end(JSON.stringify({ error: "Method Not Allowed" }));
     }
-    const payload = JSON.stringify({ supabaseUrl: SUPABASE_RUNTIME_CONFIG.supabaseUrl, publishableKey: SUPABASE_RUNTIME_CONFIG.publishableKey }).replace(/</g, "\\u003c");
+    const payload = JSON.stringify({ ...SUPABASE_RUNTIME_CONFIG, ...PORTAL_RUNTIME_CONFIG }).replace(/</g, "\\u003c");
     res.writeHead(200, { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" });
     return res.end(req.method === "HEAD" ? undefined : payload);
   }
@@ -112,7 +123,10 @@ const server = http.createServer((req, res) => {
         const replacement = Object.entries(IMAGE_REPLACEMENTS).find(([key]) => url.includes(key));
         return replacement ? replacement[1] : url;
       });
-      body = Buffer.from(html.replace(/<\/body>/i, `<script type="module" src="/app.js"></script></body>`));
+      if (!/^\/screens\/(?:light|dark)\/login\.html$/.test(mappedPath)) {
+        html = html.replace(/<\/body>/i, `<script type="module" src="/app.js"></script></body>`);
+      }
+      body = Buffer.from(html);
     }
     const fingerprintedAsset = /-[a-f0-9]{12}\.(?:css|js|png|jpe?g|webp)$/i.test(path.basename(filePath));
     res.writeHead(200, {
