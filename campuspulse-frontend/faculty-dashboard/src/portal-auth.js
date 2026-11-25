@@ -1,0 +1,68 @@
+import { createClient } from '@supabase/supabase-js';
+
+function authView(message = '') {
+  const root = document.querySelector('#app');
+  root.innerHTML = `<main class="portal-auth"><section class="portal-auth-card"><a class="portal-auth-brand" href="/">CampusPulse <span>Faculty Portal</span></a><p class="portal-auth-kicker">Faculty workspace</p><h1>Sign in to continue</h1><p class="portal-auth-copy">Use your faculty account. Access is checked against your trusted CampusPulse profile.</p><form id="portal-login-form" class="portal-auth-form"><label>Email address<input name="email" type="email" autocomplete="username" required></label><label>Password<input name="password" type="password" autocomplete="current-password" required></label><button type="submit">Sign in</button></form><p id="portal-auth-message" class="portal-auth-message" role="status" aria-live="polite"></p><p class="portal-auth-help">For local testing, seed the local Supabase instance and use the faculty credentials listed in the repository README. This portal uses a separate sign-in session.</p></section></main>`;
+  if (message) setMessage(message, true);
+}
+
+function setMessage(text, isError = false) {
+  const message = document.querySelector('#portal-auth-message');
+  if (!message) return;
+  message.textContent = text;
+  message.dataset.error = String(isError);
+}
+
+async function verifyRole(client, user, expectedRole) {
+  const { data, error } = await client.from('profiles').select('id, full_name, role').eq('id', user.id).single();
+  if (error) throw new Error(`Could not verify your CampusPulse profile: ${error.message}. Confirm migrations are applied and the account is provisioned.`);
+  if (data?.role !== expectedRole) throw new Error(`This account has the ${data?.role || 'unassigned'} role. The faculty portal requires a faculty profile.`);
+  return data;
+}
+
+export async function startPortalAuth({ onAuthorized }) {
+  authView();
+  let client;
+  try {
+    const response = await fetch('/api/config', { cache: 'no-store' });
+    if (!response.ok) throw new Error('Runtime Supabase configuration endpoint is unavailable.');
+    const { supabaseUrl, publishableKey } = await response.json();
+    if (!supabaseUrl || !publishableKey) throw new Error('Set SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY in this portal process, then restart Vite.');
+    client = createClient(supabaseUrl, publishableKey);
+    const { data: { session }, error } = await client.auth.getSession();
+    if (error) throw error;
+    if (session?.user) {
+      const profile = await verifyRole(client, session.user, 'faculty');
+      onAuthorized({ user: session.user, profile, client });
+      return;
+    }
+  } catch (error) {
+    if (client) await client.auth.signOut().catch(() => {});
+    authView(error.message || 'Authentication setup failed.');
+    setMessage(error.message || 'Authentication setup failed.', true);
+  }
+  const form = document.querySelector('#portal-login-form');
+  if (!form || !client) return;
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!form.reportValidity()) return;
+    const button = form.querySelector('button[type="submit"]');
+    button.disabled = true;
+    button.textContent = 'Checking…';
+    setMessage('');
+    try {
+      const formData = new FormData(form);
+      const { data, error } = await client.auth.signInWithPassword({ email: String(formData.get('email')).trim().toLowerCase(), password: String(formData.get('password')) });
+      if (error) throw error;
+      if (!data.user) throw new Error('Supabase did not return an authenticated user.');
+      const profile = await verifyRole(client, data.user, 'faculty');
+      onAuthorized({ user: data.user, profile, client });
+    } catch (error) {
+      await client.auth.signOut().catch(() => {});
+      setMessage(error.message || 'Unable to sign in. Check the account and try again.', true);
+    } finally {
+      button.disabled = false;
+      button.textContent = 'Sign in';
+    }
+  });
+}

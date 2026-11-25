@@ -44,8 +44,8 @@ function showRoleConfirmation(role, name) {
   $("#role-success-title").textContent = `You're in, ${name}.`;
   const copy = {
     student: "Your student account is ready. Continue to your CampusPulse feed.",
-    faculty: "Your faculty role is verified. The faculty portal is still a separate mock-data app and does not yet share this Supabase login session.",
-    admin: "Your admin role is verified. The admin portal is still a separate mock-data app and does not yet share this Supabase login session.",
+    faculty: "Your faculty role is verified. Open the separate faculty portal and sign in there; sessions are not shared between apps.",
+    admin: "Your admin role is verified. Open the separate admin portal and sign in there; sessions are not shared between apps.",
   };
   $("#role-success-copy").textContent = copy[role];
   const continueLink = $("#role-continue");
@@ -54,6 +54,14 @@ function showRoleConfirmation(role, name) {
     continueLink.classList.remove("is-hidden");
   } else {
     continueLink.classList.add("is-hidden");
+  }
+  const portalLink = $("#role-portal-link");
+  if (role === "faculty" || role === "admin") {
+    portalLink.href = `http://127.0.0.1:${role === "faculty" ? "3001" : "3002"}/`;
+    portalLink.textContent = role === "faculty" ? "Open Faculty Portal ↗" : "Open Admin Portal ↗";
+    portalLink.classList.remove("is-hidden");
+  } else {
+    portalLink.classList.add("is-hidden");
   }
 }
 async function finishSignIn(user) {

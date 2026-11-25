@@ -1,6 +1,11 @@
 import './styles.css'
+import { startPortalAuth } from './portal-auth.js'
 
 const icon = (name) => `<span class="icon icon-${name}" aria-hidden="true"></span>`
+let portalAuth = null
+const safeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
+const displayName = () => portalAuth?.profile?.full_name || 'Faculty account'
+const initialsFor = (name) => name.split(/\s+/).filter(Boolean).map(part => part[0]).slice(0, 2).join('').toUpperCase() || 'F'
 
 const nav = [
   ['dashboard', 'Dashboard', '⌂'],
@@ -36,10 +41,10 @@ function shell(content) {
       <div class="nav-divider"></div>
       <a class="nav-item ai-link ${activeRoute === 'workflow' ? 'active' : ''}" href="/workflow"><span class="nav-icon">✦</span><span class="sidebar-label">AI Workflow</span><span class="ai-badge sidebar-label">AI</span></a>
       <div class="sidebar-spacer"></div>
-      <div class="sidebar-user"><div class="avatar small">AD</div><div class="sidebar-label user-copy"><strong>Dr. Ananya Deshmukh</strong><span>Computer Science</span></div><span class="sidebar-label">⋮</span></div>
+      <div class="sidebar-user"><div class="avatar small">${safeHtml(initialsFor(displayName()))}</div><div class="sidebar-label user-copy"><strong>${safeHtml(displayName())}</strong><span>${safeHtml(portalAuth?.user?.email || 'Faculty')}</span></div><button class="signout-button" data-action="logout" type="button">Sign out</button></div>
     </aside>
     <main class="main-area">
-      <header class="topbar"><div class="breadcrumbs"><span class="muted">CampusPulse</span><span>/</span><strong>${routeNames[activeRoute]}</strong></div><div class="top-actions"><button class="icon-button" data-action="notify" aria-label="Notifications">♧<span class="notification-dot"></span></button><button class="profile-chip" data-action="profile"><span class="avatar tiny">AD</span><span class="profile-chip-name">Dr. Deshmukh</span><span>⌄</span></button></div></header>
+      <header class="topbar"><div class="breadcrumbs"><span class="muted">CampusPulse</span><span>/</span><strong>${routeNames[activeRoute]}</strong></div><div class="top-actions"><button class="icon-button" data-action="notify" aria-label="Notifications">♧<span class="notification-dot"></span></button><button class="profile-chip" data-action="profile"><span class="avatar tiny">${safeHtml(initialsFor(displayName()))}</span><span class="profile-chip-name">${safeHtml(displayName())}</span><span>⌄</span></button></div></header>
       <div class="content-wrap"><p id="demo-note" class="muted" role="note">Local demo only — changes stay in this page and are not saved or sent.</p>${content}</div>
     </main>
     <div id="toast" class="toast" role="status"></div>
@@ -120,6 +125,7 @@ function toast(message) { const el = document.querySelector('#toast'); if (!el) 
 function bindEvents() {
   document.querySelectorAll('[data-action="collapse"]').forEach(el => el.onclick = () => { collapsed = !collapsed; render() })
   document.querySelectorAll('[data-action="profile"]').forEach(el => el.onclick = () => navigate('profile'))
+  document.querySelectorAll('[data-action="logout"]').forEach(el => el.onclick = async () => { try { const { error } = await portalAuth?.client.auth.signOut(); if (error) throw error; location.replace('/') } catch (error) { toast(error.message || 'Could not sign out.') } })
   document.querySelectorAll('[data-action="notify"]').forEach(el => el.onclick = () => toast('Notifications are sample content in this local demo; no live notification service is connected.'))
   document.querySelectorAll('[data-action="new"], [data-action="new-workflow"]').forEach(el => el.onclick = () => toast('Local demo only: no workflow was created or queued. Your page data remains unchanged.'))
   document.querySelectorAll('[data-action="save-attendance"]').forEach(el => el.onclick = () => toast('Local demo only: attendance was not saved or sent.'))
@@ -141,4 +147,4 @@ function bindEvents() {
 function navigate(route) { history.pushState({}, '', route === 'dashboard' ? '/' : '/' + route); activeRoute = route; render() }
 document.addEventListener('click', e => { const a = e.target.closest('a[href]'); if (a && a.origin === location.origin && !a.getAttribute('href').startsWith('#')) { e.preventDefault(); navigate(a.getAttribute('href').slice(1) || 'dashboard') } })
 window.addEventListener('popstate', () => { activeRoute = routeFromPath(); render() })
-render()
+startPortalAuth({ onAuthorized: (session) => { portalAuth = session; render() } })

@@ -1,6 +1,6 @@
 # CampusPulse — College Community & Management Platform
 
-CampusPulse is a student-focused college community product with separate student, faculty, and admin frontend experiences and a Supabase backend foundation. The repository is organized into **three frontend apps**, **Supabase backend assets**, and **tests/docs**. The visual apps and backend are not yet fully integrated: migrations and Edge Functions are source-only until reviewed and deployed, and several screens still use mock data.
+CampusPulse is a student-focused college community product with separate student, faculty, and admin frontend experiences and a Supabase backend foundation. The repository is organized into **three frontend apps**, **Supabase backend assets**, and **tests/docs**. Student auth and profile-role checks are connected to Supabase; faculty/admin sign-in now has a trusted-profile role gate, while their dashboard content remains clearly labeled mock data. Edge Functions are source-only until separately deployed.
 
 ## Project classification
 
@@ -12,11 +12,11 @@ The public folder also contains Supabase auth helpers (`auth.js`) and API client
 
 ### 2. Faculty app — `campuspulse-frontend/faculty-dashboard/`
 
-A separate responsive Vite faculty portal. It includes dashboard overview, courses, timetable, attendance, assignments, workflow assistant, and faculty profile routes. It is currently **frontend-only with local mock data**; its interactions are not connected to Supabase. The backend has faculty API support, but this portal still needs integration and role-based route protection.
+A separate responsive Vite faculty portal. It includes dashboard overview, courses, timetable, attendance, assignments, workflow assistant, and faculty profile routes. Sign-in uses Supabase password auth and verifies `public.profiles.role = 'faculty'`; the displayed academic records and interactions remain local mock data, not database-backed operations.
 
 ### 3. Admin app — `campuspulse-admin-dashboard/`
 
-A separate responsive Vite admin portal with dashboard, student/faculty management, timetable, assignments, scholarship/fees, grievances, support, e-library, examinations, notices, course information, workflow, and settings routes. It is currently **frontend-only with local mock data** and is not connected to Supabase.
+A separate responsive Vite admin portal with dashboard, student/faculty management, timetable, assignments, scholarship/fees, grievances, support, e-library, examinations, notices, course information, workflow, and settings routes. Sign-in uses Supabase password auth and verifies `public.profiles.role = 'admin'`; the displayed institutional records and interactions remain local mock data, not database-backed operations.
 
 ### 4. Supabase backend — `supabase/`
 
@@ -26,7 +26,7 @@ Postgres schema, Row Level Security (RLS), Auth bootstrap, Storage policies, and
 
 ### Database and RLS migrations
 
-Apply migrations in numeric/date order, only after testing on a disposable Supabase project. These scripts have not been applied to the supplied live project. `CREATE TABLE IF NOT EXISTS` does not reconcile an existing database with schema drift.
+The six migrations below have been applied successfully to the supplied Supabase project and are recorded in its migration history. Its tables are currently empty; no demo Auth users were created there. For a fresh local database, `supabase db reset` applies the migrations from source. `CREATE TABLE IF NOT EXISTS` does not reconcile an existing database with schema drift, so inspect migration history before applying changes manually.
 
 | Order | File | Classification |
 |---|---|---|
@@ -41,11 +41,11 @@ RLS—not UI visibility—is the authorization boundary. Role and college assign
 
 ### Authentication and runtime config
 
-The student app's Node server reads `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` from its process environment and exposes only those public values through `GET /api/config`. The publishable key is designed for browser use; it is not an authorization mechanism. Never expose a Supabase service-role key or AI-provider key to any browser app.
+The student app's Node server reads `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` from its process environment and exposes only those public values through `GET /api/config`. The faculty/admin Vite runtime plugin provides the same endpoint from its server process environment during local Vite dev/preview. The key is designed for browser use; it is not an authorization mechanism. Never expose a Supabase service-role key or AI-provider key to any browser app. For a static production host, provide a secure runtime `/api/config` endpoint instead of embedding the key at build time.
 
 New profiles default to `student`, independent of submitted signup role metadata. College-linked signup requires a valid college row and matching email domain. Configure and verify email confirmation behavior in Supabase Auth.
 
-The preview receives the supplied project URL and publishable key through runtime environment only; no key was committed. A read-only check reached Supabase Auth (HTTP 200), but the `profiles` REST endpoint returned `PGRST205` (table not found). The migrations remain unapplied, so profile-based role lookup and complete sign-in are not yet operational. No live database writes were performed.
+The supplied project URL and publishable key are supplied at runtime only; no key is committed. Role checks read the signed-in user's own row from `public.profiles`; role is not accepted from signup metadata or client input. The published demo credentials below remain local-only; live sign-in requires privately provisioned Auth users with trusted profile roles.
 
 ### Storage
 
@@ -59,57 +59,50 @@ Declared MIME type does not prove the file bytes are safe. Byte-level validation
 
 `supabase/functions/ai-assistant/` verifies the caller, builds limited context from the database, rate-limits, and calls a configurable OpenAI-compatible provider. `supabase/functions/grant-role/` provides an admin-verified role/college change path with audit handling. These functions have not been deployed. Provider/service-role secrets must be configured only in Supabase Edge Function secrets. Set a strict `AI_ALLOWED_HOSTS` and exact production `APP_ORIGIN`. Render AI output as text, never raw HTML. See [Edge Function setup](docs/backend/edge-functions.md).
 
-## Run locally
+## Run locally and test demo logins
 
-Requirements: Node.js 18+ and npm. The root test scripts use Node's built-in test runner and need no dependencies.
+Requirements: Node.js 18+ and npm. The root tests use Node's built-in test runner. To exercise the demo accounts, use a local Supabase instance only; they are not provisioned in the supplied live project.
 
-```bash
-# From repository root: run backend source/contract checks
-npm test
-npm run scan:secrets
-
-# Start student static frontend (from repository root)
-cd campuspulse-frontend
-SUPABASE_URL="https://YOUR_PROJECT.supabase.co" \
-SUPABASE_PUBLISHABLE_KEY="YOUR_PUBLISHABLE_KEY" \
-node server.js
-```
-
-Student landing page opens at `http://localhost:3000/`; sign-in is at `/login` and the student feed at `/feed`. For the separate Vite apps, install and run them independently:
-
-```bash
-cd campuspulse-frontend/faculty-dashboard
-npm install && npm run dev
-
-# In a separate terminal, from repository root:
-cd campuspulse-admin-dashboard
-npm install && npm run dev
-```
-
-Each app's README lists its routes and build commands. Do not commit `.env` files or keys. In deployed environments, use the host's environment/secret configuration and HTTPS.
-
-## Local demo logins
-
-Demo accounts are deliberately limited to a local Supabase instance. They are **not provisioned in the supplied live Supabase project**. Start local Supabase, apply the migrations, then supply the local API URL and local service-role key from `supabase status -o env` to the seed script. The script refuses remote hosts and requires the explicit `CAMPUSPULSE_ALLOW_DEMO_SEED=true` opt-in:
+1. Start local Supabase and apply the repository migrations. Then seed the local demo users. The seeder refuses non-loopback hosts and requires explicit opt-in. Load the local CLI values into the current shell without printing them; the service-role key is used only by this one local command and must never enter a browser app, committed `.env`, or Git history.
 
 ```bash
 supabase start
 supabase db reset
-SUPABASE_URL="http://127.0.0.1:54321" \
-SUPABASE_SERVICE_ROLE_KEY="<local service-role key from supabase status -o env>" \
-CAMPUSPULSE_ALLOW_DEMO_SEED=true \
-node scripts/seed-demo-users.mjs
+eval "$(supabase status -o env | sed -n '/^SUPABASE_URL=/p; /^SUPABASE_SERVICE_ROLE_KEY=/p')"
+CAMPUSPULSE_ALLOW_DEMO_SEED=true node scripts/seed-demo-users.mjs
 ```
 
-The sample test credentials are in `scripts/demo-accounts.json` and use the reserved `.test` domain:
+2. Start the student app with local runtime settings. `CAMPUSPULSE_DEMO_MODE=true` enables the local-only demo autofill endpoint and binds the student server to loopback.
 
-- Student: `student.demo@campuspulse.test` / `CampusPulse.Student!2026`
-- Faculty: `faculty.demo@campuspulse.test` / `CampusPulse.Faculty!2026`
-- Admin: `admin.demo@campuspulse.test` / `CampusPulse.Admin!2026`
+```bash
+cd campuspulse-frontend
+SUPABASE_URL="http://127.0.0.1:54321" SUPABASE_PUBLISHABLE_KEY="<local publishable/anon key>" CAMPUSPULSE_DEMO_MODE=true node server.js
+```
 
-To show them on the login page and enable the one-click autofill buttons, run the student server against local Supabase with `CAMPUSPULSE_DEMO_MODE=true`. The server only exposes demo credentials when `SUPABASE_URL` points to `localhost`, `127.0.0.1`, or `::1`; never deploy demo mode or use these credentials for real accounts. See [`scripts/README.md`](scripts/README.md) for the seeding details.
+The student app is at `http://127.0.0.1:3000/` (login `/login`, feed `/feed`). Run each Vite portal in a separate terminal; both must receive the same local project URL and **publishable/anon key only**:
 
-The login reads each account's role from `public.profiles`. Student sign-in proceeds to `/feed`. Faculty and admin sign-in is authenticated and role-checked, but those separate Vite portals remain mock-data apps and do not yet share this session. No self-service role picker is provided.
+```bash
+cd campuspulse-frontend/faculty-dashboard
+SUPABASE_URL="http://127.0.0.1:54321" SUPABASE_PUBLISHABLE_KEY="<local publishable/anon key>" npm install
+SUPABASE_URL="http://127.0.0.1:54321" SUPABASE_PUBLISHABLE_KEY="<local publishable/anon key>" npm run dev
+
+# Separate terminal, from repository root
+cd campuspulse-admin-dashboard
+SUPABASE_URL="http://127.0.0.1:54321" SUPABASE_PUBLISHABLE_KEY="<local publishable/anon key>" npm install
+SUPABASE_URL="http://127.0.0.1:54321" SUPABASE_PUBLISHABLE_KEY="<local publishable/anon key>" npm run dev
+```
+
+Faculty runs at `http://127.0.0.1:3001/`; admin runs at `http://127.0.0.1:3002/`. Sign in separately on each portal; browser sessions are not shared across app origins. Each portal verifies the role from `public.profiles` before rendering. Their academic/admin dashboard content is still mock data and does not write to Supabase.
+
+Local demo credentials (canonical source: `scripts/demo-accounts.json`):
+
+| Role | Email | Password |
+|---|---|---|
+| Student | `student.demo@campuspulse.test` | `CampusPulse.Student!2026` |
+| Faculty | `faculty.demo@campuspulse.test` | `CampusPulse.Faculty!2026` |
+| Admin | `admin.demo@campuspulse.test` | `CampusPulse.Admin!2026` |
+
+These credentials are for local testing only and must never be used for real accounts. The live project has no demo users; create real users and assign trusted roles through a secure administrator workflow before expecting live portal sign-in. No self-service role picker is provided. For setup details, see [`scripts/README.md`](scripts/README.md) and the app READMEs. Never commit `.env` files or keys; use host runtime/secret configuration and HTTPS when deploying.
 
 ## Local Supabase validation
 
@@ -121,17 +114,17 @@ supabase db reset
 supabase test db
 ```
 
-The pgTAP suite is `supabase/tests/database/security.test.sql`. The implementation environment had no Supabase CLI, `psql`, or Deno, so the database policy suite and Edge Function runtime/type checks were not run. The current pgTAP tests check structural policy/grant invariants but do not yet cover the full behavioral matrix for student A/B, faculty, and admin on every table and Storage policy. Review [testing instructions](docs/backend/testing.md) before relying on these checks.
+The pgTAP suite is `supabase/tests/database/security.test.sql`. The connected project's migrations, public tables, and RLS enablement were verified through the authorized Supabase connection. A local Supabase CLI, `psql`, and Deno were unavailable for this implementation, so pgTAP execution, local seeded sign-in, and Edge Function runtime/type checks were not run. The pgTAP tests check structural policy/grant invariants but do not yet cover the full behavioral matrix for student A/B, faculty, and admin on every table and Storage policy. Review [testing instructions](docs/backend/testing.md) before relying on these checks.
 
 ## Verification status
 
-Completed locally: `npm test` (**17 tests passed**), heuristic `npm run scan:secrets`, JavaScript syntax checks, `git diff --check`, and HTTP smoke checks for `/`, `/login`, `/feed`, the generated hero image, runtime config, and the loopback-only demo endpoint (including its remote-URL denial path). Static RLS, Storage, and Edge Function reviews found no confirmed high/critical source-level issues after documented remediations.
+Verified for this change: `npm test` (**24 tests passed**), heuristic `npm run scan:secrets`, JavaScript syntax checks, `git diff --check`, successful faculty/admin production builds, zero `npm audit` findings in both portals, and HTTP smoke checks for each Vite app, route manifest, and runtime config endpoint. The six database migrations and RLS enablement were verified on the connected project; no public demo users were created.
 
-Not verified: application of migrations to a live/local database; pgTAP execution; real Storage policy/upload behavior; Deno Edge Function runtime/typecheck; production CORS, secrets, and concurrent rate limiting. Static review is not a deployment security certification.
+Not verified: end-to-end password sign-in with the local demo seed (local Supabase CLI unavailable); pgTAP execution; real Storage policy/upload behavior; Deno Edge Function runtime/typecheck; production CORS, secrets, and concurrent rate limiting. Static review is not a deployment security certification.
 
 ## Known integration gaps
 
-- **Faculty and admin apps:** both portals exist, but they use local mock data and are not wired to Supabase. Faculty dashboard route design exists separately from the student app's `/faculty` directory page.
+- **Faculty and admin apps:** password authentication and trusted profile-role gates are connected, but dashboard content and actions remain local mock data and are not database-backed. Faculty dashboard routes are separate from the student app's `/faculty` directory page.
 - **Student app:** some handlers/config are wired, but sample feed/event/club cards lack real database IDs, so persistence is intentionally limited rather than simulating success.
 - **Assignment upload:** the private-bucket/API contract exists, but the current study screen has no real assignment rows or upload control.
 - **Self-enrollment:** RLS currently denies student self-enrollment; a reviewed signup/enrollment workflow is still required.
@@ -146,9 +139,9 @@ Not verified: application of migrations to a live/local database; pgTAP executio
 ├── README.md
 ├── campuspulse-frontend/
 │   ├── public/                         # Student app screens, auth/API helpers
-│   ├── faculty-dashboard/              # Faculty Vite portal (mock data)
+│   ├── faculty-dashboard/              # Faculty Vite portal (role-gated auth + mock data)
 │   └── server.js                       # Student static server + runtime config
-├── campuspulse-admin-dashboard/         # Admin Vite portal (mock data)
+├── campuspulse-admin-dashboard/         # Admin Vite portal (role-gated auth + mock data)
 ├── supabase/
 │   ├── migrations/                     # Ordered schema, RLS, Auth, Storage, Edge SQL
 │   ├── functions/                      # AI assistant, role grants, shared utilities
