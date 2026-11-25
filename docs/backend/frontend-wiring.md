@@ -1,10 +1,10 @@
 # Frontend wiring status
 
-This document records the current static-screen frontend integration. The public landing page and login were redesigned, while the existing student feed and other screen layouts remain. No live Supabase project or deployment was used; API results and database policies have not been integration-tested.
+This document records the current static-screen frontend integration. The public landing page and login were redesigned, while the existing student feed and other screen layouts remain. The preview runtime now receives the supplied Supabase URL and publishable key through process environment only; no key was written to source or GitHub. A read-only check found Auth health responding with HTTP 200, but the `profiles` REST endpoint returned `PGRST205` (table not found). No migrations or database writes were performed, so role lookup and complete sign-in remain blocked until the schema is applied.
 
 ## Runtime config and client
 
-`campuspulse-frontend/server.js` exposes `GET /api/config`, returning only `supabaseUrl` and `publishableKey` from `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY`. It is `no-store`; the service-role key is neither read nor serialized. HTML now loads `/app.js` as an ES module. `public/api.js` imports Supabase JS v2 from esm.sh, obtains the config from that endpoint and creates an authenticated browser client with the publishable key. The existing TypeScript contract in `public/api.ts` remains the broader typed API reference; browser wiring is in `public/api.js`.
+`campuspulse-frontend/server.js` exposes `GET /api/config`, returning only `supabaseUrl` and `publishableKey` from `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY`. The publishable key is intended for browser use; it is not a secret or authorization boundary. RLS is the authorization boundary. The endpoint is `no-store`; the service-role key is neither read nor serialized. HTML now loads `/app.js` as an ES module. `public/api.js` imports Supabase JS v2 from esm.sh, obtains the config from that endpoint and creates an authenticated browser client with the publishable key. The existing TypeScript contract in `public/api.ts` remains the broader typed API reference; browser wiring is in `public/api.js`.
 
 ## Real API-backed behavior
 

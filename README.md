@@ -45,6 +45,8 @@ The student app's Node server reads `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY
 
 New profiles default to `student`, independent of submitted signup role metadata. College-linked signup requires a valid college row and matching email domain. Configure and verify email confirmation behavior in Supabase Auth.
 
+The preview receives the supplied project URL and publishable key through runtime environment only; no key was committed. A read-only check reached Supabase Auth (HTTP 200), but the `profiles` REST endpoint returned `PGRST205` (table not found). The migrations remain unapplied, so profile-based role lookup and complete sign-in are not yet operational. No live database writes were performed.
+
 ### Storage
 
 - `avatars`: public-read, declared PNG/JPEG only, owner-folder writes. Only intentionally public profile images belong here.
