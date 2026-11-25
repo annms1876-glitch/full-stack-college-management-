@@ -32,3 +32,13 @@ html.dark .campuspulse-theme-toggle-floating{background:#d8f078;color:#17241e;bo
 .campuspulse-theme-reveal{position:fixed;z-index:20000;width:24px;height:24px;left:0;top:0;border-radius:50%;pointer-events:none;transform:scale(0);transform-origin:center;animation:campuspulse-radial-reveal .68s cubic-bezier(.2,.72,.18,1) forwards}
 @keyframes campuspulse-radial-reveal{to{transform:scale(var(--reveal-scale))}}
 @media(prefers-reduced-motion:reduce){.campuspulse-theme-toggle-floating{transition:none}.campuspulse-theme-reveal{display:none}}
+
+/* Live coursework surfaces (Supabase-backed) */
+.form-status{margin:12px 0 0;padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:var(--surface-low);color:var(--ink);font-size:12px;line-height:18px}
+.assignment-block{border-bottom:1px solid var(--line);padding:15px 0}
+.assignment-block:last-child{border-bottom:0;padding-bottom:0}
+.assignment-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:10px;font-size:13px}
+.submission-list{display:flex;flex-direction:column;gap:8px}
+.submission-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:var(--surface-low);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:12px}
+.notice-form .form-row,.enrol-form{min-width:0}
+html.dark .form-status,html.dark .submission-row{background:#1d2a22;border-color:var(--line)}

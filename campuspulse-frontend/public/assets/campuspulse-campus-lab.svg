@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-label="Campus computer lab with desks and monitors">
+  <rect width="640" height="420" fill="#f7f6f1"/>
+  <rect y="300" width="640" height="120" fill="#e8eddf"/>
+  <g fill="#345f47">
+    <rect x="60" y="196" width="130" height="88" rx="8"/><rect x="255" y="196" width="130" height="88" rx="8"/><rect x="450" y="196" width="130" height="88" rx="8"/>
+  </g>
+  <g fill="#d8f078"><rect x="74" y="210" width="102" height="60" rx="4"/><rect x="269" y="210" width="102" height="60" rx="4"/><rect x="464" y="210" width="102" height="60" rx="4"/></g>
+  <rect x="48" y="290" width="544" height="14" rx="7" fill="#5b4433"/>
+  <g fill="#2a4c39"><rect x="96" y="304" width="12" height="52"/><rect x="300" y="304" width="12" height="52"/><rect x="504" y="304" width="12" height="52"/></g>
+  <circle cx="320" cy="96" r="44" fill="#d8f078" opacity=".85"/>
+  <path d="M320 60v30l20 14" stroke="#17241e" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <rect x="214" y="128" width="212" height="26" rx="13" fill="#c9d4c0"/>
+</svg>
