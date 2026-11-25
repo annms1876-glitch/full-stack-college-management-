@@ -27,6 +27,8 @@ for (const [label, source, role] of [['faculty', facultyAuth, 'faculty'], ['admi
     if (role === 'faculty') assert.match(source, /verifyRole\(client, data\.user, 'faculty'\)/);
     assert.match(source, /onAuthorized\(/);
     assert.match(source, /auth\.signOut\(/);
+    assert.match(source, /import\.meta\.env\.DEV/);
+    assert.match(source, /LOCAL_DEV_BYPASS/);
     assert.doesNotMatch(source, /user_metadata.*role|role.*user_metadata/);
   });
 

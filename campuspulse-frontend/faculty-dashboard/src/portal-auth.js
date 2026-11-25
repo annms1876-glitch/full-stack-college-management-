@@ -1,5 +1,6 @@
 const DEMO_KEY = 'campuspulse:faculty-demo';
 const AUTH_TIMEOUT_MS = 8000;
+const LOCAL_DEV_BYPASS = import.meta.env.DEV;
 
 function withTimeout(promise, message) {
   let timer;
@@ -35,6 +36,10 @@ export async function startPortalAuth({ onAuthorized }) {
   };
   document.querySelector('#portal-anonymous-demo')?.addEventListener('click', enterDemo);
   if (sessionStorage.getItem(DEMO_KEY) === '1') {
+    enterDemo();
+    return;
+  }
+  if (LOCAL_DEV_BYPASS) {
     enterDemo();
     return;
   }

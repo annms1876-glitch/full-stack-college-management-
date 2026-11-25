@@ -90,7 +90,7 @@ cd campuspulse-frontend
 SUPABASE_URL="http://127.0.0.1:54321" SUPABASE_PUBLISHABLE_KEY="<local publishable/anon key>" CAMPUSPULSE_DEMO_MODE=true node server.js
 ```
 
-Use one local origin: Student at `http://127.0.0.1:3000/` (login `/login`, feed `/feed`), Faculty at `/faculty/`, and Admin at `/admin/`. All same-origin routes use the same browser session storage. Faculty/Admin still check `public.profiles.role` before granting access. For focused UI development, the separate Vite dev servers remain available at ports 3001/3002, but they are not the consolidated end-to-end path. Dashboard content remains mock data and does not write to Supabase.
+Use one local origin: Student at `http://127.0.0.1:3000/` (login `/login`, feed `/feed`), Faculty at `/faculty/`, and Admin at `/admin/`. All same-origin routes use the same browser session storage. Faculty/Admin still check `public.profiles.role` before granting access in the consolidated build. For focused UI development, the separate Vite dev servers remain available at ports 3001/3002; because Vite sets `import.meta.env.DEV`, those two local servers automatically open the clearly labeled anonymous sample portals without contacting Supabase. This bypass is compiled out of production builds; the deployed `/faculty/` and `/admin/` routes continue to require Supabase password authentication and trusted profile-role verification. Dashboard content remains mock data and does not write to Supabase.
 
 Local demo credentials (canonical source: `scripts/demo-accounts.json`):
 

@@ -1,5 +1,6 @@
 const DEMO_KEY = 'campuspulse:admin-demo';
 const AUTH_TIMEOUT_MS = 8000;
+const LOCAL_DEV_BYPASS = import.meta.env.DEV;
 function withTimeout(promise, message) {
   let timer;
   const timeout = new Promise((_, reject) => { timer = setTimeout(() => reject(new Error(message)), AUTH_TIMEOUT_MS); });
@@ -34,6 +35,10 @@ export async function startPortalAuth({ onAuthorized }) {
   };
   document.querySelector('#portal-anonymous-demo')?.addEventListener('click', enterDemo);
   if (sessionStorage.getItem(DEMO_KEY) === '1') {
+    enterDemo();
+    return;
+  }
+  if (LOCAL_DEV_BYPASS) {
     enterDemo();
     return;
   }
