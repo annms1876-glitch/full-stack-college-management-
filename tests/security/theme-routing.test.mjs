@@ -3,11 +3,14 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 const read = (path) => readFile(new URL(path, import.meta.url), 'utf8');
-const [home, studentTheme, studentBuilder, studentServer, facultyTheme, facultyMain, facultyCss, adminTheme, adminApp, adminCss] = await Promise.all([
+const [home, studentTheme, studentBuilder, studentServer, studentApp, routeManifest, rootConfig, facultyTheme, facultyMain, facultyCss, adminTheme, adminApp, adminCss] = await Promise.all([
   read('../../campuspulse-frontend/public/home.html'),
   read('../../campuspulse-frontend/public/theme-toggle.js'),
   read('../../campuspulse-frontend/scripts/build-vercel.mjs'),
   read('../../campuspulse-frontend/server.js'),
+  read('../../campuspulse-frontend/public/app.js'),
+  read('../../campuspulse-frontend/public/manus-routes.json'),
+  read('../../vercel.json'),
   read('../../campuspulse-frontend/faculty-dashboard/src/theme.js'),
   read('../../campuspulse-frontend/faculty-dashboard/src/main.js'),
   read('../../campuspulse-frontend/faculty-dashboard/src/styles.css'),
@@ -16,12 +19,21 @@ const [home, studentTheme, studentBuilder, studentServer, facultyTheme, facultyM
   read('../../campuspulse-admin-dashboard/src/styles.css'),
 ]);
 
-test('homepage retains student login and sends faculty/admin to separate sign-in portals', () => {
+test('homepage portal cards point to same-origin sign-in paths', () => {
   assert.match(home, /href="\/login" aria-label="Log in as a student"/);
-  assert.match(home, /data-portal-link="faculty" href="https:\/\/campuspulse-faculty\.vercel\.app\//);
-  assert.match(home, /data-portal-link="admin" href="https:\/\/campuspulse-admin\.vercel\.app\//);
-  assert.match(home, /facultyPortalUrl/);
-  assert.match(home, /adminPortalUrl/);
+  assert.match(home, /href="\/faculty\/" aria-label="Open the Faculty sign-in portal"/);
+  assert.match(home, /href="\/admin\/" aria-label="Open the Admin sign-in portal"/);
+  assert.doesNotMatch(home, /campuspulse-(?:faculty|admin)\.vercel\.app|facultyPortalUrl|adminPortalUrl/);
+});
+
+test('Student faculty directory remains available without colliding with the Faculty portal mount', () => {
+  assert.match(studentApp, /directory\/faculty/);
+  assert.match(studentServer, /"\/directory\/faculty": "\/screens\/light\/faculty\.html"/);
+  assert.match(studentTheme, /\['\/directory\/faculty', '\/dark\/directory\/faculty'\]/);
+  assert.match(rootConfig, /"source": "\/directory\/faculty"/);
+  assert.match(rootConfig, /"source": "\/faculty\/attendance"/);
+  assert.match(routeManifest, /"path": "\/directory\/faculty"/);
+  assert.doesNotMatch(rootConfig, /"source": "\/faculty", "destination": "\/screens\/light\/faculty\.html"/);
 });
 
 test('student theme runtime is included in production and local HTML pages', () => {

@@ -22,7 +22,15 @@ const nav = [
   ['courses', 'Notices & Announcements', '♢'],
 ]
 const routeNames = { dashboard: 'Dashboard', attendance: 'Attendance Management', assignments: 'Assignment Management', timetable: 'Timetable & Hybrid', courses: 'Courses, Performance & Notices', workflow: 'AI Workflow', profile: 'Faculty Profile & CV' }
-const routeFromPath = () => (location.pathname.slice(1).split('/')[0] || 'dashboard')
+const basePath = import.meta.env.BASE_URL.replace(/\/+$/, '')
+const portalHref = (route) => {
+  const normalized = String(route ?? '').replace(/^\/+|\/+$/g, '')
+  return normalized ? `${basePath}/${normalized}` : `${basePath}/` || '/'
+}
+const routeFromPath = (pathname = location.pathname) => {
+  const appPath = basePath && (pathname === basePath || pathname.startsWith(`${basePath}/`)) ? pathname.slice(basePath.length) : pathname
+  return appPath.replace(/^\/+/, '').split('/')[0] || 'dashboard'
+}
 let activeRoute = routeNames[routeFromPath()] ? routeFromPath() : 'dashboard'
 let collapsed = false
 
@@ -39,10 +47,10 @@ function shell(content) {
       <div class="brand"><span class="brand-mark">C</span><span class="sidebar-label brand-name">CampusPulse</span><button class="icon-button collapse-button" data-action="collapse" aria-label="Toggle navigation">${collapsed ? '→' : '←'}</button></div>
       <button class="new-action" data-action="new" aria-describedby="demo-note"><span class="new-plus">+</span><span class="sidebar-label">New Action</span></button>
       <nav class="nav-list">
-        ${nav.map(([route,label,glyph]) => { const available = ['Dashboard','Attendance Management','Assignment Management','Timetable','Course Information'].includes(label); return available ? `<a class="nav-item ${activeRoute === route ? 'active' : ''}" href="/${route}" title="${label}"><span class="nav-icon">${glyph}</span><span class="sidebar-label">${label}</span></a>` : `<span class="nav-item" aria-disabled="true" title="${label} is not available in this local demo"><span class="nav-icon">${glyph}</span><span class="sidebar-label">${label} · coming soon</span></span>` }).join('')}
+        ${nav.map(([route,label,glyph]) => { const available = ['Dashboard','Attendance Management','Assignment Management','Timetable','Course Information'].includes(label); return available ? `<a class="nav-item ${activeRoute === route ? 'active' : ''}" href="${portalHref(route)}" title="${label}"><span class="nav-icon">${glyph}</span><span class="sidebar-label">${label}</span></a>` : `<span class="nav-item" aria-disabled="true" title="${label} is not available in this local demo"><span class="nav-icon">${glyph}</span><span class="sidebar-label">${label} · coming soon</span></span>` }).join('')}
       </nav>
       <div class="nav-divider"></div>
-      <a class="nav-item ai-link ${activeRoute === 'workflow' ? 'active' : ''}" href="/workflow"><span class="nav-icon">✦</span><span class="sidebar-label">AI Workflow</span><span class="ai-badge sidebar-label">AI</span></a>
+      <a class="nav-item ai-link ${activeRoute === 'workflow' ? 'active' : ''}" href="${portalHref('workflow')}"><span class="nav-icon">✦</span><span class="sidebar-label">AI Workflow</span><span class="ai-badge sidebar-label">AI</span></a>
       <div class="sidebar-spacer"></div>
       <div class="sidebar-user"><div class="avatar small">${safeHtml(initialsFor(displayName()))}</div><div class="sidebar-label user-copy"><strong>${safeHtml(displayName())}</strong><span>${safeHtml(portalAuth?.user?.email || 'Faculty')}</span></div><button class="signout-button" data-action="logout" type="button">Sign out</button></div>
     </aside>
@@ -63,8 +71,8 @@ function dashboard() {
   return pageHeader('Faculty workspace', 'Faculty Dashboard', 'Good morning, Dr. Deshmukh. Here is your academic workspace for today.', btn('View profile', 'secondary', 'profile')) + `
     <div class="metric-grid">${metrics.map(m => `<div class="metric-card"><div class="metric-top"><span class="metric-icon ${m.tone}">${m.icon}</span><span class="metric-delta ${m.tone}">${m.delta}</span></div><div class="metric-label">${m.label}</div><div class="metric-value">${m.value}</div></div>`).join('')}</div>
     <div class="dashboard-grid"><div class="span-8">${card("Today's schedule", `<div class="schedule-list">${[['09:30 AM','CS301','AVL Tree Rotations & Balancing','Room 304','in-progress'],['11:00 AM','CS405','Database Management Systems','Room 211','upcoming'],['02:00 PM','CS301','Tutorial: Graph Algorithms','Online · Google Meet','hybrid']].map(x => `<div class="schedule-row"><div class="schedule-time mono">${x[0]}</div><div class="schedule-dot ${x[4]}"></div><div class="schedule-info"><strong>${x[1]} <span class="muted">· ${x[2]}</span></strong><span>${x[3]}</span></div><div>${pill(x[4] === 'in-progress' ? 'Live now' : x[4] === 'hybrid' ? 'Hybrid' : 'Upcoming', x[4] === 'in-progress' ? 'success' : x[4] === 'hybrid' ? 'blue' : 'neutral')}</div></div>`).join('')}</div>`)}
-      ${card('Attendance overview', `<div class="attendance-overview"><div class="donut"><div><strong>84.6%</strong><span>overall</span></div></div><div class="attendance-bars">${[['CS301','91%','success'],['CS405','84%','blue'],['CS212','79%','warning']].map(x => `<div class="bar-item"><div><span>${x[0]}</span><strong>${x[1]}</strong></div><div class="bar"><i class="${x[2]}" style="width:${x[1]}"></i></div></div>`).join('')}</div></div>`)}</div><div class="span-4">${card('Announcements', `<div class="announcement-list"><div class="announcement"><span class="announcement-dot red"></span><div><strong>Internal assessment schedule</strong><p>Submit marks by 29 Nov 2026</p><span class="muted">Today, 10:32 AM</span></div></div><div class="announcement"><span class="announcement-dot blue"></span><div><strong>Faculty development workshop</strong><p>Registration closes this Friday</p><span class="muted">Yesterday</span></div></div><div class="announcement"><span class="announcement-dot green"></span><div><strong>Library hours extended</strong><p>During end-semester preparation</p><span class="muted">24 Nov 2026</span></div></div></div><a class="text-link" href="/courses">View all notices →</a>`)}</div></div>
-    <div class="section-heading"><h2>Academic overview & quick tools</h2><span class="muted">Common faculty actions</span></div><div class="quick-grid">${[['✓','Take attendance','Mark today’s attendance','/attendance'],['▤','Generate assignment','Create an AI-assisted brief','/assignments'],['◷','Plan hybrid lesson','Prepare your next class','/timetable'],['✦','Ask AI workflow','Get help with academic tasks','/workflow']].map(x => `<a class="quick-card" href="${x[3]}"><span class="quick-icon">${x[0]}</span><div><strong>${x[1]}</strong><span>${x[2]}</span></div><span class="arrow">→</span></a>`).join('')}</div>`
+      ${card('Attendance overview', `<div class="attendance-overview"><div class="donut"><div><strong>84.6%</strong><span>overall</span></div></div><div class="attendance-bars">${[['CS301','91%','success'],['CS405','84%','blue'],['CS212','79%','warning']].map(x => `<div class="bar-item"><div><span>${x[0]}</span><strong>${x[1]}</strong></div><div class="bar"><i class="${x[2]}" style="width:${x[1]}"></i></div></div>`).join('')}</div></div>`)}</div><div class="span-4">${card('Announcements', `<div class="announcement-list"><div class="announcement"><span class="announcement-dot red"></span><div><strong>Internal assessment schedule</strong><p>Submit marks by 29 Nov 2026</p><span class="muted">Today, 10:32 AM</span></div></div><div class="announcement"><span class="announcement-dot blue"></span><div><strong>Faculty development workshop</strong><p>Registration closes this Friday</p><span class="muted">Yesterday</span></div></div><div class="announcement"><span class="announcement-dot green"></span><div><strong>Library hours extended</strong><p>During end-semester preparation</p><span class="muted">24 Nov 2026</span></div></div></div><a class="text-link" href="${portalHref('courses')}">View all notices →</a>`)}</div></div>
+    <div class="section-heading"><h2>Academic overview & quick tools</h2><span class="muted">Common faculty actions</span></div><div class="quick-grid">${[['✓','Take attendance','Mark today’s attendance','/attendance'],['▤','Generate assignment','Create an AI-assisted brief','/assignments'],['◷','Plan hybrid lesson','Prepare your next class','/timetable'],['✦','Ask AI workflow','Get help with academic tasks','/workflow']].map(x => `<a class="quick-card" href="${portalHref(x[3])}"><span class="quick-icon">${x[0]}</span><div><strong>${x[1]}</strong><span>${x[2]}</span></div><span class="arrow">→</span></a>`).join('')}</div>`
 }
 
 function courses() {
@@ -104,7 +112,7 @@ function workflow() {
   const agents = [['Attendance analyst','Review attendance patterns','✓'],['Lesson planner','Structure your next class','◷'],['Assignment designer','Draft briefs and rubrics','▤'],['Student support','Prepare clear follow-ups','♧']]
   const suggestions = [['Review attendance','Find students who may need support','/attendance'],['Plan a lesson','Create a 55-minute teaching flow','/timetable'],['Draft an assignment','Turn an objective into coursework','/assignments'],['Summarize performance','Prepare a department-ready view','/courses']]
   const agentHtml = agents.map(x => '<button class="agent-item"><span class="agent-icon">'+x[2]+'</span><span><strong>'+x[0]+'</strong><small>'+x[1]+'</small></span><span>›</span></button>').join('')
-  const suggestionHtml = suggestions.map(x => '<a href="'+x[2]+'" class="suggestion-card"><strong>'+x[0]+'</strong><span>'+x[1]+'</span><span class="arrow">→</span></a>').join('')
+  const suggestionHtml = suggestions.map(x => '<a href="'+portalHref(x[2])+'" class="suggestion-card"><strong>'+x[0]+'</strong><span>'+x[1]+'</span><span class="arrow">→</span></a>').join('')
   const historyHtml = ['CS301 absence follow-up','AVL lesson plan','November performance summary'].map(x => '<button class="history-item">'+x+'<span>›</span></button>').join('')
   const body = '<div class="workflow-layout"><aside class="workflow-sidebar card"><div class="workflow-title"><span class="ai-orb small-orb">✦</span><strong>Specialized AI agents</strong></div>'+agentHtml+'<div class="history-label">Previous workflows</div>'+historyHtml+'</aside><section class="workflow-main card"><div class="conversation"><div class="assistant-message"><span class="ai-orb small-orb">✦</span><div><strong>CampusPulse AI</strong><p>Good morning, Dr. Deshmukh. What would you like to work on today?</p></div></div><div class="suggestion-grid">'+suggestionHtml+'</div></div><div class="composer"><textarea id="workflow-input" placeholder="Ask CampusPulse AI to help with a teaching task..."></textarea><div class="composer-bottom"><span class="muted">AI suggestions use your local academic workspace data.</span><button class="send-button" data-action="send-workflow">↑</button></div></div></section></div>'
   return pageHeader('AI workspace', 'AI Workflow Assistant', 'Connect a teaching task to a focused assistant, then keep the result in your academic workflow.', btn('New workflow', 'primary', 'new-workflow')) + body
@@ -147,7 +155,20 @@ function bindEvents() {
   document.querySelectorAll('.mode').forEach(el => el.onclick = () => { el.parentElement.querySelectorAll('.mode').forEach(b => b.classList.remove('active')); el.classList.add('active'); toast('Teaching mode changed on this page only; no lesson was saved.') })
   document.querySelectorAll('.table-tools select').forEach(select => select.onchange = () => { const value = select.value; document.querySelectorAll('.table-wrap tbody tr').forEach(row => { const status = row.lastElementChild.textContent; row.hidden = value === 'Top performers' ? !status.includes('Excellent') : value === 'Needs attention' ? !status.includes('Attention') : false }) })
 }
-function navigate(route) { history.pushState({}, '', route === 'dashboard' ? '/' : '/' + route); activeRoute = route; render() }
-document.addEventListener('click', e => { const a = e.target.closest('a[href]'); if (a && a.origin === location.origin && !a.getAttribute('href').startsWith('#')) { e.preventDefault(); navigate(a.getAttribute('href').slice(1) || 'dashboard') } })
+function navigate(route) {
+  const target = routeNames[route] ? route : routeFromPath(route)
+  history.pushState({}, '', target === 'dashboard' ? portalHref('') : portalHref(target))
+  activeRoute = routeNames[target] ? target : 'dashboard'
+  render()
+}
+document.addEventListener('click', e => {
+  const a = e.target.closest('a[href]')
+  if (!a || a.origin !== location.origin || a.getAttribute('href').startsWith('#')) return
+  const pathname = new URL(a.href).pathname
+  const isPortalPath = basePath ? pathname === basePath || pathname.startsWith(`${basePath}/`) : pathname !== '/'
+  if (!isPortalPath) return
+  e.preventDefault()
+  navigate(routeFromPath(pathname))
+})
 window.addEventListener('popstate', () => { activeRoute = routeFromPath(); render() })
 startPortalAuth({ onAuthorized: (session) => { portalAuth = session; render() } })

@@ -22,7 +22,9 @@ test('login uses password auth and looks up a trusted profile role', () => {
   assert.match(loginApp, /api\.signIn\(/);
   assert.match(loginApp, /api\.profile\(user\.id\)/);
   assert.match(loginApp, /roleAfterAuth/);
-  assert.match(loginApp, /location\.replace\("\/feed"\)/);
+  assert.match(loginApp, /student: "\/feed", faculty: "\/faculty\/", admin: "\/admin\/"/);
+  assert.match(loginApp, /location\.replace\(destinations\[role\]\)/);
+  assert.doesNotMatch(loginApp, /user_metadata\??\.role|user\.email.*(?:faculty|admin)/);
   assert.doesNotMatch(login, /OTP Verification|Verify OTP|Get OTP/);
 });
 

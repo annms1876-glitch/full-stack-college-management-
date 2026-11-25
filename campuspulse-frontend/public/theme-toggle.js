@@ -1,6 +1,6 @@
 const STORAGE_KEY = 'campuspulse-theme';
 const DARK_ROUTES = new Map([
-  ['/feed', '/dark/feed'], ['/login', '/dark/login'], ['/faculty', '/dark/faculty'],
+  ['/feed', '/dark/feed'], ['/login', '/dark/login'], ['/directory/faculty', '/dark/directory/faculty'],
   ['/profile', '/dark/profile'], ['/study', '/dark/study'], ['/clubs', '/dark/clubs'],
 ]);
 const DARK_MODE_ROUTES = new Map([...DARK_ROUTES].map(([light, dark]) => [dark, light]));

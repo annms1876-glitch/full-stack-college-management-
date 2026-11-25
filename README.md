@@ -1,6 +1,6 @@
 # CampusPulse — College Community & Management Platform
 
-CampusPulse is a student-focused college community product with separate student, faculty, and admin frontend experiences and a Supabase backend foundation. The repository is organized into **three frontend apps**, **Supabase backend assets**, and **tests/docs**. Student auth and profile-role checks are connected to Supabase; faculty/admin sign-in now has a trusted-profile role gate, while their dashboard content remains clearly labeled mock data. Edge Functions are source-only until separately deployed.
+CampusPulse is a student-focused college community product with Student, Faculty, and Admin experiences served under one domain, backed by Supabase. The repository contains three frontend apps, Supabase backend assets, and tests/docs. Student auth and profile-role checks are connected to Supabase; Faculty/Admin sign-in has a trusted-profile role gate, while dashboard content remains clearly labeled mock data. Edge Functions are source-only until separately deployed.
 
 ## Project classification
 
@@ -42,7 +42,7 @@ RLS—not UI visibility—is the authorization boundary. Role and college assign
 
 ### Authentication and runtime config
 
-The student app's Node server reads `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` from its process environment and exposes only those public values plus the configured faculty/admin portal URLs through `GET /api/config`. Set `FACULTY_PORTAL_URL` and `ADMIN_PORTAL_URL` to public HTTPS origins when deploying; localhost ports 3001/3002 are the local defaults. The faculty/admin Vite runtime plugin provides the same Supabase values from its server process environment during local Vite dev/preview. The key is designed for browser use; it is not an authorization mechanism. Never expose a Supabase service-role key or AI-provider key to any browser app. For a static production host, provide a secure runtime `/api/config` endpoint instead of embedding the key at build time.
+The consolidated app reads `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` from the Vercel function's runtime environment and exposes only those public values through same-origin `GET /api/config`. No Faculty/Admin origin variables are used. The key is designed for browser use; it is not an authorization mechanism. Never expose a Supabase service-role key or AI-provider key to any browser app. Local portal Vite servers also read these values from their own process environments when used for focused development.
 
 New profiles default to `student`, independent of submitted signup role metadata. College-linked signup requires a valid college row and matching email domain. Configure and verify email confirmation behavior in Supabase Auth.
 
@@ -64,7 +64,7 @@ Declared MIME type does not prove the file bytes are safe. Byte-level validation
 
 Students can create an account from the Student Portal sign-in page using **Create account**. Public registration creates only the default `student` role; the form does not accept a role value. Faculty and admin accounts are invitation-only: sign in as a trusted administrator, open **Faculty Management → Invite User**, choose Faculty or Administrator, and send an invitation. The recipient sets their own password from the Supabase Auth email. The Edge Function verifies the administrator role from `public.profiles`, not user metadata. Optional college assignment requires an email domain matching the selected college. Do not add a public faculty/admin role picker.
 
-The student anonymous demo has been removed and student portal routes use the normal Supabase auth client. The faculty/admin portals retain separate local anonymous sample modes for interface exploration only; these do not create Supabase sessions or access live records. Ordinary password sign-in and trusted profile-role checks remain required for live portal access.
+The student anonymous demo has been removed and student portal routes use the normal Supabase auth client. The Faculty/Admin portals retain local anonymous sample modes for interface exploration only; these do not create Supabase sessions or access live records. In the consolidated deployment, all portals share one origin and the same Supabase session storage, while each Faculty/Admin portal independently verifies the trusted profile role before rendering live access.
 
 To avoid running the Tailwind JIT compiler in every student page, the student screens use a shared generated stylesheet. After changing student screen classes, run `npm install` at the repository root and `npm run build:student-css`; the generated `campuspulse-frontend/public/campuspulse-tailwind.css` is committed for static-server use.
 
@@ -81,27 +81,16 @@ eval "$(supabase status -o env | sed -n '/^SUPABASE_URL=/p; /^SUPABASE_SERVICE_R
 CAMPUSPULSE_ALLOW_DEMO_SEED=true node scripts/seed-demo-users.mjs
 ```
 
-2. Start the student app with local runtime settings. `CAMPUSPULSE_DEMO_MODE=true` enables the local-only demo autofill endpoint and binds the student server to loopback.
+2. Build the combined same-origin output from the repository root, then start the Student static server with the local runtime settings. The build creates the Student app plus the Faculty and Admin SPAs under `campuspulse-frontend/dist/faculty` and `.../dist/admin`. `CAMPUSPULSE_DEMO_MODE=true` enables the local-only Student demo autofill endpoint and binds the server to loopback.
 
 ```bash
+npm ci
+npm run build:vercel
 cd campuspulse-frontend
 SUPABASE_URL="http://127.0.0.1:54321" SUPABASE_PUBLISHABLE_KEY="<local publishable/anon key>" CAMPUSPULSE_DEMO_MODE=true node server.js
 ```
 
-The student app is at `http://127.0.0.1:3000/` (login `/login`, feed `/feed`). Run each Vite portal in a separate terminal; both must receive the same local project URL and **publishable/anon key only**:
-
-```bash
-cd campuspulse-frontend/faculty-dashboard
-SUPABASE_URL="http://127.0.0.1:54321" SUPABASE_PUBLISHABLE_KEY="<local publishable/anon key>" npm install
-SUPABASE_URL="http://127.0.0.1:54321" SUPABASE_PUBLISHABLE_KEY="<local publishable/anon key>" npm run dev
-
-# Separate terminal, from repository root
-cd campuspulse-admin-dashboard
-SUPABASE_URL="http://127.0.0.1:54321" SUPABASE_PUBLISHABLE_KEY="<local publishable/anon key>" npm install
-SUPABASE_URL="http://127.0.0.1:54321" SUPABASE_PUBLISHABLE_KEY="<local publishable/anon key>" npm run dev
-```
-
-Faculty runs at `http://127.0.0.1:3001/`; admin runs at `http://127.0.0.1:3002/`. Sign in separately on each portal; browser sessions are not shared across app origins. Each portal verifies the role from `public.profiles` before rendering. For deployment, set `FACULTY_PORTAL_URL` and `ADMIN_PORTAL_URL` on the student server to the public HTTPS portal origins; these URLs are returned in `/api/config` and replace the local defaults. Their academic/admin dashboard content is still mock data and does not write to Supabase.
+Use one local origin: Student at `http://127.0.0.1:3000/` (login `/login`, feed `/feed`), Faculty at `/faculty/`, and Admin at `/admin/`. All same-origin routes use the same browser session storage. Faculty/Admin still check `public.profiles.role` before granting access. For focused UI development, the separate Vite dev servers remain available at ports 3001/3002, but they are not the consolidated end-to-end path. Dashboard content remains mock data and does not write to Supabase.
 
 Local demo credentials (canonical source: `scripts/demo-accounts.json`):
 
@@ -127,13 +116,13 @@ The pgTAP suite is `supabase/tests/database/security.test.sql`. The connected pr
 
 ## Verification status
 
-Verified for this change: `npm test` (**36 tests passed**), heuristic `npm run scan:secrets`, JavaScript syntax checks, `git diff --check`, successful faculty/admin production builds, student-server HTTP smoke tests (canonical login, dark-login alias, feed runtime, and compiled CSS), and a deployed-function unauthenticated rejection check. The seven database migrations and RLS enablement were verified on the connected project; no public demo users or invitations were created.
+Verified in the repository: `npm test` (**41 tests passed**), heuristic `npm run scan:secrets`, JavaScript syntax checks, `git diff --check`, combined Student/Faculty/Admin `npm run build:vercel`, and a same-origin local HTTP smoke test covering homepage, portal SPA routes, prefixed assets, runtime config, and 404 boundaries. The deployed invitation function's unauthenticated rejection was also checked. The seven database migrations and RLS enablement were verified on the connected project; no public demo users or invitations were created.
 
 Not verified: end-to-end password sign-in with the local demo seed (local Supabase CLI unavailable); pgTAP execution; real Storage policy/upload behavior; authenticated invite flow and email delivery; production CORS/site URL configuration; concurrent rate limiting; local Deno typecheck. Static review and an unauthenticated rejection check are not a deployment security certification.
 
 ## Known integration gaps
 
-- **Faculty and admin apps:** password authentication and trusted profile-role gates are connected, but dashboard content and actions remain local mock data and are not database-backed. Faculty dashboard routes are separate from the student app's `/faculty` directory page.
+- **Faculty and admin apps:** password authentication and trusted profile-role gates are connected, but dashboard content and actions remain local mock data and are not database-backed. Faculty is mounted at `/faculty/` under the consolidated domain.
 - **Student app:** some handlers/config are wired, but sample feed/event/club cards lack real database IDs, so persistence is intentionally limited rather than simulating success.
 - **Assignment upload:** the private-bucket/API contract exists, but the current study screen has no real assignment rows or upload control.
 - **Course self-enrollment:** RLS currently denies student self-enrollment in courses; a reviewed course-enrollment workflow is still required. Student Auth signup is public and creates only student-role accounts.
@@ -169,13 +158,13 @@ Some campus/student images use `/manus-storage/...` project-managed asset paths 
 
 ## Deploy to Vercel
 
-The repository can be deployed as three separate Vercel projects, all connected to the same GitHub repository. Set each Vercel project's **Root Directory** to the matching folder: `campuspulse-frontend` (Student), `campuspulse-frontend/faculty-dashboard` (Faculty), and `campuspulse-admin-dashboard` (Admin). The committed `vercel.json` files define each production build, function routing, and SPA/friendly-route behavior. Student runs its Tailwind-and-static build; the faculty/admin projects run `npm run build`.
+Deploy one Vercel project from the repository root (Root Directory left empty). The root `vercel.json` and `scripts/build-vercel.mjs` build all three apps into `campuspulse-frontend/dist`; the Student experience remains at `/`, Faculty is at `/faculty/`, and Admin is at `/admin/`. Explicit SPA rewrites cover app routes without a catch-all that could hide missing assets or APIs. Use the existing Student production domain as the canonical CampusPulse domain; homepage cards and role-based redirects stay on that origin.
 
-For **each** project, configure these runtime environment variables in Vercel for Production and Preview:
+On this single Vercel project, configure these runtime environment variables for Production and Preview:
 
 - `SUPABASE_URL` — the Supabase project URL.
 - `SUPABASE_PUBLISHABLE_KEY` — the Supabase publishable key only. It is designed to be available to browser clients; never configure a service-role or AI-provider key in a frontend project.
 
-Also configure `FACULTY_PORTAL_URL` and `ADMIN_PORTAL_URL` on the Student project with the public HTTPS deployment origins for the Faculty and Admin projects. The student `/api/config` function returns these URLs and the two Supabase public settings at runtime. Redeploy after changing project environment variables. Configure the Supabase Auth Site URL and redirect allowlist to match the deployed portal origins before testing password recovery or invitation links.
+Do not set `FACULTY_PORTAL_URL` or `ADMIN_PORTAL_URL`; those are obsolete. The same-origin `/api/config` function returns only the two public Supabase settings at runtime. Redeploy after changing project environment variables. Configure the Supabase Auth Site URL and redirect allowlist to the canonical CampusPulse domain before testing password recovery or invitation links.
 
-Vercel project creation and runtime environment values are account-level settings and are not stored in this repository. Preview deployments use the same Supabase project unless separate Preview values are configured; treat that database as shared production data. The portals' authenticated dashboard records are still mock data as noted above, and the repository's Supabase Edge Functions must be deployed/configured separately.
+The Vercel project and runtime environment values are account-level settings and are not stored in this repository. Preview deployments use the same Supabase project unless separate Preview values are configured; treat that database as shared production data. The portals' authenticated dashboard records are still mock data as noted above, and the repository's Supabase Edge Functions must be deployed/configured separately. Legacy standalone Vercel portal deployments may remain for rollback, but the homepage and trusted-role redirects use only the consolidated domain.

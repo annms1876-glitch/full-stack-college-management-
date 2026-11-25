@@ -6,8 +6,6 @@ export default function handler(req, res) {
   const payload = {
     supabaseUrl: process.env.SUPABASE_URL || '',
     publishableKey: process.env.SUPABASE_PUBLISHABLE_KEY || '',
-    facultyPortalUrl: process.env.FACULTY_PORTAL_URL || '',
-    adminPortalUrl: process.env.ADMIN_PORTAL_URL || '',
   };
   res.setHeader('Cache-Control', 'no-store');
   res.setHeader('X-Content-Type-Options', 'nosniff');

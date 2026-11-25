@@ -1,4 +1,5 @@
-import { cp, mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
+import { cp, mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
@@ -6,10 +7,15 @@ import { spawnSync } from 'node:child_process';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const source = path.join(root, 'public');
 const output = path.join(root, 'dist');
+await rm(output, { recursive: true, force: true });
 await mkdir(output, { recursive: true });
 await cp(source, output, { recursive: true, force: true });
-const tailwind = path.join(root, 'node_modules', '.bin', 'tailwindcss');
-const built = spawnSync(tailwind, ['-i', 'public/tailwind-input.css', '-o', 'dist/campuspulse-tailwind.css', '--config', 'tailwind.config.cjs', '--minify'], { cwd: root, stdio: 'inherit' });
+const tailwind = [
+  path.join(root, '..', 'node_modules', '.bin', 'tailwindcss'),
+  path.join(root, 'node_modules', '.bin', 'tailwindcss'),
+].find(existsSync);
+if (!tailwind) throw new Error('Tailwind CLI is missing; install the repository or frontend dependencies first.');
+const built = spawnSync(tailwind, ['-i', 'campuspulse-frontend/public/tailwind-input.css', '-o', 'campuspulse-frontend/dist/campuspulse-tailwind.css', '--config', 'tailwind.config.cjs', '--minify'], { cwd: path.join(root, '..'), stdio: 'inherit' });
 if (built.status !== 0) process.exit(built.status ?? 1);
 await cp(path.join(output, 'home.html'), path.join(output, 'index.html'));
 const replace = new Map([

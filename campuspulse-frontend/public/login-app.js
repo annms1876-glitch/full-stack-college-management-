@@ -1,4 +1,4 @@
-import { api, portalUrls } from "/api.js";
+import { api } from "/api.js";
 
 const $ = (selector) => document.querySelector(selector);
 const message = $("#auth-message");
@@ -6,7 +6,6 @@ const panels = [$("#panel-login"), $("#panel-signup"), $("#panel-reset")];
 const tabs = [...document.querySelectorAll("[data-auth-tab]")];
 const formLogin = $("#login-form");
 const formSignup = $("#signup-form");
-const roleSuccess = $("#role-success");
 
 function announce(text, error = false) {
   if (!message) return;
@@ -35,43 +34,11 @@ async function roleAfterAuth(user) {
   if (!["student", "faculty", "admin"].includes(role)) throw new Error("Your account profile has no valid CampusPulse role. Ask an administrator to check the profile setup.");
   return { role, name: profile.full_name || user.user_metadata?.full_name || "there" };
 }
-function showRoleConfirmation(role, name) {
-  $("#panel-login").classList.add("is-hidden");
-  $("#panel-signup").classList.add("is-hidden");
-  document.querySelector(".auth-tabs").classList.add("is-hidden");
-  $("#demo-box").classList.add("is-hidden");
-  roleSuccess.classList.remove("is-hidden");
-  $("#role-success-title").textContent = `You're in, ${name}.`;
-  const copy = {
-    student: "Your student account is ready. Continue to your CampusPulse feed.",
-    faculty: "Your faculty role is verified. Open the separate faculty portal and sign in there; sessions are not shared between apps.",
-    admin: "Your admin role is verified. Open the separate admin portal and sign in there; sessions are not shared between apps.",
-  };
-  $("#role-success-copy").textContent = copy[role];
-  const continueLink = $("#role-continue");
-  if (role === "student") {
-    continueLink.href = "/feed";
-    continueLink.classList.remove("is-hidden");
-  } else {
-    continueLink.classList.add("is-hidden");
-  }
-  const portalLink = $("#role-portal-link");
-  if (role === "faculty" || role === "admin") {
-    portalLink.href = role === "faculty" ? portalUrls.faculty : portalUrls.admin;
-    portalLink.textContent = role === "faculty" ? "Open Faculty Portal ↗" : "Open Admin Portal ↗";
-    portalLink.classList.remove("is-hidden");
-  } else {
-    portalLink.classList.add("is-hidden");
-  }
-}
 async function finishSignIn(user) {
   try {
-    const { role, name } = await roleAfterAuth(user);
-    if (role === "student") {
-      location.replace("/feed");
-      return;
-    }
-    showRoleConfirmation(role, name);
+    const { role } = await roleAfterAuth(user);
+    const destinations = { student: "/feed", faculty: "/faculty/", admin: "/admin/" };
+    location.replace(destinations[role]);
   } catch (error) {
     announce(`You authenticated successfully, but your CampusPulse profile could not be loaded: ${error.message}. Check that migrations are applied.`, true);
   }
@@ -144,7 +111,7 @@ api.onAuth((event, session) => {
     $("#auth-subtitle").classList.add("is-hidden");
     $("#panel-reset").classList.remove("is-hidden");
     announce("Choose a new password for your account.");
-  } else if (event === "SIGNED_IN" && session?.user && !roleSuccess.classList.contains("is-hidden")) {
+  } else if (event === "SIGNED_IN" && session?.user) {
     document.documentElement.dataset.authenticated = "true";
   }
 });

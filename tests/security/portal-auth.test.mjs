@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 const read = (path) => readFile(new URL(path, import.meta.url), 'utf8');
-const [facultyAuth, adminAuth, facultyMain, adminApp, facultyVite, adminVite, facultyPackage, adminPackage, studentLogin, studentApi, studentServer] = await Promise.all([
+const [facultyAuth, adminAuth, facultyMain, adminApp, facultyVite, adminVite, facultyPackage, adminPackage, studentLogin, studentApi, studentServer, rootConfig, rootApi] = await Promise.all([
   read('../../campuspulse-frontend/faculty-dashboard/src/portal-auth.js'),
   read('../../campuspulse-admin-dashboard/src/portal-auth.js'),
   read('../../campuspulse-frontend/faculty-dashboard/src/main.js'),
@@ -15,6 +15,8 @@ const [facultyAuth, adminAuth, facultyMain, adminApp, facultyVite, adminVite, fa
   read('../../campuspulse-frontend/public/login-app.js'),
   read('../../campuspulse-frontend/public/api.js'),
   read('../../campuspulse-frontend/server.js'),
+  read('../../vercel.json'),
+  read('../../api/config.js'),
 ]);
 
 for (const [label, source, role] of [['faculty', facultyAuth, 'faculty'], ['admin', adminAuth, 'admin']]) {
@@ -47,7 +49,7 @@ test('both Vite runtime config endpoints expose only the URL and publishable key
   }
 });
 
-test('faculty and admin use distinct loopback ports and Vite 6', () => {
+test('faculty and admin local Vite development remains available with existing role gates', () => {
   assert.match(facultyPackage, /--host 127\.0\.0\.1 --port 3001/);
   assert.match(adminPackage, /--host 127\.0\.0\.1 --port 3002/);
   assert.match(facultyPackage, /"vite": "\^6\.4\.6"/);
@@ -60,12 +62,23 @@ test('faculty and admin use distinct loopback ports and Vite 6', () => {
   assert.match(adminApp, /demo-access-banner/);
 });
 
-test('student login offers configured faculty/admin portal URLs after role verification', () => {
-  assert.match(studentLogin, /role === "faculty" \? portalUrls\.faculty : portalUrls\.admin/);
-  assert.match(studentApi, /faculty: config\.facultyPortalUrl \|\| "http:\/\/127\.0\.0\.1:3001\/"/);
-  assert.match(studentApi, /admin: config\.adminPortalUrl \|\| "http:\/\/127\.0\.0\.1:3002\/"/);
-  assert.match(studentServer, /FACULTY_PORTAL_URL/);
-  assert.match(studentServer, /ADMIN_PORTAL_URL/);
-  assert.match(studentServer, /url\.protocol !== "http:" && url\.protocol !== "https:"/);
-  assert.match(studentLogin, /sessions are not shared between apps/);
+test('student login routes only from the verified profiles.role to same-origin portal routes', () => {
+  assert.match(studentLogin, /const profile = await api\.profile\(user\.id\)/);
+  assert.match(studentLogin, /const destinations = \{ student: "\/feed", faculty: "\/faculty\/", admin: "\/admin\/" \}/);
+  assert.match(studentLogin, /location\.replace\(destinations\[role\]\)/);
+  assert.doesNotMatch(studentLogin, /user_metadata\??\.role|user\.email.*(?:faculty|admin)|portalUrls/);
+  assert.doesNotMatch(studentApi, /facultyPortalUrl|adminPortalUrl/);
+  assert.doesNotMatch(studentServer, /FACULTY_PORTAL_URL|ADMIN_PORTAL_URL/);
+});
+
+test('same-origin portal subpaths are built, served locally, and rewritten without catching API/assets', () => {
+  assert.match(facultyMain, /import\.meta\.env\.BASE_URL/);
+  assert.match(adminApp, /import\.meta\.env\.BASE_URL/);
+  assert.match(studentServer, /PORTAL_DIST_DIR/);
+  assert.match(studentServer, /if \(!portal && path\.extname\(filePath\) === "\.html"\)/);
+  assert.match(rootApi, /campuspulse-frontend\/api\/config\.js/);
+  assert.match(rootConfig, /"source": "\/api\/config"/);
+  assert.match(rootConfig, /"source": "\/faculty\/attendance"/);
+  assert.match(rootConfig, /"source": "\/admin\/student-records"/);
+  assert.doesNotMatch(rootConfig, /"source": "\/(?:faculty|admin)\/\*"/);
 });

@@ -2,10 +2,6 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 let config = {};
 try { const response = await fetch("/api/config", { cache: "no-store" }); if (response.ok) config = await response.json(); } catch {}
 export const configured = Boolean(config.supabaseUrl && config.publishableKey);
-export const portalUrls = {
-  faculty: config.facultyPortalUrl || "http://127.0.0.1:3001/",
-  admin: config.adminPortalUrl || "http://127.0.0.1:3002/",
-};
 export const supabase = configured ? createClient(config.supabaseUrl, config.publishableKey) : null;
 const client = () => { if (!supabase) throw new Error("Set SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY to enable backend features."); return supabase; };
 const result = async (promise) => { const { data, error } = await promise; if (error) throw error; return data; };

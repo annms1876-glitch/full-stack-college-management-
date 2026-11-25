@@ -4,20 +4,10 @@ const path = require("node:path");
 
 const PORT = Number(process.env.PORT || 3000);
 const PUBLIC_DIR = path.join(__dirname, "public");
+const PORTAL_DIST_DIR = path.join(__dirname, "dist");
 const SUPABASE_RUNTIME_CONFIG = {
   supabaseUrl: process.env.SUPABASE_URL || "",
   publishableKey: process.env.SUPABASE_PUBLISHABLE_KEY || "",
-};
-function publicPortalUrl(value, fallback) {
-  try {
-    const url = new URL(value || fallback);
-    if (url.protocol !== "http:" && url.protocol !== "https:") return fallback;
-    return url.toString().endsWith("/") ? url.toString() : `${url.toString()}/`;
-  } catch { return fallback; }
-}
-const PORTAL_RUNTIME_CONFIG = {
-  facultyPortalUrl: publicPortalUrl(process.env.FACULTY_PORTAL_URL, "http://127.0.0.1:3001/"),
-  adminPortalUrl: publicPortalUrl(process.env.ADMIN_PORTAL_URL, "http://127.0.0.1:3002/"),
 };
 const DEMO_ACCOUNTS = require("../scripts/demo-accounts.json");
 let SUPABASE_HOST = "";
@@ -32,13 +22,14 @@ const ROUTES = {
   "/index.html": "/home.html",
   "/feed": "/screens/light/feed.html",
   "/login": "/screens/light/login.html",
-  "/faculty": "/screens/light/faculty.html",
+  "/directory/faculty": "/screens/light/faculty.html",
   "/profile": "/screens/light/profile.html",
   "/study": "/screens/light/study.html",
   "/clubs": "/screens/light/clubs.html",
   "/dark/feed": "/screens/dark/feed.html",
   "/dark/login": "/screens/dark/login.html",
   "/dark/faculty": "/screens/dark/faculty.html",
+  "/dark/directory/faculty": "/screens/dark/faculty.html",
   "/dark/profile": "/screens/dark/profile.html",
   "/dark/study": "/screens/dark/study.html",
   "/dark/clubs": "/screens/dark/clubs.html",
@@ -74,7 +65,7 @@ const server = http.createServer((req, res) => {
       res.writeHead(405, { Allow: "GET, HEAD", "Content-Type": "application/json; charset=utf-8" });
       return res.end(JSON.stringify({ error: "Method Not Allowed" }));
     }
-    const payload = JSON.stringify({ ...SUPABASE_RUNTIME_CONFIG, ...PORTAL_RUNTIME_CONFIG }).replace(/</g, "\\u003c");
+    const payload = JSON.stringify(SUPABASE_RUNTIME_CONFIG).replace(/</g, "\\u003c");
     res.writeHead(200, { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" });
     return res.end(req.method === "HEAD" ? undefined : payload);
   }
@@ -103,9 +94,21 @@ const server = http.createServer((req, res) => {
     return res.end("Bad Request");
   }
 
-  const mappedPath = ROUTES[pathname] || pathname;
-  const filePath = path.resolve(PUBLIC_DIR, `.${mappedPath}`);
-  if (filePath !== PUBLIC_DIR && !filePath.startsWith(`${PUBLIC_DIR}${path.sep}`)) {
+  const portal = pathname === "/faculty" || pathname.startsWith("/faculty/")
+    ? "faculty"
+    : pathname === "/admin" || pathname.startsWith("/admin/")
+      ? "admin"
+      : null;
+  const baseDir = portal ? path.join(PORTAL_DIST_DIR, portal) : PUBLIC_DIR;
+  let mappedPath;
+  if (portal) {
+    const relative = pathname.slice(`/${portal}`.length).replace(/^\/+/, "");
+    mappedPath = !relative || !path.extname(relative) ? "/index.html" : `/${relative}`;
+  } else {
+    mappedPath = ROUTES[pathname] || pathname;
+  }
+  const filePath = path.resolve(baseDir, `.${mappedPath}`);
+  if (filePath !== baseDir && !filePath.startsWith(`${baseDir}${path.sep}`)) {
     res.writeHead(403, { "Content-Type": "text/plain; charset=utf-8" });
     return res.end("Forbidden");
   }
@@ -117,7 +120,7 @@ const server = http.createServer((req, res) => {
     }
 
     let body = buffer;
-    if (path.extname(filePath) === ".html") {
+    if (!portal && path.extname(filePath) === ".html") {
       let html = buffer.toString("utf8");
       html = html.replace(/https:\/\/lh3\.googleusercontent\.com\/aida\/[^"'\s)<>]+/g, (url) => {
         const replacement = Object.entries(IMAGE_REPLACEMENTS).find(([key]) => url.includes(key));
