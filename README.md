@@ -30,6 +30,7 @@ campuspulse-frontend/
 ├── README.md                     # Frontend setup, routes, and behavior
 └── public/
     ├── app.js                     # Shared navigation, theme routing, and interactions
+    ├── brand/campus-logo-144-712f764a4b82.webp  # Shared optimized logo
     ├── brand/campus-logo.png
     ├── design-system.md
     ├── manus-routes.json          # Declared page routes

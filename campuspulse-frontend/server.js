@@ -35,7 +35,7 @@ const MIME_TYPES = {
 const IMAGE_REPLACEMENTS = {
   "ALJJyrDerPS2l3M99": "/manus-storage/async-images/tIMMXbdwAHVy5Nlq2fTO0K/image-1.webp",
   "ALJJyrBWzizFfB_K": "/manus-storage/async-images/tIMMXbdwAHVy5Nlq2fTO0K/image-1.webp",
-  "ALJJyrD27Av7MK_": "/brand/campus-logo.png",
+  "ALJJyrD27Av7MK_": "/brand/campus-logo-144-712f764a4b82.webp",
   "ALJJyrBXDQY-wzzb": "/manus-storage/async-images/tIMMXbdwAHVy5Nlq2fTO0K/image-2.webp",
   "ALJJyrC_eoL-ICo": "/manus-storage/async-images/tIMMXbdwAHVy5Nlq2fTO0K/image-3.webp",
   "ALJJyrDF4dExuwU9": "/manus-storage/async-images/tIMMXbdwAHVy5Nlq2fTO0K/image-4.webp",
@@ -78,9 +78,10 @@ const server = http.createServer((req, res) => {
       });
       body = Buffer.from(html.replace(/<\/body>/i, '<script src="/app.js"></script></body>'));
     }
+    const fingerprintedAsset = /-[a-f0-9]{12}\.(?:css|js|png|jpe?g|webp)$/i.test(path.basename(filePath));
     res.writeHead(200, {
       "Content-Type": MIME_TYPES[path.extname(filePath).toLowerCase()] || "application/octet-stream",
-      "Cache-Control": "no-cache",
+      "Cache-Control": fingerprintedAsset ? "public, max-age=31536000, immutable" : "no-cache",
       "Content-Length": body.length,
     });
     res.end(req.method === "HEAD" ? undefined : body);
