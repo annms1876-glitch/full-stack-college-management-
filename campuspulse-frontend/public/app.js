@@ -1,177 +1,31 @@
-(() => {
-  "use strict";
-
-  const screens = ["feed", "login", "faculty", "profile", "study", "clubs"];
-  const currentPath = window.location.pathname.replace(/\/$/, "") || "/";
-  const darkMode = currentPath.startsWith("/dark/");
-  const themePrefix = darkMode ? "/dark" : "";
-  const knownRoutes = new Set([
-    "/", ...screens.map((screen) => `/${screen}`),
-    ...screens.map((screen) => `/dark/${screen}`),
-  ]);
-
-  const routeFor = (screen) => `${themePrefix}/${screen}`;
-
-  if (currentPath === "/" && localStorage.getItem("campuspulse-theme") === "dark") {
-    window.location.replace("/dark/feed");
-    return;
-  }
-  if (darkMode) localStorage.setItem("campuspulse-theme", "dark");
-  else if (currentPath !== "/") localStorage.setItem("campuspulse-theme", "light");
-
-  function showToast(message) {
-    let toast = document.getElementById("campuspulse-toast");
-    if (!toast) {
-      toast = document.createElement("div");
-      toast.id = "campuspulse-toast";
-      toast.setAttribute("role", "status");
-      toast.setAttribute("aria-live", "polite");
-      Object.assign(toast.style, {
-        position: "fixed", left: "50%", bottom: "88px", zIndex: "10000",
-        transform: "translateX(-50%)", maxWidth: "min(90vw, 420px)",
-        padding: "11px 16px", borderRadius: "999px", background: darkMode ? "#34343a" : "#1a1b21",
-        color: "#fff", font: "500 13px/1.35 'Instrument Sans', sans-serif",
-        boxShadow: "0 8px 28px rgba(0,0,0,.18)", opacity: "0", transition: "opacity 120ms ease-out",
-        pointerEvents: "none", textAlign: "center",
-      });
-      document.body.appendChild(toast);
-    }
-    toast.textContent = message;
-    toast.style.opacity = "1";
-    window.clearTimeout(showToast.timer);
-    showToast.timer = window.setTimeout(() => { toast.style.opacity = "0"; }, 2300);
-  }
-
-  function navTarget(anchor) {
-    const icon = anchor.querySelector(".material-symbols-outlined, .material-symbols-rounded, .material-icons");
-    const iconName = (icon?.textContent || "").trim().toLowerCase();
-    const label = (anchor.textContent || "").trim().toLowerCase();
-    const oldHref = (anchor.getAttribute("href") || "").toLowerCase();
-    if (iconName === "home" || oldHref.includes("home-feed") || oldHref === "#home") return "feed";
-    if (iconName === "groups" || oldHref === "#clubs" || label.includes("clubs")) return "clubs";
-    if (iconName === "school" || oldHref === "#study" || label.includes("study")) return "study";
-    if (iconName === "search" || oldHref.includes("search/") || oldHref === "#search" || label === "search") return "faculty";
-    if (label.includes("profile") || oldHref.includes("student-profile") || oldHref === "#profile") return "profile";
-    return null;
-  }
-
-  document.querySelectorAll("a").forEach((anchor) => {
-    const target = navTarget(anchor);
-    if (!target) return;
-    anchor.setAttribute("href", routeFor(target));
-    anchor.addEventListener("click", (event) => {
-      if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) {
-        event.preventDefault();
-        window.location.assign(routeFor(target));
-      }
-    });
-  });
-
-  document.addEventListener("keydown", (event) => {
-    if (event.altKey && event.shiftKey && event.key.toLowerCase() === "d") {
-      event.preventDefault();
-      const screen = screens.find((item) => currentPath.endsWith(`/${item}`)) || "feed";
-      const nextTheme = darkMode ? "light" : "dark";
-      localStorage.setItem("campuspulse-theme", nextTheme);
-      window.location.assign(`${nextTheme === "dark" ? "/dark" : ""}/${screen}` || "/");
-    }
-  });
-
-  document.querySelectorAll(".like-btn").forEach((button) => {
-    button.setAttribute("aria-pressed", "false");
-    button.addEventListener("click", () => {
-      const liked = button.getAttribute("aria-pressed") === "true";
-      button.setAttribute("aria-pressed", String(!liked));
-      button.classList.toggle("text-story-rose", !liked);
-      const icon = button.querySelector(".material-symbols-outlined");
-      if (icon) icon.style.fontVariationSettings = !liked ? "'FILL' 1" : "'FILL' 0";
-      const count = [...button.querySelectorAll("span")].find((item) => /^\s*[\d,.]+\s*$/.test(item.textContent));
-      if (count) {
-        const value = Number(count.textContent.replace(/[^\d]/g, "")) + (liked ? -1 : 1);
-        count.textContent = String(Math.max(0, value));
-      }
-    });
-  });
-
-  document.querySelectorAll(".save-btn").forEach((button) => {
-    button.addEventListener("click", () => {
-      const icon = button.querySelector(".material-symbols-outlined");
-      if (!icon) return;
-      const saved = icon.textContent.trim() === "bookmark";
-      icon.textContent = saved ? "bookmark_border" : "bookmark";
-      button.setAttribute("aria-pressed", String(!saved));
-      showToast(saved ? "Removed from saved items" : "Saved for later");
-    });
-  });
-
-  document.querySelectorAll(".feed-filter-chip").forEach((button) => {
-    button.setAttribute("aria-pressed", String(button.textContent.trim().toLowerCase() === "all"));
-    button.addEventListener("click", () => {
-      const selected = button.textContent.trim();
-      const chips = [...document.querySelectorAll(".feed-filter-chip")];
-      chips.forEach((chip) => {
-        const active = chip === button;
-        chip.setAttribute("aria-pressed", String(active));
-        chip.classList.toggle(`bg-${darkMode ? "dark" : "light"}-primary`, active);
-        chip.classList.toggle(`text-${darkMode ? "dark" : "light"}-on-primary`, active);
-        chip.classList.toggle(`bg-${darkMode ? "dark" : "light"}-surface-container-lowest`, !active);
-        chip.classList.toggle(`text-${darkMode ? "dark" : "light"}-on-surface-variant`, !active);
-        chip.classList.toggle("border", !active);
-      });
-      const aliases = {
-        "official notices": /official|office of academic affairs|exam cell/i,
-        academics: /academic|exam|semester|attendance|lab internals|study/i,
-        events: /hackvit|event|auditorium|cultural|club/i,
-        placements: /placement|internship|atlassian|razorpay|stipend/i,
-        "student community": /student|ananya|rohan|library|community/i,
-      };
-      const filter = aliases[selected.toLowerCase()];
-      document.querySelectorAll(".feed-post").forEach((post) => {
-        post.hidden = Boolean(filter && !filter.test(post.textContent || ""));
-      });
-    });
-  });
-
-  document.querySelectorAll(".share-btn").forEach((button) => {
-    button.addEventListener("click", async () => {
-      const article = button.closest(".feed-post");
-      const title = article?.querySelector("h2, h3")?.textContent?.trim() || "CampusPulse post";
-      try {
-        if (navigator.share) await navigator.share({ title, url: window.location.href });
-        else if (navigator.clipboard) await navigator.clipboard.writeText(window.location.href);
-        showToast("Post link ready to share");
-      } catch (error) {
-        if (error?.name !== "AbortError") showToast("Share this campus post with a friend");
-      }
-    });
-  });
-
-  document.querySelectorAll("button").forEach((button) => {
-    const label = (button.getAttribute("aria-label") || button.textContent || "").trim().toLowerCase();
-    if (/register|join club|join event/.test(label)) {
-      button.addEventListener("click", () => {
-        const registered = button.dataset.registered === "true";
-        button.dataset.registered = String(!registered);
-        button.setAttribute("aria-pressed", String(!registered));
-        if (button.dataset.registered === "true") {
-          button.textContent = "Registered";
-          showToast("You’re on the list. See you there!");
-        } else {
-          button.textContent = "Register";
-          showToast("Registration cancelled");
-        }
-      });
-    }
-  });
-
-  window.CampusPulse = Object.freeze({
-    theme: darkMode ? "dark" : "light",
-    routes: Object.freeze(Object.fromEntries(screens.map((screen) => [screen, routeFor(screen)]))),
-    toggleTheme() {
-      const screen = screens.find((item) => currentPath.endsWith(`/${item}`)) || "feed";
-      const nextTheme = darkMode ? "light" : "dark";
-      localStorage.setItem("campuspulse-theme", nextTheme);
-      window.location.assign(`${nextTheme === "dark" ? "/dark" : ""}/${screen}` || "/");
-    },
-  });
-})();
+import { api, supabase } from "/api.js";
+const screens=["feed","login","faculty","profile","study","clubs"], path=location.pathname.replace(/\/$/,"")||"/", dark=path.startsWith("/dark/"), prefix=dark?"/dark":"";
+const route=s=>`${prefix}/${s}`;
+if(path==="/"&&localStorage.getItem("campuspulse-theme")==="dark"){location.replace("/dark/feed");}
+if(dark)localStorage.setItem("campuspulse-theme","dark");else if(path!=="/")localStorage.setItem("campuspulse-theme","light");
+function toast(msg){let el=document.getElementById("campuspulse-toast");if(!el){el=document.createElement("div");el.id="campuspulse-toast";el.setAttribute("role","status");el.setAttribute("aria-live","polite");Object.assign(el.style,{position:"fixed",left:"50%",bottom:"88px",zIndex:10000,transform:"translateX(-50%)",maxWidth:"min(90vw,420px)",padding:"11px 16px",borderRadius:"999px",background:dark?"#34343a":"#1a1b21",color:"#fff",font:"500 13px/1.35 sans-serif",boxShadow:"0 8px 28px #0003"});document.body.append(el)}el.textContent=msg;clearTimeout(toast.t);toast.t=setTimeout(()=>el.remove(),3200)}
+function statusBox(message, bad=false){let el=document.getElementById("backend-status");if(!el){el=document.createElement("p");el.id="backend-status";el.setAttribute("role","status");el.setAttribute("aria-live","polite");el.style.cssText="margin:12px 0;padding:8px 12px;border-radius:8px;font:14px/1.4 sans-serif;background:var(--surface-container-low,#f1f1f1);color:var(--on-surface,#222)";document.querySelector("main")?.prepend(el)}el.textContent=message;el.dataset.error=String(bad)}
+function navTarget(a){const icon=a.querySelector(".material-symbols-outlined,.material-symbols-rounded,.material-icons"),name=(icon?.textContent||"").trim().toLowerCase(),label=(a.textContent||"").trim().toLowerCase(),href=(a.getAttribute("href")||"").toLowerCase();if(name==="home"||href.includes("home-feed")||href==="#home")return"feed";if(name==="groups"||href==="#clubs"||label.includes("clubs"))return"clubs";if(name==="school"||href==="#study"||label.includes("study"))return"study";if(name==="search"||href.includes("search/")||href==="#search"||label==="search")return"faculty";if(label.includes("profile")||href.includes("student-profile")||href==="#profile")return"profile";return null}
+document.querySelectorAll("a").forEach(a=>{const r=navTarget(a);if(r)a.href=route(r)});
+document.addEventListener("keydown",e=>{if(e.altKey&&e.shiftKey&&e.key.toLowerCase()==="d"){e.preventDefault();const s=screens.find(x=>path.endsWith("/"+x))||"feed",t=dark?"light":"dark";localStorage.setItem("campuspulse-theme",t);location.assign(`${t==="dark"?"/dark":""}/${s}`)}});
+function withBusy(button, fn){button.addEventListener("click",async()=>{if(button.disabled)return;const old=button.textContent;button.disabled=true;button.setAttribute("aria-busy","true");try{await fn()}catch(e){toast(e?.message||"Request failed. Please try again.")}finally{button.disabled=false;button.removeAttribute("aria-busy");if(button.dataset.restoreText)button.textContent=old}})}
+// Real password sign-in/sign-up; data-auth-tab controls already exist in the login screen.
+const login=document.getElementById("btn-login-submit"), signup=document.getElementById("btn-signup-submit");
+if(login)withBusy(login,async()=>{const email=document.getElementById("login-identifier")?.value||document.querySelector('input[type="email"]')?.value||"",password=document.getElementById("signin-password")?.value||"";if(!email||!password)throw Error("Enter your email and password.");const {error}=await api.signIn({email,password});if(error)throw error;toast("Signed in successfully.");location.assign(route("feed"))});
+if(signup)withBusy(signup,async()=>{const fields=[...document.querySelectorAll('input[type="email"],input[type="password"]')],email=fields.find(x=>x.type==="email")?.value||"",pw=fields.filter(x=>x.type==="password").at(-1)?.value||"",name=document.querySelector('input[placeholder*="name" i]')?.value||"";if(!email||!pw)throw Error("Enter an email and password.");if(pw.length<8)throw Error("Password must be at least 8 characters.");const {data,error}=await api.signUp({email,password:pw,fullName:name});if(error)throw error;toast(data.session?"Account created and signed in.":"Account created. Check your email to confirm.");if(data.session)location.assign(route("feed"))});
+const tabButtons=[...document.querySelectorAll("[data-auth-tab]")];tabButtons.forEach(b=>b.addEventListener("click",()=>{const signupMode=b.dataset.authTab==="signup";if(login)login.closest("section,form,div")?.toggleAttribute("hidden",signupMode);if(signup)signup.closest("section,form,div")?.toggleAttribute("hidden",!signupMode)}));
+const toggle=document.getElementById("toggle-pw-vis");toggle?.addEventListener("click",()=>{const input=document.getElementById("signin-password");if(input)input.type=input.type==="password"?"text":"password"});
+const forget=document.getElementById("btn-forgot-pw");forget?.addEventListener("click",()=>toast("Password reset is not connected to a reset form yet."));
+api.onAuth((_event,session)=>{document.documentElement.dataset.authenticated=String(Boolean(session));document.querySelectorAll("[data-auth-required]").forEach(el=>el.hidden=!session)});
+const signout=document.querySelector('[data-action="signout"],#btn-signout');if(signout)withBusy(signout,async()=>{const {error}=await api.signOut();if(error)throw error;location.assign(route("login"))});
+// Session-gated route behavior; public browse screens remain accessible.
+if(["/profile","/study"].some(x=>path.endsWith(x))){Promise.resolve().then(()=>api.session()).then(({data,error})=>{if(error)throw error;if(!data.session){statusBox("Sign in to access your account-specific profile and study records.");return}if(path.endsWith("/profile"))api.profile(data.session.user.id).then(p=>{const name=document.querySelector("h1");if(name&&p.full_name)name.textContent=p.full_name;statusBox("Profile loaded.")}).catch(e=>statusBox(`Profile unavailable: ${e.message}`,true))}).catch(e=>statusBox(`Session check failed: ${e.message}`,true))}
+// Existing static sample feed cards have no database post IDs, so avoid pretending that a local toggle persisted.
+document.querySelectorAll(".like-btn,.save-btn").forEach(b=>{b.addEventListener("click",async e=>{e.preventDefault();const id=b.closest("[data-post-id]")?.dataset.postId;if(!id){toast("This sample post is static and cannot be liked or saved yet.");return}try{const enabled=b.getAttribute("aria-pressed")!=="true";await (b.classList.contains("like-btn")?api.like(id,enabled):api.save(id,enabled));b.setAttribute("aria-pressed",String(enabled));toast(enabled?"Saved successfully.":"Removed successfully.")}catch(err){toast(err.message)}})});
+// Expose supported faculty directory query only. Current faculty screen is search/directory, not a dashboard.
+if(path.endsWith("/faculty")){statusBox("Loading faculty directory…");api.faculty().then(rows=>{statusBox(rows.length?`${rows.length} faculty profiles loaded. Search controls remain local to this directory.` : "No faculty profiles found.");const box=document.querySelector("main");if(box&&rows.length){const list=document.createElement("ul");list.setAttribute("aria-label","Faculty directory results");rows.forEach(p=>{const li=document.createElement("li");li.textContent=[p.full_name,p.bio].filter(Boolean).join(" — ");list.append(li)});box.append(list)}}).catch(e=>statusBox(`Faculty directory could not load: ${e.message}`,true))}
+if(path.endsWith("/clubs")){statusBox("Loading clubs…");api.clubs().then(rows=>{statusBox(rows.length?`${rows.length} clubs loaded from CampusPulse.`:"No clubs available yet.");const byName=new Map(rows.map(x=>[x.name.toLowerCase(),x]));document.querySelectorAll("button").forEach(b=>{if(!/join club/i.test(b.textContent||""))return;const card=b.closest("article,section,div"),name=card?.querySelector("h2,h3")?.textContent?.trim(),club=byName.get((name||"").toLowerCase());if(!club){b.addEventListener("click",()=>toast("This sample club has no matching backend record."));return}withBusy(b,async()=>{const {data:{user}}=await supabase.auth.getUser();if(!user)throw Error("Sign in to join clubs.");const member=(club.club_members||[]).some(m=>m.user_id===user.id);await api.joinClub(club.id,!member);b.textContent=member?"Join Club":"Joined";toast(member?"Left club.":"Joined club.")})})}).catch(e=>statusBox(`Clubs unavailable: ${e.message}`,true))}
+// Existing filter/tab/share controls remain local presentation behavior; buttons without schema-linked IDs are explicitly non-persistent.
+document.querySelectorAll(".feed-filter-chip").forEach(b=>b.addEventListener("click",()=>{const q=b.textContent.trim().toLowerCase(),rules={academics:/academic|exam|semester|attendance|study/i,events:/event|club|cultural/i,placements:/placement|internship|stipend/i};document.querySelectorAll(".feed-post").forEach(p=>p.hidden=Boolean(rules[q]&&!rules[q].test(p.textContent||"")))}));
+document.querySelectorAll(".share-btn").forEach(b=>b.addEventListener("click",async()=>{try{if(navigator.share)await navigator.share({title:"CampusPulse post",url:location.href});else await navigator.clipboard.writeText(location.href);toast("Link ready to share.")}catch(e){if(e.name!=="AbortError")toast("Could not share this link.")}}));
+window.CampusPulse=Object.freeze({theme:dark?"dark":"light",routes:Object.freeze(Object.fromEntries(screens.map(s=>[s,route(s)]))),api});

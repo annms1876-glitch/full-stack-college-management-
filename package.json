@@ -1,0 +1,1 @@
+{"name":"campuspulse-backend-tests","private":true,"scripts":{"test:api":"node --test tests/api/*.test.mjs","test:security":"node --test tests/security/*.test.mjs","test:static":"npm run test:security && npm run scan:secrets","scan:secrets":"node scripts/secret-scan.mjs","test":"npm run test:api && npm run test:security"}}

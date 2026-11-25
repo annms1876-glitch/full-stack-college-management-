@@ -4,6 +4,10 @@ const path = require("node:path");
 
 const PORT = Number(process.env.PORT || 3000);
 const PUBLIC_DIR = path.join(__dirname, "public");
+const SUPABASE_RUNTIME_CONFIG = {
+  supabaseUrl: process.env.SUPABASE_URL || "",
+  publishableKey: process.env.SUPABASE_PUBLISHABLE_KEY || "",
+};
 const ROUTES = {
   "/": "/screens/light/feed.html",
   "/feed": "/screens/light/feed.html",
@@ -43,6 +47,17 @@ const IMAGE_REPLACEMENTS = {
 };
 
 const server = http.createServer((req, res) => {
+  let endpoint = "";
+  try { endpoint = new URL(req.url, "http://localhost").pathname; } catch {}
+  if (endpoint === "/api/config") {
+    if (req.method !== "GET" && req.method !== "HEAD") {
+      res.writeHead(405, { Allow: "GET, HEAD", "Content-Type": "application/json; charset=utf-8" });
+      return res.end(JSON.stringify({ error: "Method Not Allowed" }));
+    }
+    const payload = JSON.stringify({ supabaseUrl: SUPABASE_RUNTIME_CONFIG.supabaseUrl, publishableKey: SUPABASE_RUNTIME_CONFIG.publishableKey }).replace(/</g, "\\u003c");
+    res.writeHead(200, { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" });
+    return res.end(req.method === "HEAD" ? undefined : payload);
+  }
   if (req.method !== "GET" && req.method !== "HEAD") {
     res.writeHead(405, { Allow: "GET, HEAD", "Content-Type": "text/plain; charset=utf-8" });
     return res.end("Method Not Allowed");
@@ -76,7 +91,7 @@ const server = http.createServer((req, res) => {
         const replacement = Object.entries(IMAGE_REPLACEMENTS).find(([key]) => url.includes(key));
         return replacement ? replacement[1] : url;
       });
-      body = Buffer.from(html.replace(/<\/body>/i, '<script src="/app.js"></script></body>'));
+      body = Buffer.from(html.replace(/<\/body>/i, `<script type="module" src="/app.js"></script></body>`));
     }
     const fingerprintedAsset = /-[a-f0-9]{12}\.(?:css|js|png|jpe?g|webp)$/i.test(path.basename(filePath));
     res.writeHead(200, {
