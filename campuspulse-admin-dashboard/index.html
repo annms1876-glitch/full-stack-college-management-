@@ -9,9 +9,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet" />
     <script src="https://unpkg.com/lucide@latest" defer></script>
+    <style>
+      :root{font-family:DM Sans,sans-serif;color:#17241e;background:#fffefa}*{box-sizing:border-box}body{margin:0;min-height:100vh}.startup-state{min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at 15% 10%,#e8eddf 0,transparent 38%),#f7f6f1}.startup-card{width:min(100%,460px);padding:32px;border:1px solid #dedfd6;border-radius:18px;background:#fffefa;box-shadow:0 12px 36px rgba(23,36,30,.08)}.startup-brand{margin:0 0 24px;color:#345f47;font:700 18px Manrope,sans-serif}.startup-kicker{margin:0 0 6px;color:#345f47;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}.startup-card h1{margin:0;font:700 28px/1.2 Manrope,sans-serif;letter-spacing:-.03em}.startup-card p{color:#68746d;line-height:1.6}.startup-spinner{width:22px;height:22px;margin-top:20px;border:3px solid #dedfd6;border-top-color:#345f47;border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+    </style>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app"><main class="startup-state" aria-live="polite"><section class="startup-card"><p class="startup-brand">CampusPulse · Admin Portal</p><p class="startup-kicker">Administration</p><h1>Loading your workspace</h1><p>Preparing your secure sign-in and portal tools…</p><div class="startup-spinner" aria-hidden="true"></div></section></main></div>
     <script type="module" src="/src/app.js"></script>
   </body>
 </html>

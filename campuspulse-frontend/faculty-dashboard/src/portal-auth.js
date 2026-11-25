@@ -1,4 +1,11 @@
 const DEMO_KEY = 'campuspulse:faculty-demo';
+const AUTH_TIMEOUT_MS = 8000;
+
+function withTimeout(promise, message) {
+  let timer;
+  const timeout = new Promise((_, reject) => { timer = setTimeout(() => reject(new Error(message)), AUTH_TIMEOUT_MS); });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+}
 
 function authView(message = '') {
   const root = document.querySelector('#app');
@@ -34,13 +41,13 @@ export async function startPortalAuth({ onAuthorized }) {
 
   let client;
   try {
-    const response = await fetch('/api/config', { cache: 'no-store' });
+    const response = await fetch('/api/config', { cache: 'no-store', signal: AbortSignal.timeout(AUTH_TIMEOUT_MS) });
     if (!response.ok) throw new Error('Runtime Supabase configuration endpoint is unavailable.');
     const { supabaseUrl, publishableKey } = await response.json();
     if (!supabaseUrl || !publishableKey) throw new Error('Set SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY in this portal process, then restart Vite.');
     const { createClient } = await import('@supabase/supabase-js');
     client = createClient(supabaseUrl, publishableKey);
-    const { data: { session }, error } = await client.auth.getSession();
+    const { data: { session }, error } = await withTimeout(client.auth.getSession(), 'Secure session restore timed out. Please retry sign-in.');
     if (error) throw error;
     if (session?.user) {
       const profile = await verifyRole(client, session.user, 'faculty');
