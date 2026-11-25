@@ -232,3 +232,10 @@ tbody tr:last-child td { border-bottom: 0; }
 .invite-form .invite-note, .invite-form .modal-footer { grid-column: 1 / -1; }
 .invite-note { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
 @media (max-width: 680px) { .invite-form { grid-template-columns: 1fr; } .invite-form .invite-note, .invite-form .modal-footer { grid-column: auto; } }
+
+.campuspulse-theme-toggle-floating{position:fixed;right:20px;bottom:20px;z-index:10000;width:46px;height:46px;border:1px solid rgba(23,36,30,.18);border-radius:50%;display:grid;place-items:center;background:#17241e;color:#fffefa;box-shadow:0 8px 24px rgba(0,0,0,.18);font:600 20px/1 'DM Sans',sans-serif;cursor:pointer;transition:transform .18s ease,background-color .2s ease,color .2s ease}
+.campuspulse-theme-toggle-floating:hover{transform:translateY(-2px)}
+html.dark .campuspulse-theme-toggle-floating{background:#d8f078;color:#17241e;border-color:#d8f078}
+.campuspulse-theme-reveal{position:fixed;z-index:20000;width:24px;height:24px;left:0;top:0;border-radius:50%;pointer-events:none;transform:scale(0);transform-origin:center;animation:campuspulse-radial-reveal .68s cubic-bezier(.2,.72,.18,1) forwards}
+@keyframes campuspulse-radial-reveal{to{transform:scale(var(--reveal-scale))}}
+@media(prefers-reduced-motion:reduce){.campuspulse-theme-toggle-floating{transition:none}.campuspulse-theme-reveal{display:none}}

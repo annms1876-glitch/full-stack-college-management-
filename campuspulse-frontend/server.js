@@ -126,6 +126,9 @@ const server = http.createServer((req, res) => {
       if (!/^\/screens\/(?:light|dark)\/login\.html$/.test(mappedPath)) {
         html = html.replace(/<\/body>/i, `<script type="module" src="/app.js"></script></body>`);
       }
+      if (!html.includes('src="/theme-toggle.js"')) {
+        html = html.replace(/<\/body>/i, `<script type="module" src="/theme-toggle.js"></script></body>`);
+      }
       body = Buffer.from(html);
     }
     const fingerprintedAsset = /-[a-f0-9]{12}\.(?:css|js|png|jpe?g|webp)$/i.test(path.basename(filePath));

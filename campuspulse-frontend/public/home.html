@@ -62,8 +62,8 @@
       <div class="role-heading"><div><p class="eyebrow">One campus. Many perspectives.</p><h2>Room for <em>everyone.</em></h2></div><a class="text-link" href="/login">Sign in to continue <span aria-hidden="true">→</span></a></div>
       <div class="role-cards">
         <article class="role-card role-student"><div class="role-card-top"><span class="role-icon">S</span><span class="role-index">01 / STUDENT</span></div><h3>Your campus<br>starts here.</h3><p>Find your people, follow what matters and make the most of every semester.</p><a href="/login" aria-label="Log in as a student">Student sign in <span aria-hidden="true">↗</span></a></article>
-        <article class="role-card role-faculty"><div class="role-card-top"><span class="role-icon">F</span><span class="role-index">02 / FACULTY</span></div><h3>Bring learning<br>closer together.</h3><p>A shared campus space for the people who teach, mentor and support.</p><a href="/login" aria-label="Log in as faculty">Faculty sign in <span aria-hidden="true">↗</span></a></article>
-        <article class="role-card role-admin"><div class="role-card-top"><span class="role-icon">A</span><span class="role-index">03 / ADMIN</span></div><h3>See the bigger<br>campus picture.</h3><p>Keep campus life organized and help your community stay connected.</p><a href="/login" aria-label="Log in as an administrator">Admin sign in <span aria-hidden="true">↗</span></a></article>
+        <article class="role-card role-faculty"><div class="role-card-top"><span class="role-icon">F</span><span class="role-index">02 / FACULTY</span></div><h3>Bring learning<br>closer together.</h3><p>A shared campus space for the people who teach, mentor and support.</p><a data-portal-link="faculty" href="https://campuspulse-faculty.vercel.app/" aria-label="Open the Faculty sign-in portal">Faculty sign in <span aria-hidden="true">↗</span></a></article>
+        <article class="role-card role-admin"><div class="role-card-top"><span class="role-icon">A</span><span class="role-index">03 / ADMIN</span></div><h3>See the bigger<br>campus picture.</h3><p>Keep campus life organized and help your community stay connected.</p><a data-portal-link="admin" href="https://campuspulse-admin.vercel.app/" aria-label="Open the Admin sign-in portal">Admin sign in <span aria-hidden="true">↗</span></a></article>
       </div>
       <p class="role-note">Your access comes from your account—not a role picker. New public sign-ups are student accounts; faculty and admin access is granted by a trusted administrator.</p>
     </section>
@@ -83,6 +83,16 @@
       menuButton.setAttribute('aria-expanded', String(open));
       nav.classList.toggle('is-open', open);
     });
+    fetch('/api/config', { cache: 'no-store' }).then(response => response.ok ? response.json() : {}).then(config => {
+      for (const [role, key] of [['faculty', 'facultyPortalUrl'], ['admin', 'adminPortalUrl']]) {
+        const value = config?.[key];
+        if (!value) continue;
+        try {
+          const url = new URL(value, location.origin);
+          if (url.protocol === 'http:' || url.protocol === 'https:') document.querySelector(`[data-portal-link="${role}"]`)?.setAttribute('href', url.href);
+        } catch {}
+      }
+    }).catch(() => {});
   </script>
 </body>
 </html>

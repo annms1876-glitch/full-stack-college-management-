@@ -32,6 +32,9 @@ async function processDirectory(dir) {
       if (!/^\/screens\/(?:light|dark)\/login\.html$/.test('/' + path.relative(output, file).split(path.sep).join('/'))) {
         html = html.replace(/<\/body>/i, '<script type="module" src="/app.js"></script></body>');
       }
+      if (!html.includes('src="/theme-toggle.js"')) {
+        html = html.replace(/<\/body>/i, '<script type="module" src="/theme-toggle.js"></script></body>');
+      }
       await writeFile(file, html);
     }
   }

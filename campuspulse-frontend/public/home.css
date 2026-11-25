@@ -5,3 +5,27 @@
 @media(max-width:950px){.hero{grid-template-columns:1fr 1fr;gap:2vw;padding-top:68px}.hero h1{font-size:clamp(46px,6vw,68px)}.hero-art{min-height:380px}.note-events{right:-2%}.note-community{right:-3%}.intro-band,.role-section{padding-left:7vw;padding-right:7vw}.auth-page{grid-template-columns:.8fr 1.2fr}.auth-visual{padding:30px}.auth-content{padding:42px clamp(24px,5vw,65px)}}
 @media(max-width:700px){.site-header{height:68px;padding:0 20px}.menu-toggle{display:block;background:none;border:1px solid var(--line);border-radius:99px;padding:9px 13px;font:700 11px var(--sans);color:var(--ink)}.main-nav{display:none;position:absolute;top:67px;left:0;right:0;padding:18px 20px 22px;background:var(--paper);border-bottom:1px solid var(--line);flex-direction:column;align-items:stretch;gap:18px}.main-nav.is-open{display:flex}.main-nav .nav-login{text-align:center}.hero{display:flex;flex-direction:column;align-items:stretch;gap:26px;padding:57px 22px 65px;min-height:0}.hero-copy{max-width:none}.hero h1{font-size:clamp(49px,12vw,72px)}.hero-intro{font-size:14px;max-width:450px}.hero-proof{margin-top:28px}.hero-art{min-height:340px;max-width:540px;margin:0 auto;width:100%}.hero-photo{width:82%;aspect-ratio:1.12}.note-events{right:0;top:16%}.note-community{right:-1%;bottom:9%}.orbit-one{width:84vw;height:84vw;left:8%;top:1%}.orbit-two{width:96vw;height:96vw;left:2%;top:-5%}.hero-index{left:22px;bottom:23px}.intro-band,.role-section{padding:70px 22px}.intro-grid{grid-template-columns:1fr;gap:20px}.intro-grid h2,.role-heading h2{font-size:42px}.intro-grid>p{font-size:13px}.feature-strip{margin-top:38px;grid-template-columns:1fr}.feature-item{min-height:112px;padding:21px 0;grid-template-columns:33px 1fr 26px}.feature-item+.feature-item{padding-left:0;border-left:0}.role-heading{align-items:flex-start;gap:16px;flex-direction:column}.role-cards{grid-template-columns:1fr}.role-card{min-height:245px}.closing-cta{padding:58px 22px;align-items:flex-start;flex-direction:column}.closing-cta h2{font-size:44px}.site-footer{padding:20px 22px;flex-wrap:wrap}.site-footer p{order:3;width:100%}.auth-page{display:flex;flex-direction:column}.auth-visual{min-height:275px;padding:21px 22px}.auth-visual-copy{margin:22px 0 52px;padding:0}.auth-visual-copy h1{font-size:38px;max-width:380px}.auth-visual-copy>p{font-size:11px;max-width:300px;margin:0}.auth-visual-image{width:43%;height:72%;right:-7%;bottom:-23%;opacity:.72}.auth-content{padding:30px 22px 42px}.auth-content-top{margin-bottom:24px}.auth-card h2{font-size:30px}.demo-box{margin-top:20px}.demo-account code{font-size:9px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}}
+
+html.dark{color-scheme:dark;--ink:#f4f6ef;--muted:#bbc8bf;--paper:#17241e;--white:#203128;--line:#46534a;--lime:#d8f078;--green:#d8f078;--orange:#f2a176}
+html.dark body{background:var(--paper);color:var(--ink)}
+html.dark .site-header{background:rgba(23,36,30,.96);border-color:#46534a}
+html.dark .main-nav{color:#d4ddd5}
+html.dark .main-nav .nav-login{border-color:#66736a;color:var(--ink)}
+html.dark .menu-toggle{background:#203128;border-color:#46534a;color:var(--ink)}
+html.dark .eyebrow{color:#d8f078}
+html.dark .intro-band{background:#203128;color:var(--ink)}
+html.dark .intro-grid p,html.dark .feature-item p,html.dark .role-card p,html.dark .role-index{color:#bbc8bf}
+html.dark .feature-item{border-color:#46534a}
+html.dark .role-card{color:var(--ink);border:1px solid #46534a}
+html.dark .role-student{background:#26392d}
+html.dark .role-faculty{background:#3b3027}
+html.dark .role-admin{background:#293431}
+html.dark .role-icon{border-color:#718075}
+html.dark .role-card>a,html.dark .text-link{color:#d8f078}
+html.dark .role-note,html.dark .site-footer{color:#bbc8bf}
+html.dark .closing-cta{background:#294534;color:#f4f6ef}
+html.dark .closing-cta .eyebrow{color:#d8f078}
+html.dark .button-dark{background:#d8f078;color:#17241e}
+html.dark .button-light{background:#f4f6ef;color:#17241e}
+html.dark .photo-caption,html.dark .floating-note{background:#203128;color:#f4f6ef;border-color:#46534a}
+html.dark .site-footer{border-color:#46534a}

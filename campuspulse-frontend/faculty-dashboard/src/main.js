@@ -1,5 +1,8 @@
 import './styles.css'
 import { startPortalAuth } from './portal-auth.js'
+import { initializeTheme } from './theme.js'
+
+initializeTheme()
 
 const icon = (name) => `<span class="icon icon-${name}" aria-hidden="true"></span>`
 let portalAuth = null
@@ -44,7 +47,7 @@ function shell(content) {
       <div class="sidebar-user"><div class="avatar small">${safeHtml(initialsFor(displayName()))}</div><div class="sidebar-label user-copy"><strong>${safeHtml(displayName())}</strong><span>${safeHtml(portalAuth?.user?.email || 'Faculty')}</span></div><button class="signout-button" data-action="logout" type="button">Sign out</button></div>
     </aside>
     <main class="main-area">
-      <header class="topbar"><div class="breadcrumbs"><span class="muted">CampusPulse</span><span>/</span><strong>${routeNames[activeRoute]}</strong></div><div class="top-actions"><button class="icon-button" data-action="notify" aria-label="Notifications">♧<span class="notification-dot"></span></button><button class="profile-chip" data-action="profile"><span class="avatar tiny">${safeHtml(initialsFor(displayName()))}</span><span class="profile-chip-name">${safeHtml(displayName())}</span><span>⌄</span></button></div></header>
+      <header class="topbar"><div class="breadcrumbs"><span class="muted">CampusPulse</span><span>/</span><strong>${routeNames[activeRoute]}</strong></div><div class="top-actions"><button class="icon-button" data-action="notify" aria-label="Notifications">♧<span class="notification-dot"></span></button><button class="icon-button" data-theme-toggle aria-label="Switch to dark mode" aria-pressed="false"><span data-theme-icon aria-hidden="true">☾</span></button><button class="profile-chip" data-action="profile"><span class="avatar tiny">${safeHtml(initialsFor(displayName()))}</span><span class="profile-chip-name">${safeHtml(displayName())}</span><span>⌄</span></button></div></header>
       <div class="content-wrap">${portalAuth?.demo ? '<aside class="demo-access-banner" role="status">ANONYMOUS DEMO · Sample data only; no Supabase session, live records, or backend changes.</aside>' : ''}<p id="demo-note" class="muted" role="note">Local demo only — changes stay in this page and are not saved or sent.</p>${content}</div>
     </main>
     <div id="toast" class="toast" role="status"></div>
