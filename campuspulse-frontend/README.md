@@ -25,3 +25,15 @@ The server listens on `PORT` (default `3000`) and serves the frontend without th
 Internal bottom navigation keeps the current theme. Use `Alt+Shift+D` to switch themes; the root route remembers the last chosen mode. The full design-system reference is available at `public/design-system.md`, and `public/manus-routes.json` declares all page routes.
 
 Likes, saved posts, event registration, and feed filters use temporary frontend state; authentication and user-data persistence are not connected.
+
+## Faculty dashboard
+
+The responsive faculty workspace is available in [`faculty-dashboard/`](faculty-dashboard/). It is a Vite frontend with routes for the faculty dashboard, attendance, assignments, timetable and hybrid teaching, courses and performance, AI workflow, and faculty profile/CV.
+
+```bash
+cd faculty-dashboard
+npm install
+npm run dev
+```
+
+The faculty app listens on port `3000`. See [`faculty-dashboard/README.md`](faculty-dashboard/README.md) for the complete route list and implementation notes. The original student frontend above remains unchanged.
