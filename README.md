@@ -165,3 +165,17 @@ Not verified: end-to-end password sign-in with the local demo seed (local Supaba
 ## Assets
 
 Some campus/student images use `/manus-storage/...` project-managed asset paths and are not included in Git. For standalone hosting, copy those assets to storage you control and update the mappings in `campuspulse-frontend/server.js`.
+
+
+## Deploy to Vercel
+
+The repository can be deployed as three separate Vercel projects, all connected to the same GitHub repository. Set each Vercel project's **Root Directory** to the matching folder: `campuspulse-frontend` (Student), `campuspulse-frontend/faculty-dashboard` (Faculty), and `campuspulse-admin-dashboard` (Admin). The committed `vercel.json` files define each production build, function routing, and SPA/friendly-route behavior. Student runs its Tailwind-and-static build; the faculty/admin projects run `npm run build`.
+
+For **each** project, configure these runtime environment variables in Vercel for Production and Preview:
+
+- `SUPABASE_URL` — the Supabase project URL.
+- `SUPABASE_PUBLISHABLE_KEY` — the Supabase publishable key only. It is designed to be available to browser clients; never configure a service-role or AI-provider key in a frontend project.
+
+Also configure `FACULTY_PORTAL_URL` and `ADMIN_PORTAL_URL` on the Student project with the public HTTPS deployment origins for the Faculty and Admin projects. The student `/api/config` function returns these URLs and the two Supabase public settings at runtime. Redeploy after changing project environment variables. Configure the Supabase Auth Site URL and redirect allowlist to match the deployed portal origins before testing password recovery or invitation links.
+
+Vercel project creation and runtime environment values are account-level settings and are not stored in this repository. Preview deployments use the same Supabase project unless separate Preview values are configured; treat that database as shared production data. The portals' authenticated dashboard records are still mock data as noted above, and the repository's Supabase Edge Functions must be deployed/configured separately.
