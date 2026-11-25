@@ -119,7 +119,7 @@ supabase test db
 
 The pgTAP suite is `supabase/tests/database/security.test.sql` and now plans **58 assertions**: structural invariants plus a fixture-driven cross-role behavioural matrix (student A vs peer student vs cross-college student, owning vs non-owning faculty, admin vs foreign-college admin) across `notices`, `courses`, `course_enrollments`, `profiles`, `assignments` and `assignment_submissions`, including denial paths and the MIME/extension constraint. The fixtures are created inside the test transaction and rolled back.
 
-The authoring environment for this change had no Docker, Supabase CLI, `psql` or Deno, so the SQL suite, a seeded local sign-in, and Deno type checks could not be executed here. The Node suites (65 tests), the secret scan, the Tailwind rebuild and the full Student/Faculty/Admin production build plus a same-origin HTTP smoke test over every route and asset **were** executed. Review [testing instructions](docs/backend/testing.md) and run `supabase test db` before relying on the database checks.
+The authoring environment for this change had no Docker, Supabase CLI, `psql` or Deno, so the SQL suite, a seeded local sign-in and Deno type checks could not be executed here; the four Edge Functions were instead parsed and bundled with `esbuild` (imports resolved, no syntax errors), which is not a typecheck. The Node suites (65 tests), the secret scan, the Tailwind rebuild and the full Student/Faculty/Admin production build plus a same-origin HTTP smoke test over every route and asset **were** executed. Review [testing instructions](docs/backend/testing.md) and run `supabase test db` before relying on the database checks.
 
 ## Verification status
 

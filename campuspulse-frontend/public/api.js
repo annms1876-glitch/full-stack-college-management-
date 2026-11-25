@@ -60,7 +60,12 @@ export const api = {
   signedUrl: async (bucket, path) => {
     await currentUser();
     const { data, error } = await client().functions.invoke("get-signed-url", { body: { bucket, path } });
-    if (error) throw new Error(data?.error || error.message || "Could not create a download link.");
+    if (error) {
+      // Surface the function's own 403/422 message instead of the generic non-2xx text.
+      let message = data?.error || error.message || "Could not create a download link.";
+      try { const body = await error.context?.json?.(); if (body?.error) message = body.error; } catch {}
+      throw new Error(message);
+    }
     if (data?.error) throw new Error(data.error);
     return data;
   },
