@@ -23,3 +23,14 @@ Status: In progress.
 - Preserve the radial outward transition when toggling dark mode.
 
 Status: In progress.
+
+## Outcome: PS-03 remediation (mock data, enrolment, seed, Edge, assets) — complete in source
+
+- Faculty and Admin portals now read/write Supabase for notices, courses, enrolment, assignments, submissions, grading, invitations and role changes.
+- Student feed and study hub render live notices/courses/assignments and upload to the private `assignments` bucket with signed-URL downloads.
+- `scripts/seed-demo-users.mjs` seeds the demo college, roles, courses, enrolments, notices and assignments idempotently.
+- `/manus-storage/...` references replaced with committed local illustrations.
+- `get-signed-url` Edge Function + magic-byte and MIME/extension validation added; pgTAP matrix expanded to 58 assertions.
+- Remaining operator work: deploy Edge Functions with secrets, run `supabase test db` locally, publish the Vercel URL/PPT/video (`docs/demo-walkthrough.md`).
+
+Status: Done in source; deployment and recording pending.

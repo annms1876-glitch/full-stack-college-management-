@@ -1,5 +1,7 @@
 # CampusPulse storage security audit
 
+**Status update (remediation N4):** a signed-URL endpoint now exists at `supabase/functions/get-signed-url/` with JWT verification, RLS-proofed ownership lookup, a 30/minute per-user throttle, a 30–300 second TTL clamp, strict bucket/path validation, and a ranged magic-byte check of the stored object before signing. The audit findings below describe the pre-implementation state and remain the test checklist for that endpoint.
+
 **Scope:** Static review of `supabase/migrations/202611260004_storage_buckets_and_policies.sql`, the relevant authorization helpers and table constraints in migrations `202611260001` and `202611260002`, and `docs/backend/storage.md`. The repository contains no application storage SDK implementation or signed-URL endpoint to inspect. No live Supabase project was available, so policy execution, runtime name normalization, and signed-URL issuance were not exercised.
 
 ## Verdict
