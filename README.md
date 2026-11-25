@@ -42,3 +42,48 @@ campuspulse-frontend/
 ### Asset note
 
 The logo is included in the repository. Some campus and student photos use `/manus-storage/...` project-managed asset paths; those image files are not part of this repository. For a standalone deployment, mirror those images to your own image storage and update the mappings in `campuspulse-frontend/server.js`.
+
+## Faculty dashboard frontend
+
+The repository now also includes a responsive CampusPulse faculty workspace under [`campuspulse-frontend/faculty-dashboard/`](campuspulse-frontend/faculty-dashboard/). It preserves the existing student frontend and adds a separate faculty-dashboard application based on the supplied faculty portal design.
+
+The faculty frontend includes the dashboard overview, attendance register and AI scripting, assignment management and AI generator, timetable and hybrid teaching, courses and performance, AI workflow assistant, and faculty profile/CV screens.
+
+### Faculty routes
+
+| Route | Screen |
+| --- | --- |
+| `/` | Faculty dashboard overview |
+| `/courses` | Courses, performance, materials, and notices |
+| `/timetable` | Timetable, hybrid teaching, and lesson AI |
+| `/attendance` | Attendance register and AI scripting |
+| `/assignments` | Assignment management and AI generator |
+| `/workflow` | AI workflow assistant |
+| `/profile` | Faculty profile and academic CV |
+
+### Run the faculty dashboard locally
+
+```bash
+cd campuspulse-frontend/faculty-dashboard
+npm install
+npm run dev
+```
+
+The Vite development server listens on port `3000`. Create a production build with `npm run build`; output is written to `dist/` and ignored by Git. The route manifest is available at [`campuspulse-frontend/faculty-dashboard/public/manus-routes.json`](campuspulse-frontend/faculty-dashboard/public/manus-routes.json).
+
+The faculty dashboard is intentionally frontend-only for this deliverable. Screens use local mock data and browser-side interactions; authentication, persistence, APIs, and database wiring are not included.
+
+### Updated structure
+
+```text
+campuspulse-frontend/
+├── faculty-dashboard/          # Responsive Vite faculty portal frontend
+│   ├── src/main.js             # Routes, mock data, and interactions
+│   ├── src/styles.css          # CampusPulse design system and responsive styles
+│   ├── public/manus-routes.json
+│   ├── package.json
+│   └── README.md
+├── public/                     # Existing student frontend assets and screens
+├── server.js                   # Existing student static server
+└── README.md
+```
