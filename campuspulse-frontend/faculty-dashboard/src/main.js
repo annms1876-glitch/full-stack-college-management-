@@ -6,6 +6,8 @@ initializeTheme()
 
 const icon = (name) => `<span class="icon icon-${name}" aria-hidden="true"></span>`
 let portalAuth = null
+let facultyData = { courses: [], assignments: [], submissions: [], notices: [] }
+let facultyDataLoaded = false
 const safeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
 const displayName = () => portalAuth?.profile?.full_name || 'Faculty account'
 const initialsFor = (name) => name.split(/\s+/).filter(Boolean).map(part => part[0]).slice(0, 2).join('').toUpperCase() || 'F'
@@ -76,7 +78,10 @@ function dashboard() {
 }
 
 function courses() {
-  return pageHeader('Academic records', 'Courses, Performance, Materials & Notices', 'A consolidated view of your teaching portfolio and student outcomes.', `<div class="segmented"><button class="selected">Overview</button><button>Courses</button><button>Notices</button></div>`) + `<div class="course-grid">${[['CS301','Data Structures & Algorithms','Semester V · 42 students','91%','success','6 materials'],['CS405','Database Management Systems','Semester V · 38 students','84%','blue','4 materials'],['CS212','Operating Systems','Semester III · 31 students','79%','warning','8 materials'],['CS506','Machine Learning','Semester VII · 31 students','86%','success','5 materials']].map(x => `<div class="course-card"><div class="course-code mono">${x[0]}</div><h2>${x[1]}</h2><p>${x[2]}</p><div class="course-foot"><span class="course-attendance ${x[4]}">${x[3]} attendance</span><span class="muted">${x[5]}</span></div></div>`).join('')}</div><div class="two-col">${card('Student performance <span class="card-sub">CS301 · Sem V-A</span>', `<div class="table-tools"><span class="muted">Continuous assessment</span><select><option>All students</option><option>Top performers</option><option>Needs attention</option></select></div><div class="table-wrap"><table><thead><tr><th>Student</th><th>Attendance</th><th>Assignments</th><th>Average</th><th>Status</th></tr></thead><tbody>${[['Aarav Mehta','96%','8 / 8','91%','Excellent'],['Ishita Rao','92%','7 / 8','88%','Excellent'],['Kabir Shah','78%','6 / 8','71%','On track'],['Meera Nair','68%','5 / 8','64%','Attention']].map(x => `<tr><td><strong>${x[0]}</strong><span class="muted mono">CS301-${x[0].slice(0,2).toUpperCase()}</span></td><td>${x[1]}</td><td>${x[2]}</td><td><strong>${x[3]}</strong></td><td>${pill(x[4], x[4] === 'Attention' ? 'warning' : x[4] === 'Excellent' ? 'success' : 'blue')}</td></tr>`).join('')}</tbody></table></div>`) + card('Notices & announcements', `<div class="notice-stack">${[['Assessment schedule released','Internal assessments begin from 2 Dec 2026.','Academic office','Today'],['Faculty development workshop','AI-assisted pedagogy · 28 Nov · Seminar Hall 2','Dean’s office','Yesterday'],['Upload course files','Please upload final reading lists for next semester.','Department office','24 Nov']].map(x => `<div class="notice"><span class="notice-icon">♢</span><div><strong>${x[0]}</strong><p>${x[1]}</p><small>${x[2]} <span>· ${x[3]}</span></small></div></div>`).join('')}</div>`)}</div>`
+  const data = facultyData
+  const cards = data.courses.length ? data.courses.map(c => `<div class="course-card"><div class="course-code mono">${safeHtml(c.code)}</div><h2>${safeHtml(c.title)}</h2><p>${safeHtml(c.term)} · ${(c.course_enrollments || []).filter(e => e.status === 'active').length} students</p><div class="course-foot"><span class="course-attendance blue">Live Supabase record</span></div></div>`).join('') : '<p class="muted">No courses are assigned to this faculty account yet.</p>'
+  const notices = data.notices.length ? data.notices.map(n => `<div class="notice"><span class="notice-icon">♢</span><div><strong>${safeHtml(n.title)}</strong><p>${safeHtml(n.body)}</p><small>Published ${new Date(n.published_at).toLocaleDateString()}</small></div></div>`).join('') : '<p class="muted">No notices published yet.</p>'
+  return pageHeader('Academic records', 'Courses & Notices', 'Live courses, enrollment counts, and notices from the CampusPulse database.', btn('Publish notice', 'primary', 'new-notice')) + `<div class="course-grid">${cards}</div><div class="two-col">${card('Notices & announcements', `<div class="notice-stack">${notices}</div>`)}${card('Connection status', `<p class="muted">${facultyDataLoaded ? 'Connected to Supabase. Changes are persisted under RLS.' : 'Loading live records…'}</p>`)}</div>`
 }
 
 function timetable() {
@@ -102,10 +107,10 @@ Dr. Ananya Deshmukh`
 }
 
 function assignments() {
-  const generator = '<div class="script-header"><span class="ai-orb small-orb">✦</span><div><h3>Start with a brief</h3><p>Describe what you want students to practice. CampusPulse will structure the rest.</p></div></div><label class="field-label">Course</label><select class="input"><option>CS301 · Data Structures & Algorithms</option><option>CS405 · Database Management Systems</option></select><label class="field-label">Learning objective</label><textarea class="input textarea">Compare AVL tree rotations and explain how balancing impacts search complexity.</textarea><div class="form-row"><div><label class="field-label">Difficulty</label><select class="input"><option>Intermediate</option><option>Advanced</option></select></div><div><label class="field-label">Due date</label><input class="input" type="date" value="2026-12-04" /></div></div>'+btn('Generate assignment','primary','generate-assignment')
-  const preview = '<div class="assignment-preview"><div class="preview-meta"><span class="mono">CS301 · Assignment 04</span>'+pill('Draft','blue')+'</div><h2 contenteditable="true">AVL Tree Rotations & Collision Resolution</h2><p class="muted">Data Structures & Algorithms · Due 04 Dec 2026</p><hr /><h3>Instructions</h3><p>Implement insertion and deletion in an AVL tree. Document each rotation performed and explain the resulting time complexity for each operation.</p><h3>Submission requirements</h3><ul class="clean-list"><li>Source code with meaningful comments</li><li>Rotation trace for the supplied input set</li><li>A short reflection on balancing trade-offs</li></ul><div class="preview-actions">'+btn('Save as draft','secondary','save-assignment')+btn('Publish to class','primary','publish-assignment')+'</div></div>'
-  const rows = [['Assignment 03 · Graph Traversal','21 Nov 2026','38 / 42','82%','Closed'],['Assignment 02 · Hash Tables','07 Nov 2026','42 / 42','88%','Graded'],['Assignment 01 · Complexity Analysis','24 Oct 2026','41 / 42','79%','Graded']].map(x => '<tr><td><strong>'+x[0]+'</strong><span class="muted">CS301 · Semester V</span></td><td>'+x[1]+'</td><td>'+x[2]+'</td><td>'+x[3]+'</td><td>'+pill(x[4], x[4] === 'Closed' ? 'neutral' : 'success')+'</td></tr>').join('')
-  return pageHeader('Faculty operations', 'Assignment Management', 'Create, distribute, and review coursework with a little help from AI.', btn('New assignment', 'primary', 'new-assignment')) + '<div class="two-col assignment-cols">'+card('AI assignment generator', generator)+card('Generated assignment', preview)+'</div><div class="section-heading"><h2>Class assignments & submissions</h2><span class="muted">CS301 · 42 students</span></div><div class="card table-wrap"><table><thead><tr><th>Assignment</th><th>Due date</th><th>Submitted</th><th>Average</th><th>Status</th></tr></thead><tbody>'+rows+'</tbody></table></div>'
+  const data = facultyData
+  const courseOptions = data.courses.map(c => `<option value="${c.id}">${safeHtml(c.code)} · ${safeHtml(c.title)}</option>`).join('')
+  const rows = data.assignments.length ? data.assignments.map(a => { const count = data.submissions.filter(s => s.assignment_id === a.id).length; return `<tr><td><strong>${safeHtml(a.title)}</strong><span class="muted">${safeHtml(a.course?.code || '')}</span></td><td>${new Date(a.due_at).toLocaleDateString()}</td><td>${count}</td><td>${safeHtml(a.max_points)}</td><td>${pill('Published','success')}</td></tr>` }).join('') : '<tr><td colspan="5" class="muted">No assignments created yet.</td></tr>'
+  return pageHeader('Faculty operations', 'Assignment Management', 'Create assignments for assigned courses and review real student submissions.', btn('Refresh', 'secondary', 'refresh-live')) + `<div class="card"><form id="assignment-form" class="form-grid"><label class="field-label">Course<select class="input" name="course_id" required>${courseOptions}</select></label><label class="field-label">Title<input class="input" name="title" maxlength="200" required placeholder="Assignment title" /></label><label class="field-label">Due date<input class="input" name="due_at" type="datetime-local" required /></label><label class="field-label">Description<textarea class="input textarea" name="description" maxlength="20000" required></textarea></label><button class="btn primary" type="submit">Publish assignment</button></form></div><div class="section-heading"><h2>Class assignments & submissions</h2><span class="muted">${data.submissions.length} submissions</span></div><div class="card table-wrap"><table><thead><tr><th>Assignment</th><th>Due date</th><th>Submitted</th><th>Points</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table></div>`
 }
 
 function workflow() {
@@ -126,6 +131,20 @@ function profile() {
   return pageHeader('Faculty workspace', 'Faculty Profile & Academic Portfolio', 'Keep your teaching identity, research interests, and CV ready to share.', btn('Export PDF', 'primary', 'export-pdf')) + '<div class="profile-layout">'+profileCard+'<div class="cv-column">'+cv+history+'</div></div>'
 }
 
+async function loadFacultyData() {
+  if (!portalAuth?.client || portalAuth.demo) return
+  const c = portalAuth.client, id = portalAuth.user.id
+  const [courses, assignments, submissions, notices] = await Promise.all([
+    c.from('courses').select('id,code,title,term,course_enrollments(student_id,status)').eq('faculty_id', id).order('code'),
+    c.from('assignments').select('id,title,due_at,max_points,course_id,course:courses!inner(id,code,title,faculty_id)').eq('course.faculty_id', id).order('due_at'),
+    c.from('assignment_submissions').select('id,assignment_id,student_id,status,submitted_at,assignment:assignments!inner(course:courses!inner(faculty_id))').eq('assignment.course.faculty_id', id),
+    c.from('notices').select('id,title,body,published_at').eq('author_id', id).order('published_at', { ascending: false })
+  ])
+  for (const result of [courses, assignments, submissions, notices]) if (result.error) throw result.error
+  facultyData = { courses: courses.data || [], assignments: assignments.data || [], submissions: submissions.data || [], notices: notices.data || [] }
+  facultyDataLoaded = true
+}
+
 function render() {
   const pages = { dashboard, courses, timetable, attendance, assignments, workflow, profile }
   document.querySelector('#app').innerHTML = shell(pages[activeRoute]())
@@ -134,6 +153,9 @@ function render() {
 
 function toast(message) { const el = document.querySelector('#toast'); if (!el) return; el.textContent = message; el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 2600) }
 function bindEvents() {
+  document.querySelectorAll("[data-action=\"refresh-live\"]").forEach(el => el.onclick = async () => { try { await loadFacultyData(); render(); } catch (e) { toast(e.message || "Could not load live records.") } })
+  document.querySelectorAll("[data-action=\"new-notice\"]").forEach(el => el.onclick = () => { const title = prompt("Notice title"); const body = title && prompt("Notice body"); if (!title || !body || !portalAuth?.client || portalAuth.demo) return toast("A verified faculty session is required."); portalAuth.client.from("notices").insert({ title, body, audience: "students", college_id: portalAuth.profile.college_id, author_id: portalAuth.user.id }).then(({ error }) => { if (error) toast(error.message); else { toast("Notice published."); loadFacultyData().then(render) } }) })
+  document.querySelector("#assignment-form")?.addEventListener("submit", async event => { event.preventDefault(); const values = new FormData(event.currentTarget); try { const { error } = await portalAuth.client.from("assignments").insert({ course_id: values.get("course_id"), title: String(values.get("title")).trim(), description: String(values.get("description")).trim(), due_at: new Date(String(values.get("due_at"))).toISOString(), created_by: portalAuth.user.id }).select().single(); if (error) throw error; toast("Assignment published."); await loadFacultyData(); render() } catch (error) { toast(error.message || "Assignment could not be published.") } })
   document.querySelectorAll('[data-action="collapse"]').forEach(el => el.onclick = () => { collapsed = !collapsed; render() })
   document.querySelectorAll('[data-action="profile"]').forEach(el => el.onclick = () => navigate('profile'))
   document.querySelectorAll('[data-action="logout"]').forEach(el => el.onclick = async () => { if (portalAuth?.demo) { sessionStorage.removeItem('campuspulse:faculty-demo'); location.replace('/'); return } try { const { error } = await portalAuth?.client.auth.signOut(); if (error) throw error; location.replace('/') } catch (error) { toast(error.message || 'Could not sign out.') } })
@@ -171,4 +193,4 @@ document.addEventListener('click', e => {
   navigate(routeFromPath(pathname))
 })
 window.addEventListener('popstate', () => { activeRoute = routeFromPath(); render() })
-startPortalAuth({ onAuthorized: (session) => { portalAuth = session; render() } })
+startPortalAuth({ onAuthorized: async (session) => { portalAuth = session; render(); try { await loadFacultyData(); render() } catch (error) { toast(error.message || "Could not load live faculty data.") } } })

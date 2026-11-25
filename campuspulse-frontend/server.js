@@ -48,13 +48,13 @@ const MIME_TYPES = {
 };
 
 const IMAGE_REPLACEMENTS = {
-  "ALJJyrDerPS2l3M99": "/manus-storage/async-images/tIMMXbdwAHVy5Nlq2fTO0K/image-1.webp",
-  "ALJJyrBWzizFfB_K": "/manus-storage/async-images/tIMMXbdwAHVy5Nlq2fTO0K/image-1.webp",
+  "ALJJyrDerPS2l3M99": "/assets/campuspulse-campus-hero.png",
+  "ALJJyrBWzizFfB_K": "/assets/campuspulse-campus-hero.png",
   "ALJJyrD27Av7MK_": "/brand/campus-logo-144-712f764a4b82.webp",
-  "ALJJyrBXDQY-wzzb": "/manus-storage/async-images/tIMMXbdwAHVy5Nlq2fTO0K/image-2.webp",
-  "ALJJyrC_eoL-ICo": "/manus-storage/async-images/tIMMXbdwAHVy5Nlq2fTO0K/image-3.webp",
-  "ALJJyrDF4dExuwU9": "/manus-storage/async-images/tIMMXbdwAHVy5Nlq2fTO0K/image-4.webp",
-  "ALJJyrABqBD-QY0j": "/manus-storage/async-images/tIMMXbdwAHVy5Nlq2fTO0K/image-5.webp",
+  "ALJJyrBXDQY-wzzb": "/assets/campuspulse-campus-hero.png",
+  "ALJJyrC_eoL-ICo": "/assets/campuspulse-campus-hero.png",
+  "ALJJyrDF4dExuwU9": "/assets/campuspulse-campus-hero.png",
+  "ALJJyrABqBD-QY0j": "/assets/campuspulse-campus-hero.png",
 };
 
 const server = http.createServer((req, res) => {

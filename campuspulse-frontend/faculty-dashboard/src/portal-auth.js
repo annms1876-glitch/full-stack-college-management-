@@ -25,7 +25,8 @@ async function verifyRole(client, user, expectedRole) {
   const { data, error } = await client.from('profiles').select('id, full_name, role').eq('id', user.id).single();
   if (error) throw new Error(`Could not verify your CampusPulse profile: ${error.message}. Confirm migrations are applied and the account is provisioned.`);
   if (data?.role !== expectedRole) throw new Error(`This account has the ${data?.role || 'unassigned'} role. The faculty portal requires a faculty profile.`);
-  return data;
+  const { data: college } = await client.from('profiles').select('college_id').eq('id', user.id).single();
+  return { ...data, college_id: college?.college_id || null };
 }
 
 export async function startPortalAuth({ onAuthorized }) {

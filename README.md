@@ -153,7 +153,7 @@ Not verified: end-to-end password sign-in with the local demo seed (local Supaba
 
 ## Assets
 
-Some campus/student images use `/manus-storage/...` project-managed asset paths and are not included in Git. For standalone hosting, copy those assets to storage you control and update the mappings in `campuspulse-frontend/server.js`.
+Campus/student images are served from committed local assets under `campuspulse-frontend/public/assets/`; standalone hosting does not require managed asset storage.
 
 
 ## Deploy to Vercel
