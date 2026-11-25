@@ -307,7 +307,7 @@ if (typeof module !== 'undefined') module.exports = globalThis.tailwind.config;
                 <p class="font-body text-body-sm text-dark-on-surface-variant" data-design-text-token="body-sm">Faculty: Dr. Priya Nair • Lead: Aarav K.</p>
               </div>
             </div>
-            <button type="button" class="join-club-btn rounded-full bg-success-container text-on-success-container px-3.5 py-1.5 font-label text-label-md shrink-0" data-joined="true">Joined ✓</button>
+            <button type="button" class="join-club-btn rounded-full bg-dark-primary text-dark-on-primary px-3.5 py-1.5 font-label text-label-md shrink-0" data-joined="false">Join Club</button>
           </div>
           <p class="font-body text-body-md text-dark-on-surface-variant" data-design-text-token="body-md">Competitive programming, open-source sprints, and HackVIT flagship hackathon.</p>
           <p class="font-mono text-mono-sm text-dark-primary" data-design-text-token="mono-sm">Next Meeting: Thu 5:00 PM • Seminar Hall 2</p>
@@ -479,39 +479,19 @@ if (typeof module !== 'undefined') module.exports = globalThis.tailwind.config;
       });
     });
 
-    // Register Now toggle
+    // Sample event registration is preview-only; no RSVP is persisted.
     document.querySelectorAll('.register-event-btn').forEach((btn) => {
       btn.addEventListener('click', () => {
-        const reg = btn.getAttribute('data-registered') === 'true';
-        btn.setAttribute('data-registered', reg ? 'false' : 'true');
-        if (reg) {
-          btn.textContent = 'Register Now';
-          btn.classList.remove('bg-success-container', 'text-on-success-container');
-          btn.classList.add('bg-dark-primary', 'text-dark-on-primary');
-        } else {
-          btn.textContent = 'Registered ✓';
-          btn.classList.remove('bg-dark-primary', 'text-dark-on-primary');
-          btn.classList.add('bg-success-container', 'text-on-success-container');
-        }
+        const status = document.getElementById('campuspulse-demo-status') || (() => {
+          const el = document.createElement('p'); el.id = 'campuspulse-demo-status';
+          el.setAttribute('role', 'status'); el.setAttribute('aria-live', 'polite');
+          btn.closest('main')?.prepend(el); return el;
+        })();
+        status.textContent = 'Preview only: event registration is not connected and was not saved.';
       });
     });
+    // Club buttons are handled by the API integration when a matching backend record exists.
 
-    // Join Club toggle
-    document.querySelectorAll('.join-club-btn').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const joined = btn.getAttribute('data-joined') === 'true';
-        btn.setAttribute('data-joined', joined ? 'false' : 'true');
-        if (joined) {
-          btn.textContent = 'Join Club';
-          btn.classList.remove('bg-success-container', 'text-on-success-container');
-          btn.classList.add('bg-dark-primary', 'text-dark-on-primary');
-        } else {
-          btn.textContent = 'Joined ✓';
-          btn.classList.remove('bg-dark-primary', 'text-dark-on-primary');
-          btn.classList.add('bg-success-container', 'text-on-success-container');
-        }
-      });
-    });
   </script>
 
 

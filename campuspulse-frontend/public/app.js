@@ -20,10 +20,39 @@ const signout=document.querySelector('[data-action="signout"],#btn-signout');if(
 // Session-gated route behavior; public browse screens remain accessible.
 if(["/profile","/study"].some(x=>path.endsWith(x))){Promise.resolve().then(()=>api.session()).then(({data,error})=>{if(error)throw error;if(!data.session){statusBox("Sign in to access your account-specific profile and study records.");return}if(path.endsWith("/profile"))api.profile(data.session.user.id).then(p=>{const name=document.querySelector("h1");if(name&&p.full_name)name.textContent=p.full_name;statusBox("Profile loaded.")}).catch(e=>statusBox(`Profile unavailable: ${e.message}`,true))}).catch(e=>statusBox(`Session check failed: ${e.message}`,true))}
 // Existing static sample feed cards have no database post IDs, so avoid pretending that a local toggle persisted.
-document.querySelectorAll(".like-btn,.save-btn").forEach(b=>{b.addEventListener("click",async e=>{e.preventDefault();const id=b.closest("[data-post-id]")?.dataset.postId;if(!id){toast("This sample post is static and cannot be liked or saved yet.");return}try{const enabled=b.getAttribute("aria-pressed")!=="true";await (b.classList.contains("like-btn")?api.like(id,enabled):api.save(id,enabled));b.setAttribute("aria-pressed",String(enabled));toast(enabled?"Saved successfully.":"Removed successfully.")}catch(err){toast(err.message)}})});
+document.querySelectorAll(".like-btn,.save-btn").forEach(b=>{b.addEventListener("click",async e=>{e.preventDefault();const id=b.closest("[data-post-id]")?.dataset.postId;if(!id){toast("This sample post is static and cannot be liked or saved yet.");return}const enabled=b.getAttribute("aria-pressed")!=="true",like=b.classList.contains("like-btn"),icon=b.querySelector(".material-symbols-outlined,.material-symbols-rounded,.material-icons");try{const result=await (like?api.like(id,enabled):api.save(id,enabled));if(result?.error)throw result.error;b.setAttribute("aria-pressed",String(enabled));if(like){if(icon)icon.textContent=enabled?"favorite":"favorite_border";const count=b.querySelector(".like-count"),n=Number(count?.textContent??b.dataset.count);if(Number.isFinite(n)){const next=n+(enabled?1:-1);if(count)count.textContent=String(next);b.dataset.count=String(next)}b.setAttribute("aria-label",enabled?"Unlike post":"Like post")}else{if(icon)icon.textContent=enabled?"bookmark":"bookmark_border";const prior=b.getAttribute("aria-label")||"Save post",subject=prior.replace(/^(Saved|Save)\s*/i,"");b.setAttribute("aria-label",`${enabled?"Saved":"Save"} ${subject}`)}toast(enabled?(like?"Liked successfully.":"Saved successfully."):(like?"Like removed.":"Removed successfully."))}catch(err){toast(`Not saved: ${err?.message||"Request failed."}`)}})});
 // Expose supported faculty directory query only. Current faculty screen is search/directory, not a dashboard.
 if(path.endsWith("/faculty")){statusBox("Loading faculty directory…");api.faculty().then(rows=>{statusBox(rows.length?`${rows.length} faculty profiles loaded. Search controls remain local to this directory.` : "No faculty profiles found.");const box=document.querySelector("main");if(box&&rows.length){const list=document.createElement("ul");list.setAttribute("aria-label","Faculty directory results");rows.forEach(p=>{const li=document.createElement("li");li.textContent=[p.full_name,p.bio].filter(Boolean).join(" — ");list.append(li)});box.append(list)}}).catch(e=>statusBox(`Faculty directory could not load: ${e.message}`,true))}
-if(path.endsWith("/clubs")){statusBox("Loading clubs…");api.clubs().then(rows=>{statusBox(rows.length?`${rows.length} clubs loaded from CampusPulse.`:"No clubs available yet.");const byName=new Map(rows.map(x=>[x.name.toLowerCase(),x]));document.querySelectorAll("button").forEach(b=>{if(!/join club/i.test(b.textContent||""))return;const card=b.closest("article,section,div"),name=card?.querySelector("h2,h3")?.textContent?.trim(),club=byName.get((name||"").toLowerCase());if(!club){b.addEventListener("click",()=>toast("This sample club has no matching backend record."));return}withBusy(b,async()=>{const {data:{user}}=await supabase.auth.getUser();if(!user)throw Error("Sign in to join clubs.");const member=(club.club_members||[]).some(m=>m.user_id===user.id);await api.joinClub(club.id,!member);b.textContent=member?"Join Club":"Joined";toast(member?"Left club.":"Joined club.")})})}).catch(e=>statusBox(`Clubs unavailable: ${e.message}`,true))}
+if(path.endsWith("/clubs")){
+  statusBox("Loading clubs…");
+  const joinButtons=[...document.querySelectorAll(".join-club-btn")];
+  const unavailable=()=>toast("Unavailable: no matching backend club is ready; membership was not saved.");
+  joinButtons.forEach(b=>b.addEventListener("click",unavailable));
+  api.clubs().then(async rows=>{
+    statusBox(rows.length?`${rows.length} clubs loaded from CampusPulse.`:"No clubs available yet.");
+    const {data:{user},error:userError}=await supabase.auth.getUser();
+    if(userError)throw userError;
+    const byName=new Map(rows.map(x=>[x.name.toLowerCase(),x]));
+    joinButtons.forEach(b=>{
+      const card=b.closest("article,section,div"),name=card?.querySelector("h2,h3")?.textContent?.trim(),club=byName.get((name||"").toLowerCase());
+      if(!club)return;
+      const replacement=b.cloneNode(true),initiallyMember=Boolean(user&&(club.club_members||[]).some(m=>m.user_id===user.id));
+      replacement.textContent=initiallyMember?"Leave Club":"Join Club";
+      b.replaceWith(replacement);
+      withBusy(replacement,async()=>{
+        const {data:{user:currentUser},error}=await supabase.auth.getUser();
+        if(error)throw error;
+        if(!currentUser)throw Error("Sign in to join clubs.");
+        const members=club.club_members||[],member=members.some(m=>m.user_id===currentUser.id),joining=!member;
+        const result=await api.joinClub(club.id,joining);
+        if(result?.error)throw result.error;
+        club.club_members=joining?[...members,{user_id:currentUser.id,role:"member"}]:members.filter(m=>m.user_id!==currentUser.id);
+        replacement.textContent=joining?"Leave Club":"Join Club";
+        toast(joining?"Membership saved.":"Membership removed.");
+      });
+    });
+  }).catch(e=>statusBox(`Clubs unavailable: ${e.message}`,true));
+}
 // Existing filter/tab/share controls remain local presentation behavior; buttons without schema-linked IDs are explicitly non-persistent.
 document.querySelectorAll(".feed-filter-chip").forEach(b=>b.addEventListener("click",()=>{const q=b.textContent.trim().toLowerCase(),rules={academics:/academic|exam|semester|attendance|study/i,events:/event|club|cultural/i,placements:/placement|internship|stipend/i};document.querySelectorAll(".feed-post").forEach(p=>p.hidden=Boolean(rules[q]&&!rules[q].test(p.textContent||"")))}));
 document.querySelectorAll(".share-btn").forEach(b=>b.addEventListener("click",async()=>{try{if(navigator.share)await navigator.share({title:"CampusPulse post",url:location.href});else await navigator.clipboard.writeText(location.href);toast("Link ready to share.")}catch(e){if(e.name!=="AbortError")toast("Could not share this link.")}}));

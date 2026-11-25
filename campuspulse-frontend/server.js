@@ -26,7 +26,7 @@ const ROUTES = {
   "/study": "/screens/light/study.html",
   "/clubs": "/screens/light/clubs.html",
   "/dark/feed": "/screens/dark/feed.html",
-  "/dark/login": "/screens/light/login.html",
+  "/dark/login": "/screens/dark/login.html",
   "/dark/faculty": "/screens/dark/faculty.html",
   "/dark/profile": "/screens/dark/profile.html",
   "/dark/study": "/screens/dark/study.html",

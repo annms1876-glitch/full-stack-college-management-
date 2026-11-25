@@ -14,7 +14,13 @@ Deno.serve(async (req) => {
     if (!await consumeLimit(db, "ai-assistant", 20, 60)) return jsonResponse({ error: "Rate limit exceeded" }, 429);
 
     let body: Record<string, unknown>;
-    try { body = await req.json(); } catch { return jsonResponse({ error: "Invalid request" }, 400); }
+    try {
+      const parsed: unknown = await req.json();
+      if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) {
+        return jsonResponse({ error: "Invalid request" }, 400);
+      }
+      body = parsed as Record<string, unknown>;
+    } catch { return jsonResponse({ error: "Invalid request" }, 400); }
     const prompt = boundedText(body.prompt, 2000);
     if (!prompt) return jsonResponse({ error: "Prompt required" }, 400);
     // Client-provided context is deliberately ignored. RLS scopes all queries to this JWT.

@@ -630,46 +630,7 @@ if (typeof module !== 'undefined') module.exports = globalThis.tailwind.config;
       });
     });
 
-    // Like & Save toggles
-    document.querySelectorAll('.like-btn').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const pressed = btn.getAttribute('aria-pressed') === 'true';
-        const icon = btn.querySelector('.material-symbols-outlined');
-        const countEl = btn.querySelector('.like-count');
-        let count = parseInt(btn.getAttribute('data-count') || '0', 10);
-        if (pressed) {
-          btn.setAttribute('aria-pressed', 'false');
-          icon.classList.remove('text-story-rose');
-          icon.style.fontVariationSettings = "'FILL' 0";
-          count -= 1;
-        } else {
-          btn.setAttribute('aria-pressed', 'true');
-          icon.classList.add('text-story-rose');
-          icon.style.fontVariationSettings = "'FILL' 1";
-          count += 1;
-        }
-        btn.setAttribute('data-count', String(count));
-        countEl.textContent = String(count);
-      });
-    });
-
-    document.querySelectorAll('.save-btn').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const pressed = btn.getAttribute('aria-pressed') === 'true';
-        const icon = btn.querySelector('.material-symbols-outlined');
-        if (pressed) {
-          btn.setAttribute('aria-pressed', 'false');
-          btn.classList.remove('text-light-primary');
-          icon.textContent = 'bookmark_border';
-          icon.style.fontVariationSettings = "'FILL' 0";
-        } else {
-          btn.setAttribute('aria-pressed', 'true');
-          btn.classList.add('text-light-primary');
-          icon.textContent = 'bookmark';
-          icon.style.fontVariationSettings = "'FILL' 1";
-        }
-      });
-    });
+    // Like/save actions are handled by the shared API wiring in /app.js.
 
     // Comment drawer toggle
     document.querySelectorAll('.comment-toggle-btn').forEach((btn) => {

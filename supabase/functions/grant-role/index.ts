@@ -17,7 +17,13 @@ Deno.serve(async (req) => {
     const { data: actor, error: actorError } = await caller.from("profiles").select("role").eq("id", user.id).maybeSingle();
     if (actorError || actor?.role !== "admin") return jsonResponse({ error: "Forbidden" }, 403);
     let body: Record<string, unknown>;
-    try { body = await req.json(); } catch { return jsonResponse({ error: "Invalid request" }, 400); }
+    try {
+      const parsed: unknown = await req.json();
+      if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) {
+        return jsonResponse({ error: "Invalid request" }, 400);
+      }
+      body = parsed as Record<string, unknown>;
+    } catch { return jsonResponse({ error: "Invalid request" }, 400); }
     const targetId = body.user_id;
     const newRole = body.role;
     const collegeId = body.college_id === null ? null : body.college_id;

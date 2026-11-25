@@ -576,39 +576,14 @@ if (typeof module !== 'undefined') module.exports = globalThis.tailwind.config;
       });
     });
 
-    // Submit Doubt dynamically
+    // Questions are a preview only; this screen has no question-submission API.
     document.getElementById('submit-doubt-btn').addEventListener('click', () => {
-      const titleInput = document.getElementById('doubt-title');
-      const descInput = document.getElementById('doubt-desc');
-      const cat = document.getElementById('doubt-category').value;
-      const title = (titleInput.value || '').trim();
-      const desc = (descInput.value || '').trim();
-      if (!title) return;
-
-      const list = document.getElementById('doubt-feed-list');
-      const card = document.createElement('article');
-      card.setAttribute('data-qcat', cat);
-      card.className = 'doubt-card bg-light-surface-container-lowest rounded-lg border border-light-outline-variant/60 p-gutter-lg flex flex-col gap-gutter-md';
-
-      const authorHtml = postMode === 'anonymous'
-        ? `<div class="w-9 h-9 rounded-full bg-light-inverse-surface text-light-inverse-on-surface flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[18px]">visibility_off</span></div><div><p class="font-title text-title-sm text-light-on-surface">Anonymous Student</p><p class="font-body text-body-sm text-light-on-surface-variant">Identity Hidden • Just now</p></div>`
-        : `<img src="https://lh3.googleusercontent.com/aida/ALJJyrDerPS2l3M99Gka6utSlKFegmlHUZC3Nt6xhDjiMoSkNxlPLUqWHhAsnv_lCIe31Xz8kKmvkN7HMtr6_w19IOia40G3tZ6lfkPzr_KHzGLRRO9aBxFbWGunioqXJiKibSHnRk7fndbPYo3uD4EVfzy24ps8XwNYt3vwXH7Wa6NInNqkngE4Lz2Vc1p4Zrj6io7iHph1h0sEBpGJuB1ox_n_j4pXr15G7r3nGBjjBAsY3g_nHXRM0xyxZZDVjQQ" alt="Aarav Kulkarni" class="w-9 h-9 rounded-full object-cover border border-light-outline-variant/50" /><div><p class="font-title text-title-sm text-light-on-surface">Aarav Kulkarni</p><p class="font-body text-body-sm text-light-on-surface-variant">CSE Sem 5 • Just now</p></div>`;
-
-      card.innerHTML = `
-        <header class="flex items-center justify-between">
-          <div class="flex items-center gap-gutter-sm">${authorHtml}</div>
-          <span class="font-label text-label-sm bg-light-secondary-container text-light-on-secondary-container px-2.5 py-0.5 rounded-full">${cat}</span>
-        </header>
-        <div class="flex flex-col gap-gutter-xs">
-          <h2 class="font-title text-title-md text-light-on-surface">${title}</h2>
-          <p class="font-body text-body-md text-light-on-surface-variant">${desc || 'Looking for peer explanations or references.'}</p>
-        </div>
-      `;
-      list.prepend(card);
-      titleInput.value = '';
-      descInput.value = '';
+      let status = document.getElementById('study-demo-status');
+      if (!status) { status = document.createElement('p'); status.id = 'study-demo-status';
+        status.setAttribute('role', 'status'); status.setAttribute('aria-live', 'polite');
+        document.getElementById('submit-doubt-btn').closest('article')?.append(status); }
+      status.textContent = 'Preview only: your question was not submitted or saved.';
     });
-
     // Category Filter for Doubts
     document.querySelectorAll('.qcat-chip').forEach((chip) => {
       chip.addEventListener('click', () => {
@@ -629,16 +604,29 @@ if (typeof module !== 'undefined') module.exports = globalThis.tailwind.config;
       });
     });
 
-    // Upvote toggle
+    // Sample vote counts are illustrative and cannot be changed persistently.
     document.querySelectorAll('.upvote-btn').forEach((btn) => {
       btn.addEventListener('click', () => {
-        const countEl = btn.querySelector('.vote-count');
-        const voted = btn.getAttribute('data-voted') === 'true';
-        let count = parseInt(countEl.textContent || '0', 10);
-        btn.setAttribute('data-voted', voted ? 'false' : 'true');
-        countEl.textContent = String(voted ? count - 1 : count + 1);
+        let status = document.getElementById('study-demo-status');
+        if (!status) { status = document.createElement('p'); status.id = 'study-demo-status';
+          status.setAttribute('role', 'status'); status.setAttribute('aria-live', 'polite');
+          document.querySelector('main')?.prepend(status); }
+        status.textContent = 'Unavailable: sample question votes are not connected and were not changed.';
       });
     });
+    // Attach, contribute, download, and solution controls have no backing files/API yet.
+    document.querySelectorAll('button[aria-label="Download PDF"], button[aria-label*="download" i], button').forEach((btn) => {
+      const label = (btn.textContent || btn.getAttribute('aria-label') || '').trim().toLowerCase();
+      if (!/attach|download|contribute|solution|add solution/.test(label)) return;
+      btn.addEventListener('click', () => {
+        let status = document.getElementById('study-demo-status');
+        if (!status) { status = document.createElement('p'); status.id = 'study-demo-status';
+          status.setAttribute('role', 'status'); status.setAttribute('aria-live', 'polite');
+          document.querySelector('main')?.prepend(status); }
+        status.textContent = 'Unavailable: this sample action is not connected to a file or backend.';
+      });
+    });
+
   </script>
 
 
