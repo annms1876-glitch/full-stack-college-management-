@@ -1,8 +1,10 @@
 import { createClient } from '@supabase/supabase-js';
 
+const DEMO_KEY = 'campuspulse:admin-demo';
+
 function authView(message = '') {
   const root = document.querySelector('#app');
-  root.innerHTML = `<main class="portal-auth"><section class="portal-auth-card"><a class="portal-auth-brand" href="/">CampusPulse <span>Admin Portal</span></a><p class="portal-auth-kicker">Administration</p><h1>Sign in to continue</h1><p class="portal-auth-copy">Use your admin account. Access is checked against your trusted CampusPulse profile.</p><form id="portal-login-form" class="portal-auth-form"><label>Email address<input name="email" type="email" autocomplete="username" required></label><label>Password<input name="password" type="password" autocomplete="current-password" required></label><button type="submit">Sign in</button></form><p id="portal-auth-message" class="portal-auth-message" role="status" aria-live="polite"></p><p class="portal-auth-help">For local testing, seed the local Supabase instance and use the admin credentials listed in the repository README. This portal uses a separate sign-in session.</p></section></main>`;
+  root.innerHTML = `<main class="portal-auth"><section class="portal-auth-card"><a class="portal-auth-brand" href="/">CampusPulse <span>Admin Portal</span></a><p class="portal-auth-kicker">Administration</p><h1>Sign in to continue</h1><p class="portal-auth-copy">Use your admin account. Access is checked against your trusted CampusPulse profile.</p><form id="portal-login-form" class="portal-auth-form"><label>Email address<input name="email" type="email" autocomplete="username" required></label><label>Password<input name="password" type="password" autocomplete="current-password" required></label><button type="submit">Sign in</button></form><div class="anonymous-demo-card"><p><strong>Just exploring?</strong> Open the admin sample dashboard without an account.</p><button id="portal-anonymous-demo" class="anonymous-demo-button" type="button">Continue as anonymous demo</button><small>Local sample content only. No Supabase session, live records, or backend changes.</small></div><p id="portal-auth-message" class="portal-auth-message" role="status" aria-live="polite"></p><p class="portal-auth-help">For local testing, seed the local Supabase instance and use the admin credentials listed in the repository README. This portal uses a separate sign-in session.</p></section></main>`;
   if (message) setMessage(message, true);
 }
 
@@ -22,6 +24,16 @@ async function verifyRole(client, user) {
 
 export async function startPortalAuth({ onAuthorized }) {
   authView();
+  const enterDemo = () => {
+    sessionStorage.setItem(DEMO_KEY, '1');
+    onAuthorized({ user: { id: 'local-admin-demo', email: 'anonymous-admin@example.invalid' }, profile: { id: 'local-admin-demo', full_name: 'Anonymous Admin Demo', role: 'admin' }, client: null, demo: true });
+  };
+  document.querySelector('#portal-anonymous-demo')?.addEventListener('click', enterDemo);
+  if (sessionStorage.getItem(DEMO_KEY) === '1') {
+    enterDemo();
+    return;
+  }
+
   let client;
   try {
     const response = await fetch('/api/config', { cache: 'no-store' });
@@ -40,6 +52,7 @@ export async function startPortalAuth({ onAuthorized }) {
     if (client) await client.auth.signOut().catch(() => {});
     authView(error.message || 'Authentication setup failed.');
     setMessage(error.message || 'Authentication setup failed.', true);
+    document.querySelector('#portal-anonymous-demo')?.addEventListener('click', enterDemo);
   }
   const form = document.querySelector('#portal-login-form');
   if (!form || !client) return;

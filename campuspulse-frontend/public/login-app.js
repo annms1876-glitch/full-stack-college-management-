@@ -7,6 +7,7 @@ const tabs = [...document.querySelectorAll("[data-auth-tab]")];
 const formLogin = $("#login-form");
 const formSignup = $("#signup-form");
 const roleSuccess = $("#role-success");
+$("#student-anonymous-demo")?.addEventListener("click", () => { sessionStorage.setItem("campuspulse:student-demo", "1"); location.replace("/feed?demo=1"); });
 
 function announce(text, error = false) {
   if (!message) return;

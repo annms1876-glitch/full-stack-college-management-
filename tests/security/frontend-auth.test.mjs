@@ -3,12 +3,13 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 const read = (path) => readFile(new URL(path, import.meta.url), 'utf8');
-const [server, api, login, loginApp, seed] = await Promise.all([
+const [server, api, login, loginApp, seed, studentApp] = await Promise.all([
   read('../../campuspulse-frontend/server.js'),
   read('../../campuspulse-frontend/public/api.js'),
   read('../../campuspulse-frontend/public/screens/light/login.html'),
   read('../../campuspulse-frontend/public/login-app.js'),
   read('../../scripts/seed-demo-users.mjs'),
+  read('../../campuspulse-frontend/public/app.js'),
 ]);
 
 test('landing page and student feed use separate routes', () => {
@@ -47,4 +48,16 @@ test('demo credentials are served and seeded only behind loopback development gu
   assert.match(seed, /NODE_ENV === 'production'/);
   assert.match(seed, /\['localhost', '127\.0\.0\.1', '::1'\]/);
   assert.match(seed, /SUPABASE_SERVICE_ROLE_KEY/);
+});
+
+test('student anonymous demo is tab-local and bypasses every Supabase API call', () => {
+  assert.match(login, /id="student-anonymous-demo"/);
+  assert.match(loginApp, /sessionStorage\.setItem\("campuspulse:student-demo", "1"\)/);
+  assert.match(studentApp, /const \{api,supabase\}=isStudentDemo\?\{api:null,supabase:null\}:await import\("\/api\.js"\)/);
+  assert.match(studentApp, /if\(!isStudentDemo\)api\.onAuth/);
+  assert.match(studentApp, /if\(!isStudentDemo&&path\.endsWith\("\/faculty"\)\)/);
+  assert.match(studentApp, /if\(!isStudentDemo&&path\.endsWith\("\/clubs"\)\)/);
+  assert.match(studentApp, /if\(!isStudentDemo&&\["\/profile","\/study"\]/);
+  assert.match(studentApp, /ANONYMOUS DEMO · Sample content only/);
+  assert.match(studentApp, /sessionStorage\.removeItem\(STUDENT_DEMO_KEY\)/);
 });

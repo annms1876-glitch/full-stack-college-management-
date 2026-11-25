@@ -45,7 +45,7 @@ function shell(content) {
     </aside>
     <main class="main-area">
       <header class="topbar"><div class="breadcrumbs"><span class="muted">CampusPulse</span><span>/</span><strong>${routeNames[activeRoute]}</strong></div><div class="top-actions"><button class="icon-button" data-action="notify" aria-label="Notifications">♧<span class="notification-dot"></span></button><button class="profile-chip" data-action="profile"><span class="avatar tiny">${safeHtml(initialsFor(displayName()))}</span><span class="profile-chip-name">${safeHtml(displayName())}</span><span>⌄</span></button></div></header>
-      <div class="content-wrap"><p id="demo-note" class="muted" role="note">Local demo only — changes stay in this page and are not saved or sent.</p>${content}</div>
+      <div class="content-wrap">${portalAuth?.demo ? '<aside class="demo-access-banner" role="status">ANONYMOUS DEMO · Sample data only; no Supabase session, live records, or backend changes.</aside>' : ''}<p id="demo-note" class="muted" role="note">Local demo only — changes stay in this page and are not saved or sent.</p>${content}</div>
     </main>
     <div id="toast" class="toast" role="status"></div>
   </div>`
@@ -125,7 +125,7 @@ function toast(message) { const el = document.querySelector('#toast'); if (!el) 
 function bindEvents() {
   document.querySelectorAll('[data-action="collapse"]').forEach(el => el.onclick = () => { collapsed = !collapsed; render() })
   document.querySelectorAll('[data-action="profile"]').forEach(el => el.onclick = () => navigate('profile'))
-  document.querySelectorAll('[data-action="logout"]').forEach(el => el.onclick = async () => { try { const { error } = await portalAuth?.client.auth.signOut(); if (error) throw error; location.replace('/') } catch (error) { toast(error.message || 'Could not sign out.') } })
+  document.querySelectorAll('[data-action="logout"]').forEach(el => el.onclick = async () => { if (portalAuth?.demo) { sessionStorage.removeItem('campuspulse:faculty-demo'); location.replace('/'); return } try { const { error } = await portalAuth?.client.auth.signOut(); if (error) throw error; location.replace('/') } catch (error) { toast(error.message || 'Could not sign out.') } })
   document.querySelectorAll('[data-action="notify"]').forEach(el => el.onclick = () => toast('Notifications are sample content in this local demo; no live notification service is connected.'))
   document.querySelectorAll('[data-action="new"], [data-action="new-workflow"]').forEach(el => el.onclick = () => toast('Local demo only: no workflow was created or queued. Your page data remains unchanged.'))
   document.querySelectorAll('[data-action="save-attendance"]').forEach(el => el.onclick = () => toast('Local demo only: attendance was not saved or sent.'))

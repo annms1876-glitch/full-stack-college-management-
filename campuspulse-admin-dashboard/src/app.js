@@ -146,10 +146,11 @@ function renderShell(content, title, actions = '') {
       </div>
       <div class="sidebar-bottom">
         <div class="profile-popover ${state.profileOpen ? 'open' : ''}" id="profile-popover"><a href="/admin-settings">${icon('user')} My Profile</a><a href="/admin-settings">${icon('settings')} Account Settings</a><a href="/admin-settings">${icon('shield-check')} Manage Permissions</a><button id="lock-session">${icon('log-out')} Logout</button></div>
-        <button class="profile-button" id="profile-button"><span class="brand"><span class="profile-avatar">${esc(initials(profileName()))}</span><span class="profile-copy"><span class="profile-name">${esc(profileName())}</span><span class="profile-role">Verified administrator</span></span></span>${icon('settings')}</button>
+        <button class="profile-button" id="profile-button"><span class="brand"><span class="profile-avatar">${esc(initials(profileName()))}</span><span class="profile-copy"><span class="profile-name">${esc(profileName())}</span><span class="profile-role">${portalAuth?.demo ? 'Anonymous demo · sample data' : 'Verified administrator'}</span></span></span>${icon('settings')}</button>
       </div>
     </aside>
     <div class="workspace">
+      ${portalAuth?.demo ? '<aside class="demo-access-banner" role="status">ANONYMOUS DEMO · Sample data only; no Supabase session, live records, or backend changes.</aside>' : ''}
       <header class="topbar"><div class="topbar-left"><button class="icon-button mobile-menu" id="mobile-menu" aria-label="Open navigation">${icon('menu')}</button><h1 class="page-title">${esc(title)}</h1>${title === 'Admin Dashboard' ? '<span class="context-chip">AY 2026-27 · Odd Sem</span>' : ''}</div><div class="topbar-actions">${actions}<button class="icon-button" id="theme-toggle" aria-label="Toggle theme">${icon(state.theme === 'dark' ? 'sun' : 'moon')}</button></div></header>
       ${content}
     </div>
@@ -164,7 +165,7 @@ function bindShell() {
   document.getElementById('new-action')?.addEventListener('click', () => openCreateModal(state.activeModule));
   document.getElementById('theme-toggle')?.addEventListener('click', () => { state.theme = state.theme === 'dark' ? 'light' : 'dark'; localStorage.setItem('academiaos-theme', state.theme); render(); });
   document.getElementById('profile-button')?.addEventListener('click', () => { state.profileOpen = !state.profileOpen; document.getElementById('profile-popover')?.classList.toggle('open', state.profileOpen); });
-  document.getElementById('lock-session')?.addEventListener('click', async () => { try { const { error } = await portalAuth.client.auth.signOut(); if (error) throw error; location.replace('/'); } catch (error) { showToast(error.message || 'Unable to sign out.'); } });
+  document.getElementById('lock-session')?.addEventListener('click', async () => { if (portalAuth?.demo) { sessionStorage.removeItem('campuspulse:admin-demo'); location.replace('/'); return; } try { const { error } = await portalAuth.client.auth.signOut(); if (error) throw error; location.replace('/'); } catch (error) { showToast(error.message || 'Unable to sign out.'); } });
   document.getElementById('modal-backdrop')?.addEventListener('click', e => { if (e.target.id === 'modal-backdrop') closeModal(); });
 }
 

@@ -25,6 +25,15 @@ for (const [label, source, role] of [['faculty', facultyAuth, 'faculty'], ['admi
     assert.match(source, /auth\.signOut\(/);
     assert.doesNotMatch(source, /user_metadata.*role|role.*user_metadata/);
   });
+
+  test(`${label} anonymous demo bypasses Supabase and is clearly marked`, () => {
+    assert.match(source, /id="portal-anonymous-demo"/);
+    assert.match(source, /client: null, demo: true/);
+    assert.match(source, /No Supabase session, live records, or backend changes/);
+    const demoCheck = source.indexOf("if (sessionStorage.getItem(DEMO_KEY) === '1')");
+    const configFetch = source.indexOf("await fetch('/api/config'");
+    assert.ok(demoCheck >= 0 && configFetch > demoCheck, 'demo session check must happen before Supabase runtime config is fetched');
+  });
 }
 
 test('both Vite runtime config endpoints expose only the URL and publishable key', () => {
@@ -43,6 +52,10 @@ test('faculty and admin use distinct loopback ports and Vite 6', () => {
   assert.match(adminPackage, /"vite": "\^6\.4\.6"/);
   assert.match(facultyMain, /startPortalAuth\(\{ onAuthorized:/);
   assert.match(adminApp, /startPortalAuth\(\{ onAuthorized:/);
+  assert.match(facultyMain, /sessionStorage\.removeItem\('campuspulse:faculty-demo'\)/);
+  assert.match(adminApp, /sessionStorage\.removeItem\('campuspulse:admin-demo'\)/);
+  assert.match(facultyMain, /demo-access-banner/);
+  assert.match(adminApp, /demo-access-banner/);
 });
 
 test('student login offers the separate local faculty/admin portals after role verification', () => {

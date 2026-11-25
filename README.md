@@ -59,6 +59,10 @@ Declared MIME type does not prove the file bytes are safe. Byte-level validation
 
 `supabase/functions/ai-assistant/` verifies the caller, builds limited context from the database, rate-limits, and calls a configurable OpenAI-compatible provider. `supabase/functions/grant-role/` provides an admin-verified role/college change path with audit handling. These functions have not been deployed. Provider/service-role secrets must be configured only in Supabase Edge Function secrets. Set a strict `AI_ALLOWED_HOSTS` and exact production `APP_ORIGIN`. Render AI output as text, never raw HTML. See [Edge Function setup](docs/backend/edge-functions.md).
 
+## Anonymous browser demo (no account)
+
+Each portal login page includes a **Continue as anonymous demo** button. The student button opens the static sample feed; the faculty and admin buttons open their sample dashboards. These demos are for interface testing only: they do not create a Supabase Auth session, grant a real role, read or write live records, or run backend actions. Demo state is kept in tab-scoped `sessionStorage` and is removed by Sign out. The ordinary email/password flow and trusted `public.profiles.role` checks are unchanged.
+
 ## Run locally and test demo logins
 
 Requirements: Node.js 18+ and npm. The root tests use Node's built-in test runner. To exercise the demo accounts, use a local Supabase instance only; they are not provisioned in the supplied live project.

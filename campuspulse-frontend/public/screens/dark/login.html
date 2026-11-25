@@ -330,6 +330,7 @@ if (typeof module !== 'undefined') module.exports = globalThis.tailwind.config;
         </button>
       </section>
 
+      <section class="anonymous-demo-card" style="padding:14px;border:1px solid #444651;border-radius:12px;background:#1e1f25;color:#e3e1e9"><h2 style="font-size:16px;margin:0 0 6px">Try the student portal</h2><p style="font-size:12px;line-height:1.5">Sample content only. No Supabase session or live records.</p><button id="student-anonymous-demo" type="button" style="width:100%;padding:11px;border:0;border-radius:999px;background:#b6c4ff;color:#05297a;font-weight:600">Continue as anonymous demo</button></section>
     </main>
 
     <!-- Privacy & Security Footer -->
@@ -378,6 +379,7 @@ if (typeof module !== 'undefined') module.exports = globalThis.tailwind.config;
     document.getElementById('btn-back-auth').addEventListener('click', () => showPanel(lastFlow));
     document.getElementById('btn-forgot-pw').addEventListener('click', () => showPanel('forgot'));
     document.getElementById('btn-back-signin').addEventListener('click', () => showPanel('login'));
+    document.getElementById('student-anonymous-demo').addEventListener('click', () => { sessionStorage.setItem("campuspulse:student-demo", "1"); location.replace("/dark/feed?demo=1"); });
 
     document.getElementById('toggle-pw-vis').addEventListener('click', () => {
       const input = document.getElementById('signin-password');
