@@ -1,0 +1,540 @@
+<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CampusPulse — Search &amp; Faculty</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">/** @type {import('tailwindcss').Config} */
+globalThis.tailwind = globalThis.tailwind || {};
+globalThis.tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        'accent': '#D97706',
+        'on-accent': '#2A2A2A',
+        'story-rose': '#E11D48',
+        'success': '#15803D',
+        'on-success': '#FFFFFF',
+        'success-container': '#DCFCE7',
+        'on-success-container': '#14532D',
+        'warning': '#B45309',
+        'on-warning': '#FFFFFF',
+        'warning-container': '#FEF3C7',
+        'on-warning-container': '#78350F',
+        'light-primary': '#00236F',
+        'light-on-primary': '#FFFFFF',
+        'light-primary-container': '#1E3A8A',
+        'light-on-primary-container': '#DCE1FF',
+        'light-secondary': '#555D7E',
+        'light-on-secondary': '#FFFFFF',
+        'light-secondary-container': '#D0D8FF',
+        'light-on-secondary-container': '#111A37',
+        'light-tertiary': '#4B1C00',
+        'light-on-tertiary': '#FFFFFF',
+        'light-tertiary-container': '#6E2C00',
+        'light-on-tertiary-container': '#FFDBCB',
+        'light-error': '#BA1A1A',
+        'light-on-error': '#FFFFFF',
+        'light-error-container': '#FFDAD6',
+        'light-on-error-container': '#93000A',
+        'light-background': '#FAF8FF',
+        'light-on-background': '#1A1B21',
+        'light-surface': '#FAF8FF',
+        'light-surface-dim': '#DAD9E1',
+        'light-surface-bright': '#FFFFFF',
+        'light-surface-container-lowest': '#FFFFFF',
+        'light-surface-container-low': '#F4F3FA',
+        'light-surface-container': '#EEEDF4',
+        'light-surface-container-high': '#E9E7EF',
+        'light-surface-container-highest': '#E3E1E9',
+        'light-on-surface': '#1A1B21',
+        'light-surface-variant': '#E1E1EF',
+        'light-on-surface-variant': '#444651',
+        'light-outline': '#757682',
+        'light-outline-variant': '#C5C5D3',
+        'light-inverse-surface': '#2F3036',
+        'light-inverse-on-surface': '#F1F0F7',
+        'light-inverse-primary': '#B6C4FF',
+        'dark-primary': '#B6C4FF',
+        'dark-on-primary': '#05297A',
+        'dark-primary-container': '#1E3A8A',
+        'dark-on-primary-container': '#DCE1FF',
+        'dark-secondary': '#BDC5EB',
+        'dark-on-secondary': '#262F4D',
+        'dark-secondary-container': '#3D4565',
+        'dark-on-secondary-container': '#DCE1FF',
+        'dark-tertiary': '#FFB691',
+        'dark-on-tertiary': '#552000',
+        'dark-tertiary-container': '#6E2C00',
+        'dark-on-tertiary-container': '#FFDBCB',
+        'dark-error': '#FFB4AB',
+        'dark-on-error': '#690005',
+        'dark-error-container': '#93000A',
+        'dark-on-error-container': '#FFDAD6',
+        'dark-background': '#121318',
+        'dark-on-background': '#E3E1E9',
+        'dark-surface': '#121318',
+        'dark-surface-dim': '#121318',
+        'dark-surface-bright': '#38393F',
+        'dark-surface-container-lowest': '#0D0E13',
+        'dark-surface-container-low': '#1A1B21',
+        'dark-surface-container': '#1E1F25',
+        'dark-surface-container-high': '#292A2F',
+        'dark-surface-container-highest': '#34343A',
+        'dark-on-surface': '#E3E1E9',
+        'dark-surface-variant': '#444651',
+        'dark-on-surface-variant': '#C5C5D3',
+        'dark-outline': '#8F909D',
+        'dark-outline-variant': '#444651',
+        'dark-inverse-surface': '#E3E1E9',
+        'dark-inverse-on-surface': '#2F3036',
+        'dark-inverse-primary': '#4059AA',
+      },
+      borderRadius: {
+        'sm': '6px',
+        'DEFAULT': '10px',
+        'md': '12px',
+        'lg': '16px',
+        'xl': '20px',
+        'full': '9999px',
+      },
+      spacing: {
+        'gutter-xs': '4px',
+        'gutter-sm': '8px',
+        'gutter-md': '12px',
+        'gutter-lg': '16px',
+        'gutter-xl': '24px',
+        'section': '32px',
+        'page-margin': '16px',
+      },
+      fontFamily: {
+        'display': ['"Alata"', 'sans-serif'],
+        'headline': ['"Alata"', 'sans-serif'],
+        'title': ['"Instrument Sans"', 'sans-serif'],
+        'body': ['"Instrument Sans"', 'sans-serif'],
+        'label': ['"Instrument Sans"', 'sans-serif'],
+        'mono': ['"Spline Sans Mono"', 'monospace'],
+      },
+      fontSize: {
+        'display-lg': ['36px', { lineHeight: '44px', letterSpacing: '-0.5px', fontWeight: '400' }],
+        'display-lg-mobile': ['28px', { lineHeight: '34px', letterSpacing: '-0.25px', fontWeight: '400' }],
+        'headline-lg': ['24px', { lineHeight: '30px', letterSpacing: '-0.2px', fontWeight: '400' }],
+        'headline-md': ['20px', { lineHeight: '26px', letterSpacing: '0px', fontWeight: '400' }],
+        'title-lg': ['18px', { lineHeight: '24px', letterSpacing: '0px', fontWeight: '600' }],
+        'title-md': ['16px', { lineHeight: '22px', letterSpacing: '0px', fontWeight: '600' }],
+        'title-sm': ['14px', { lineHeight: '20px', letterSpacing: '0px', fontWeight: '600' }],
+        'body-lg': ['15px', { lineHeight: '22px', letterSpacing: '0px', fontWeight: '400' }],
+        'body-md': ['14px', { lineHeight: '20px', letterSpacing: '0px', fontWeight: '400' }],
+        'body-sm': ['12px', { lineHeight: '16px', letterSpacing: '0.1px', fontWeight: '400' }],
+        'label-lg': ['14px', { lineHeight: '18px', letterSpacing: '0.1px', fontWeight: '600' }],
+        'label-md': ['12px', { lineHeight: '16px', letterSpacing: '0.2px', fontWeight: '600' }],
+        'label-sm': ['12px', { lineHeight: '16px', letterSpacing: '0.2px', fontWeight: '500' }],
+        'mono-sm': ['12px', { lineHeight: '16px', letterSpacing: '0.2px', fontWeight: '500' }],
+      },
+      transitionDuration: {
+        'state-change': '120ms',
+        'surface-enter': '240ms',
+        'surface-exit': '160ms',
+      },
+      transitionDelay: {
+        'state-change': '0ms',
+        'surface-enter': '0ms',
+        'surface-exit': '0ms',
+      },
+      transitionTimingFunction: {
+        'state-change': 'ease-out',
+        'surface-enter': 'cubic-bezier(0.2, 0, 0, 1)',
+        'surface-exit': 'cubic-bezier(0.3, 0, 1, 1)',
+      },
+    },
+  },
+};
+if (typeof module !== 'undefined') module.exports = globalThis.tailwind.config;
+</script>
+  <link href="https://fonts.googleapis.com/css2?family=Alata&amp;family=Instrument+Sans:wght@400;500;600;700&amp;family=Spline+Sans+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet">
+  <style>
+    .material-symbols-outlined, .material-symbols-rounded, .material-symbols-sharp, .material-icons {
+      display: inline-block;
+      width: 1em;
+      height: 1em;
+      line-height: 1 !important;
+      box-sizing: content-box;
+      overflow: hidden;
+      white-space: nowrap;
+      direction: ltr;
+      vertical-align: middle;
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="bg-light-surface-container-low text-light-on-surface font-body antialiased">
+
+  <!-- Mobile-First App Shell (exact parity with HomeFeed.html) -->
+  <div class="min-h-[884px] max-w-[430px] mx-auto bg-light-surface flex flex-col border-x border-light-outline-variant/40 relative" data-stitch-vh="min-h-[884px]===min-h-screen">
+
+    <!-- Compact Sticky Top Header -->
+    <header class="sticky top-0 z-30 bg-light-surface-container-lowest border-b border-light-outline-variant/60 px-gutter-lg py-gutter-md flex items-center justify-between">
+      <div class="flex items-center gap-gutter-sm">
+        <img src="/brand/campus-logo-144-712f764a4b82.webp" width="144" height="144" alt="Vanguard Institute of Technology logo" class="w-9 h-9 rounded-md object-cover border border-light-outline-variant/50 shrink-0">
+        <div class="flex flex-col">
+          <span class="font-headline text-headline-md text-light-primary leading-none" data-design-text-token="headline-md">CampusPulse</span>
+          <span class="font-mono text-mono-sm text-light-on-surface-variant" data-design-text-token="mono-sm">VIT • Student Portal</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-gutter-xs">
+        <button id="btn-notifications" data-component-id="button-icon" data-component-type="button" data-component-variant="icon" type="button" aria-label="Notifications" class="relative inline-flex items-center justify-center w-10 h-10 rounded-full text-light-on-surface hover:bg-light-surface-container-low transition-colors duration-state-change ease-state-change">
+          <span class="material-symbols-outlined text-[22px]">notifications</span>
+          <span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-story-rose ring-2 ring-light-surface-container-lowest"></span>
+        </button>
+
+        <button id="btn-messages" data-component-id="button-icon" data-component-type="button" data-component-variant="icon" type="button" aria-label="Direct Messages" class="relative inline-flex items-center justify-center w-10 h-10 rounded-full text-light-on-surface hover:bg-light-surface-container-low transition-colors duration-state-change ease-state-change">
+          <span class="material-symbols-outlined text-[22px]">chat_bubble_outline</span>
+          <span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-light-primary ring-2 ring-light-surface-container-lowest"></span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Scrollable Content -->
+    <main class="flex-1 flex flex-col gap-gutter-md pb-section">
+
+      <!-- Global Search Input & Category Strip -->
+      <section aria-label="Global Campus Search" class="bg-light-surface-container-lowest border-b border-light-outline-variant/50 px-gutter-lg py-gutter-md flex flex-col gap-gutter-md">
+        <div class="relative flex items-center">
+          <span class="material-symbols-outlined text-[20px] text-light-on-surface-variant absolute left-3.5 pointer-events-none">search</span>
+          <input id="global-search-input" type="search" placeholder="Search faculty, notes, clubs, notices, internships..." aria-label="Search campus platform" class="w-full rounded-full bg-light-surface-container-low border border-light-outline-variant/60 pl-10 pr-4 py-2.5 font-body text-body-md text-light-on-surface placeholder:text-light-on-surface-variant focus:border-light-primary focus:ring-1 focus:ring-light-primary">
+        </div>
+
+        <!-- Search Category Chips -->
+        <div class="flex items-center gap-gutter-sm overflow-x-auto no-scrollbar">
+          <button type="button" data-cat="all" aria-pressed="true" class="search-cat-chip inline-flex items-center rounded-full bg-light-primary text-light-on-primary px-3.5 py-1.5 whitespace-nowrap">
+            <span class="font-label text-label-md" data-design-text-token="label-md">All</span>
+          </button>
+          <button type="button" data-cat="faculty" aria-pressed="false" class="search-cat-chip inline-flex items-center rounded-full bg-light-surface-container-low text-light-on-surface-variant border border-light-outline-variant/60 px-3.5 py-1.5 whitespace-nowrap">
+            <span class="font-label text-label-md" data-design-text-token="label-md">Faculty</span>
+          </button>
+          <button type="button" data-cat="notes" aria-pressed="false" class="search-cat-chip inline-flex items-center rounded-full bg-light-surface-container-low text-light-on-surface-variant border border-light-outline-variant/60 px-3.5 py-1.5 whitespace-nowrap">
+            <span class="font-label text-label-md" data-design-text-token="label-md">Notes &amp; Courses</span>
+          </button>
+          <button type="button" data-cat="clubs" aria-pressed="false" class="search-cat-chip inline-flex items-center rounded-full bg-light-surface-container-low text-light-on-surface-variant border border-light-outline-variant/60 px-3.5 py-1.5 whitespace-nowrap">
+            <span class="font-label text-label-md" data-design-text-token="label-md">Clubs &amp; Events</span>
+          </button>
+          <button type="button" data-cat="opportunities" aria-pressed="false" class="search-cat-chip inline-flex items-center rounded-full bg-light-surface-container-low text-light-on-surface-variant border border-light-outline-variant/60 px-3.5 py-1.5 whitespace-nowrap">
+            <span class="font-label text-label-md" data-design-text-token="label-md">Internships &amp; Scholarships</span>
+          </button>
+          <button type="button" data-cat="campus" aria-pressed="false" class="search-cat-chip inline-flex items-center rounded-full bg-light-surface-container-low text-light-on-surface-variant border border-light-outline-variant/60 px-3.5 py-1.5 whitespace-nowrap">
+            <span class="font-label text-label-md" data-design-text-token="label-md">Campus Info</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Dedicated Faculty Directory -->
+      <section id="faculty-directory-section" aria-label="Faculty Directory" class="px-gutter-lg flex flex-col gap-gutter-md">
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="font-headline text-headline-md text-light-on-surface" data-design-text-token="headline-md">Faculty Directory</h1>
+            <p class="font-body text-body-sm text-light-on-surface-variant" data-design-text-token="body-sm">Find professors, offices &amp; consultation hours</p>
+          </div>
+          <span id="faculty-count" class="font-mono text-mono-sm text-light-primary tabular-nums" data-design-text-token="mono-sm">3 Faculty</span>
+        </div>
+
+        <!-- Department & Designation Filters -->
+        <div class="grid grid-cols-2 gap-gutter-sm">
+          <select id="filter-dept" aria-label="Filter by Department" class="rounded-md border border-light-outline-variant/60 bg-light-surface-container-lowest px-3 py-2 font-body text-body-sm text-light-on-surface">
+            <option value="all">All Departments</option>
+            <option value="CSE">CSE</option>
+            <option value="ECE">ECE</option>
+            <option value="Management">Management</option>
+          </select>
+
+          <select id="filter-role" aria-label="Filter by Designation" class="rounded-md border border-light-outline-variant/60 bg-light-surface-container-lowest px-3 py-2 font-body text-body-sm text-light-on-surface">
+            <option value="all">All Designations</option>
+            <option value="Professor">Professor</option>
+            <option value="Associate Professor">Associate Prof</option>
+            <option value="Assistant Professor">Assistant Prof</option>
+          </select>
+        </div>
+
+        <!-- Faculty Cards -->
+        <div class="flex flex-col gap-gutter-sm">
+          <!-- Faculty 1 -->
+          <article data-search="dr priya nair cse professor operating systems compiler design lh-408" data-dept="CSE" data-role="Professor" data-item-cat="faculty" class="searchable-item faculty-card bg-light-surface-container-lowest rounded-lg border border-light-outline-variant/60 p-gutter-lg flex flex-col gap-gutter-md">
+            <div class="flex items-start gap-gutter-md">
+              <img src="https://lh3.googleusercontent.com/aida/ALJJyrBXDQY-wzzbjKul4pmF9-YYWCa9764Nhiq6wDdagsE52QJJtT1x-ROFDh8xEXUWR0YKOybfq0Rzz85ZxG5sa7f9CYHoG4wpT1n9UNbFl5piQHKeWTMVBBEv5HA6kaiWM2wmzmAmHySzAI3Alkp4T5k8qq3KPSkFsR-b3Jd_xbatgiw6cm8kRbEx5c3D8r24CG2dH6iUyMMsDiyD3FGXHD-X5mYNLLpKWm6lHLXBX_OzqOvFJbOqNwfoRQw" alt="Dr. Priya Nair" class="w-12 h-12 rounded-full object-cover border border-light-outline-variant/50 shrink-0">
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between gap-2">
+                  <h2 class="font-title text-title-md text-light-on-surface truncate" data-design-text-token="title-md">Dr. Priya Nair</h2>
+                  <span class="font-label text-label-sm bg-light-secondary-container text-light-on-secondary-container px-2.5 py-0.5 rounded-full shrink-0" data-design-text-token="label-sm">CSE</span>
+                </div>
+                <p class="font-body text-body-sm text-light-on-surface-variant" data-design-text-token="body-sm">Professor • Operating Systems, Compilers</p>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-gutter-sm pt-gutter-sm border-t border-light-outline-variant/40">
+              <div class="flex items-center gap-1.5 text-light-on-surface-variant">
+                <span class="material-symbols-outlined text-[16px] text-light-primary">location_on</span>
+                <span class="font-body text-body-sm" data-design-text-token="body-sm">Block A, Room 408</span>
+              </div>
+              <div class="flex items-center gap-1.5 text-light-on-surface-variant">
+                <span class="material-symbols-outlined text-[16px] text-light-primary">schedule</span>
+                <span class="font-body text-body-sm" data-design-text-token="body-sm">Tue/Thu 3–5 PM</span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="font-mono text-mono-sm text-light-primary" data-design-text-token="mono-sm">priya.nair@vit.edu.in</span>
+              <a href="mailto:priya.nair@vit.edu.in" class="inline-flex items-center gap-1 rounded-full bg-light-surface-container px-3 py-1 text-light-on-surface hover:bg-light-surface-container-high">
+                <span class="material-symbols-outlined text-[15px]">mail</span>
+                <span class="font-label text-label-sm" data-design-text-token="label-sm">Contact</span>
+              </a>
+            </div>
+          </article>
+
+          <!-- Faculty 2 -->
+          <article data-search="prof vikram rao cse associate professor computer networks distributed systems" data-dept="CSE" data-role="Associate Professor" data-item-cat="faculty" class="searchable-item faculty-card bg-light-surface-container-lowest rounded-lg border border-light-outline-variant/60 p-gutter-lg flex flex-col gap-gutter-md">
+            <div class="flex items-start gap-gutter-md">
+              <div class="w-12 h-12 rounded-full bg-light-primary-container text-light-on-primary-container flex items-center justify-center shrink-0">
+                <span class="font-title text-title-md" data-design-text-token="title-md">VR</span>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between gap-2">
+                  <h2 class="font-title text-title-md text-light-on-surface truncate" data-design-text-token="title-md">Prof. Vikram Rao</h2>
+                  <span class="font-label text-label-sm bg-light-secondary-container text-light-on-secondary-container px-2.5 py-0.5 rounded-full shrink-0" data-design-text-token="label-sm">CSE</span>
+                </div>
+                <p class="font-body text-body-sm text-light-on-surface-variant" data-design-text-token="body-sm">Associate Professor • Computer Networks</p>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-gutter-sm pt-gutter-sm border-t border-light-outline-variant/40">
+              <div class="flex items-center gap-1.5 text-light-on-surface-variant">
+                <span class="material-symbols-outlined text-[16px] text-light-primary">location_on</span>
+                <span class="font-body text-body-sm" data-design-text-token="body-sm">Block A, Room 312</span>
+              </div>
+              <div class="flex items-center gap-1.5 text-light-on-surface-variant">
+                <span class="material-symbols-outlined text-[16px] text-light-primary">schedule</span>
+                <span class="font-body text-body-sm" data-design-text-token="body-sm">Mon/Wed 2–4 PM</span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="font-mono text-mono-sm text-light-primary" data-design-text-token="mono-sm">vikram.rao@vit.edu.in</span>
+              <a href="mailto:vikram.rao@vit.edu.in" class="inline-flex items-center gap-1 rounded-full bg-light-surface-container px-3 py-1 text-light-on-surface hover:bg-light-surface-container-high">
+                <span class="material-symbols-outlined text-[15px]">mail</span>
+                <span class="font-label text-label-sm" data-design-text-token="label-sm">Contact</span>
+              </a>
+            </div>
+          </article>
+
+          <!-- Faculty 3 -->
+          <article data-search="dr meera deshmukh ece assistant professor signals systems embedded vlsi" data-dept="ECE" data-role="Assistant Professor" data-item-cat="faculty" class="searchable-item faculty-card bg-light-surface-container-lowest rounded-lg border border-light-outline-variant/60 p-gutter-lg flex flex-col gap-gutter-md">
+            <div class="flex items-start gap-gutter-md">
+              <div class="w-12 h-12 rounded-full bg-light-secondary-container text-light-on-secondary-container flex items-center justify-center shrink-0">
+                <span class="font-title text-title-md" data-design-text-token="title-md">MD</span>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between gap-2">
+                  <h2 class="font-title text-title-md text-light-on-surface truncate" data-design-text-token="title-md">Dr. Meera Deshmukh</h2>
+                  <span class="font-label text-label-sm bg-light-secondary-container text-light-on-secondary-container px-2.5 py-0.5 rounded-full shrink-0" data-design-text-token="label-sm">ECE</span>
+                </div>
+                <p class="font-body text-body-sm text-light-on-surface-variant" data-design-text-token="body-sm">Assistant Professor • Signals &amp; Embedded</p>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-gutter-sm pt-gutter-sm border-t border-light-outline-variant/40">
+              <div class="flex items-center gap-1.5 text-light-on-surface-variant">
+                <span class="material-symbols-outlined text-[16px] text-light-primary">location_on</span>
+                <span class="font-body text-body-sm" data-design-text-token="body-sm">Block B, Room 205</span>
+              </div>
+              <div class="flex items-center gap-1.5 text-light-on-surface-variant">
+                <span class="material-symbols-outlined text-[16px] text-light-primary">schedule</span>
+                <span class="font-body text-body-sm" data-design-text-token="body-sm">Fri 11 AM–1 PM</span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="font-mono text-mono-sm text-light-primary" data-design-text-token="mono-sm">meera.d@vit.edu.in</span>
+              <a href="mailto:meera.d@vit.edu.in" class="inline-flex items-center gap-1 rounded-full bg-light-surface-container px-3 py-1 text-light-on-surface hover:bg-light-surface-container-high">
+                <span class="material-symbols-outlined text-[15px]">mail</span>
+                <span class="font-label text-label-sm" data-design-text-token="label-sm">Contact</span>
+              </a>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- Global Campus Resources Results -->
+      <section aria-label="Campus Results" class="px-gutter-lg flex flex-col gap-gutter-sm">
+        <h2 class="font-title text-title-md text-light-on-surface" data-design-text-token="title-md">Campus Resources &amp; Updates</h2>
+
+        <div class="flex flex-col gap-gutter-sm">
+          <!-- Study Notes -->
+          <article data-search="cs301 operating systems unit 3 notes lecture summary pdf" data-item-cat="notes" class="searchable-item bg-light-surface-container-lowest rounded-lg border border-light-outline-variant/60 p-gutter-md flex items-center justify-between gap-gutter-md">
+            <div class="flex items-center gap-gutter-md min-w-0">
+              <div class="w-10 h-10 rounded-md bg-light-secondary-container text-light-on-secondary-container flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined text-[20px]">menu_book</span>
+              </div>
+              <div class="min-w-0">
+                <p class="font-title text-title-sm text-light-on-surface truncate" data-design-text-token="title-sm">CS301 Unit 3: Deadlocks &amp; Memory</p>
+                <p class="font-body text-body-sm text-light-on-surface-variant truncate" data-design-text-token="body-sm">Lecture Summary PDF • Dr. Priya Nair</p>
+              </div>
+            </div>
+            <span class="font-label text-label-sm text-light-primary shrink-0" data-design-text-token="label-sm">Notes</span>
+          </article>
+
+          <!-- Club / Event -->
+          <article data-search="hackvit 2026 coding club hackathon event auditorium" data-item-cat="clubs" class="searchable-item bg-light-surface-container-lowest rounded-lg border border-light-outline-variant/60 p-gutter-md flex items-center justify-between gap-gutter-md">
+            <div class="flex items-center gap-gutter-md min-w-0">
+              <div class="w-10 h-10 rounded-md bg-light-primary-container text-light-on-primary-container flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined text-[20px]">code</span>
+              </div>
+              <div class="min-w-0">
+                <p class="font-title text-title-sm text-light-on-surface truncate" data-design-text-token="title-sm">VIT Coding Club • HackVIT 2026</p>
+                <p class="font-body text-body-sm text-light-on-surface-variant truncate" data-design-text-token="body-sm">36h Hackathon • Main Auditorium</p>
+              </div>
+            </div>
+            <span class="font-label text-label-sm text-light-primary shrink-0" data-design-text-token="label-sm">Event</span>
+          </article>
+
+          <!-- Internship / Scholarship -->
+          <article data-search="atlassian sde internship nsp scholarship placement" data-item-cat="opportunities" class="searchable-item bg-light-surface-container-lowest rounded-lg border border-light-outline-variant/60 p-gutter-md flex items-center justify-between gap-gutter-md">
+            <div class="flex items-center gap-gutter-md min-w-0">
+              <div class="w-10 h-10 rounded-md bg-success-container text-on-success-container flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined text-[20px]">work</span>
+              </div>
+              <div class="min-w-0">
+                <p class="font-title text-title-sm text-light-on-surface truncate" data-design-text-token="title-sm">Atlassian Summer SDE Internships</p>
+                <p class="font-body text-body-sm text-light-on-surface-variant truncate" data-design-text-token="body-sm">Deadline Nov 28 • Placement Cell</p>
+              </div>
+            </div>
+            <span class="font-label text-label-sm text-success shrink-0" data-design-text-token="label-sm">Open</span>
+          </article>
+
+          <!-- Campus Info -->
+          <article data-search="central library exam cell hours reading hall b campus info" data-item-cat="campus" class="searchable-item bg-light-surface-container-lowest rounded-lg border border-light-outline-variant/60 p-gutter-md flex items-center justify-between gap-gutter-md">
+            <div class="flex items-center gap-gutter-md min-w-0">
+              <div class="w-10 h-10 rounded-md bg-light-surface-container text-light-on-surface flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined text-[20px]">info</span>
+              </div>
+              <div class="min-w-0">
+                <p class="font-title text-title-sm text-light-on-surface truncate" data-design-text-token="title-sm">Central Library &amp; Reading Hall B</p>
+                <p class="font-body text-body-sm text-light-on-surface-variant truncate" data-design-text-token="body-sm">Open 8:00 AM – 11:30 PM (Exam Week)</p>
+              </div>
+            </div>
+            <span class="font-label text-label-sm text-light-on-surface-variant shrink-0" data-design-text-token="label-sm">Campus</span>
+          </article>
+        </div>
+
+        <p id="empty-search-state" class="hidden text-center py-gutter-xl font-body text-body-md text-light-on-surface-variant" data-design-text-token="body-md">
+          No matching campus records found. Try another keyword.
+        </p>
+      </section>
+
+    </main>
+
+    <!-- Fixed/Sticky 5-Icon Bottom Navigation Bar (Exact Parity with HomeFeed.html) -->
+    <nav aria-label="Primary Navigation" class="sticky bottom-0 z-30 bg-light-surface-container-lowest border-t border-light-outline-variant/60 px-gutter-sm py-gutter-xs grid grid-cols-5 items-center">
+      <!-- 1. Home (Bottom Left) -->
+      <a href="../home-feed/HomeFeed.html" class="nav-item flex flex-col items-center justify-center gap-0.5 py-1.5 text-light-on-surface-variant hover:text-light-primary transition-colors duration-state-change">
+        <span class="material-symbols-outlined text-[24px]">home</span>
+        <span class="font-label text-label-sm" data-design-text-token="label-sm">Home</span>
+      </a>
+
+      <!-- 2. Clubs & Events -->
+      <a href="#clubs" class="nav-item flex flex-col items-center justify-center gap-0.5 py-1.5 text-light-on-surface-variant hover:text-light-primary transition-colors duration-state-change">
+        <span class="material-symbols-outlined text-[24px]">groups</span>
+        <span class="font-label text-label-sm" data-design-text-token="label-sm">Clubs</span>
+      </a>
+
+      <!-- 3. Study (Centre — Prominent) -->
+      <a href="#study" class="nav-item flex flex-col items-center justify-center -mt-4">
+        <span class="w-12 h-12 rounded-full bg-light-primary text-light-on-primary flex items-center justify-center shadow-md ring-4 ring-light-surface-container-lowest transition-transform duration-state-change active:scale-95">
+          <span class="material-symbols-outlined text-[26px]" style="font-variation-settings: &#39;FILL&#39; 1;">school</span>
+        </span>
+        <span class="font-label text-label-sm text-light-primary mt-0.5" data-design-text-token="label-sm">Study</span>
+      </a>
+
+      <!-- 4. Search (Active) -->
+      <a href="#search" aria-current="page" class="nav-item flex flex-col items-center justify-center gap-0.5 py-1.5 text-light-primary">
+        <span class="material-symbols-outlined text-[24px]" style="font-variation-settings: &#39;FILL&#39; 1;">search</span>
+        <span class="font-label text-label-sm" data-design-text-token="label-sm">Search</span>
+      </a>
+
+      <!-- 5. Student Profile (Bottom Right) -->
+      <a href="../student-profile/StudentProfile.html" class="nav-item flex flex-col items-center justify-center gap-0.5 py-1.5 text-light-on-surface-variant hover:text-light-primary transition-colors duration-state-change">
+        <img src="https://lh3.googleusercontent.com/aida/ALJJyrDerPS2l3M99Gka6utSlKFegmlHUZC3Nt6xhDjiMoSkNxlPLUqWHhAsnv_lCIe31Xz8kKmvkN7HMtr6_w19IOia40G3tZ6lfkPzr_KHzGLRRO9aBxFbWGunioqXJiKibSHnRk7fndbPYo3uD4EVfzy24ps8XwNYt3vwXH7Wa6NInNqkngE4Lz2Vc1p4Zrj6io7iHph1h0sEBpGJuB1ox_n_j4pXr15G7r3nGBjjBAsY3g_nHXRM0xyxZZDVjQQ" alt="Student Profile" class="w-6 h-6 rounded-full object-cover border border-light-outline-variant">
+        <span class="font-label text-label-sm" data-design-text-token="label-sm">Profile</span>
+      </a>
+    </nav>
+
+  </div>
+
+  <script>
+    const searchInput = document.getElementById('global-search-input');
+    const catChips = document.querySelectorAll('.search-cat-chip');
+    const deptSelect = document.getElementById('filter-dept');
+    const roleSelect = document.getElementById('filter-role');
+    const items = document.querySelectorAll('.searchable-item');
+    const facultySection = document.getElementById('faculty-directory-section');
+    const facultyCountEl = document.getElementById('faculty-count');
+    const emptyState = document.getElementById('empty-search-state');
+
+    let activeCat = 'all';
+
+    function applyFilters() {
+      const q = (searchInput.value || '').trim().toLowerCase();
+      const dept = deptSelect.value;
+      const role = roleSelect.value;
+
+      let visibleTotal = 0;
+      let visibleFaculty = 0;
+
+      items.forEach((el) => {
+        const itemCat = el.getAttribute('data-item-cat');
+        const haystack = (el.getAttribute('data-search') || '').toLowerCase();
+        const matchesQuery = !q || haystack.includes(q);
+        const matchesCat = activeCat === 'all' || itemCat === activeCat;
+
+        let matchesFaculty = true;
+        if (itemCat === 'faculty') {
+          const d = el.getAttribute('data-dept');
+          const r = el.getAttribute('data-role');
+          if (dept !== 'all' && d !== dept) matchesFaculty = false;
+          if (role !== 'all' && r !== role) matchesFaculty = false;
+        }
+
+        const show = matchesQuery && matchesCat && matchesFaculty;
+        el.classList.toggle('hidden', !show);
+
+        if (show) {
+          visibleTotal++;
+          if (itemCat === 'faculty') visibleFaculty++;
+        }
+      });
+
+      facultySection.classList.toggle('hidden', activeCat !== 'all' && activeCat !== 'faculty');
+      facultyCountEl.textContent = visibleFaculty + ' Faculty';
+      emptyState.classList.toggle('hidden', visibleTotal > 0);
+    }
+
+    catChips.forEach((chip) => {
+      chip.addEventListener('click', () => {
+        activeCat = chip.getAttribute('data-cat');
+        catChips.forEach((c) => {
+          const selected = c === chip;
+          c.setAttribute('aria-pressed', selected ? 'true' : 'false');
+          if (selected) {
+            c.classList.remove('bg-light-surface-container-low', 'text-light-on-surface-variant', 'border', 'border-light-outline-variant/60');
+            c.classList.add('bg-light-primary', 'text-light-on-primary');
+          } else {
+            c.classList.remove('bg-light-primary', 'text-light-on-primary');
+            c.classList.add('bg-light-surface-container-low', 'text-light-on-surface-variant', 'border', 'border-light-outline-variant/60');
+          }
+        });
+        applyFilters();
+      });
+    });
+
+    searchInput.addEventListener('input', applyFilters);
+    deptSelect.addEventListener('change', applyFilters);
+    roleSelect.addEventListener('change', applyFilters);
+  </script>
+
+
+
+</body></html>

@@ -1,0 +1,704 @@
+<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CampusPulse — Home Feed (Dark Mode)</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">/** @type {import('tailwindcss').Config} */
+globalThis.tailwind = globalThis.tailwind || {};
+globalThis.tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        'accent': '#D97706',
+        'on-accent': '#2A2A2A',
+        'story-rose': '#E11D48',
+        'success': '#15803D',
+        'on-success': '#FFFFFF',
+        'success-container': '#DCFCE7',
+        'on-success-container': '#14532D',
+        'warning': '#B45309',
+        'on-warning': '#FFFFFF',
+        'warning-container': '#FEF3C7',
+        'on-warning-container': '#78350F',
+        'light-primary': '#00236F',
+        'light-on-primary': '#FFFFFF',
+        'light-primary-container': '#1E3A8A',
+        'light-on-primary-container': '#DCE1FF',
+        'light-secondary': '#555D7E',
+        'light-on-secondary': '#FFFFFF',
+        'light-secondary-container': '#D0D8FF',
+        'light-on-secondary-container': '#111A37',
+        'light-tertiary': '#4B1C00',
+        'light-on-tertiary': '#FFFFFF',
+        'light-tertiary-container': '#6E2C00',
+        'light-on-tertiary-container': '#FFDBCB',
+        'light-error': '#BA1A1A',
+        'light-on-error': '#FFFFFF',
+        'light-error-container': '#FFDAD6',
+        'light-on-error-container': '#93000A',
+        'light-background': '#FAF8FF',
+        'light-on-background': '#1A1B21',
+        'light-surface': '#FAF8FF',
+        'light-surface-dim': '#DAD9E1',
+        'light-surface-bright': '#FFFFFF',
+        'light-surface-container-lowest': '#FFFFFF',
+        'light-surface-container-low': '#F4F3FA',
+        'light-surface-container': '#EEEDF4',
+        'light-surface-container-high': '#E9E7EF',
+        'light-surface-container-highest': '#E3E1E9',
+        'light-on-surface': '#1A1B21',
+        'light-surface-variant': '#E1E1EF',
+        'light-on-surface-variant': '#444651',
+        'light-outline': '#757682',
+        'light-outline-variant': '#C5C5D3',
+        'light-inverse-surface': '#2F3036',
+        'light-inverse-on-surface': '#F1F0F7',
+        'light-inverse-primary': '#B6C4FF',
+        'dark-primary': '#B6C4FF',
+        'dark-on-primary': '#05297A',
+        'dark-primary-container': '#1E3A8A',
+        'dark-on-primary-container': '#DCE1FF',
+        'dark-secondary': '#BDC5EB',
+        'dark-on-secondary': '#262F4D',
+        'dark-secondary-container': '#3D4565',
+        'dark-on-secondary-container': '#DCE1FF',
+        'dark-tertiary': '#FFB691',
+        'dark-on-tertiary': '#552000',
+        'dark-tertiary-container': '#6E2C00',
+        'dark-on-tertiary-container': '#FFDBCB',
+        'dark-error': '#FFB4AB',
+        'dark-on-error': '#690005',
+        'dark-error-container': '#93000A',
+        'dark-on-error-container': '#FFDAD6',
+        'dark-background': '#121318',
+        'dark-on-background': '#E3E1E9',
+        'dark-surface': '#121318',
+        'dark-surface-dim': '#121318',
+        'dark-surface-bright': '#38393F',
+        'dark-surface-container-lowest': '#0D0E13',
+        'dark-surface-container-low': '#1A1B21',
+        'dark-surface-container': '#1E1F25',
+        'dark-surface-container-high': '#292A2F',
+        'dark-surface-container-highest': '#34343A',
+        'dark-on-surface': '#E3E1E9',
+        'dark-surface-variant': '#444651',
+        'dark-on-surface-variant': '#C5C5D3',
+        'dark-outline': '#8F909D',
+        'dark-outline-variant': '#444651',
+        'dark-inverse-surface': '#E3E1E9',
+        'dark-inverse-on-surface': '#2F3036',
+        'dark-inverse-primary': '#4059AA',
+      },
+      borderRadius: {
+        'sm': '6px',
+        'DEFAULT': '10px',
+        'md': '12px',
+        'lg': '16px',
+        'xl': '20px',
+        'full': '9999px',
+      },
+      spacing: {
+        'gutter-xs': '4px',
+        'gutter-sm': '8px',
+        'gutter-md': '12px',
+        'gutter-lg': '16px',
+        'gutter-xl': '24px',
+        'section': '32px',
+        'page-margin': '16px',
+      },
+      fontFamily: {
+        'display': ['"Alata"', 'sans-serif'],
+        'headline': ['"Alata"', 'sans-serif'],
+        'title': ['"Instrument Sans"', 'sans-serif'],
+        'body': ['"Instrument Sans"', 'sans-serif'],
+        'label': ['"Instrument Sans"', 'sans-serif'],
+        'mono': ['"Spline Sans Mono"', 'monospace'],
+      },
+      fontSize: {
+        'display-lg': ['36px', { lineHeight: '44px', letterSpacing: '-0.5px', fontWeight: '400' }],
+        'display-lg-mobile': ['28px', { lineHeight: '34px', letterSpacing: '-0.25px', fontWeight: '400' }],
+        'headline-lg': ['24px', { lineHeight: '30px', letterSpacing: '-0.2px', fontWeight: '400' }],
+        'headline-md': ['20px', { lineHeight: '26px', letterSpacing: '0px', fontWeight: '400' }],
+        'title-lg': ['18px', { lineHeight: '24px', letterSpacing: '0px', fontWeight: '600' }],
+        'title-md': ['16px', { lineHeight: '22px', letterSpacing: '0px', fontWeight: '600' }],
+        'title-sm': ['14px', { lineHeight: '20px', letterSpacing: '0px', fontWeight: '600' }],
+        'body-lg': ['15px', { lineHeight: '22px', letterSpacing: '0px', fontWeight: '400' }],
+        'body-md': ['14px', { lineHeight: '20px', letterSpacing: '0px', fontWeight: '400' }],
+        'body-sm': ['12px', { lineHeight: '16px', letterSpacing: '0.1px', fontWeight: '400' }],
+        'label-lg': ['14px', { lineHeight: '18px', letterSpacing: '0.1px', fontWeight: '600' }],
+        'label-md': ['12px', { lineHeight: '16px', letterSpacing: '0.2px', fontWeight: '600' }],
+        'label-sm': ['12px', { lineHeight: '16px', letterSpacing: '0.2px', fontWeight: '500' }],
+        'mono-sm': ['12px', { lineHeight: '16px', letterSpacing: '0.2px', fontWeight: '500' }],
+      },
+      transitionDuration: {
+        'state-change': '120ms',
+        'surface-enter': '240ms',
+        'surface-exit': '160ms',
+      },
+      transitionDelay: {
+        'state-change': '0ms',
+        'surface-enter': '0ms',
+        'surface-exit': '0ms',
+      },
+      transitionTimingFunction: {
+        'state-change': 'ease-out',
+        'surface-enter': 'cubic-bezier(0.2, 0, 0, 1)',
+        'surface-exit': 'cubic-bezier(0.3, 0, 1, 1)',
+      },
+    },
+  },
+};
+if (typeof module !== 'undefined') module.exports = globalThis.tailwind.config;
+</script>
+  <link href="https://fonts.googleapis.com/css2?family=Alata&amp;family=Instrument+Sans:wght@400;500;600;700&amp;family=Spline+Sans+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet">
+  <style>
+    .material-symbols-outlined, .material-symbols-rounded, .material-symbols-sharp, .material-icons {
+      display: inline-block;
+      width: 1em;
+      height: 1em;
+      line-height: 1 !important;
+      box-sizing: content-box;
+      overflow: hidden;
+      white-space: nowrap;
+      direction: ltr;
+      vertical-align: middle;
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="bg-dark-surface-container-low text-dark-on-surface font-body antialiased">
+
+  <!-- Mobile-First App Shell -->
+  <div class="min-h-[884px] max-w-[430px] mx-auto bg-dark-surface flex flex-col border-x border-dark-outline-variant/40 relative" data-stitch-vh="min-h-[884px]===min-h-screen">
+
+    <!-- Compact Sticky Top Header -->
+    <header class="sticky top-0 z-30 bg-dark-surface-container-lowest border-b border-dark-outline-variant/60 px-gutter-lg py-gutter-md flex items-center justify-between">
+      <div class="flex items-center gap-gutter-sm">
+        <img src="/brand/campus-logo-144-712f764a4b82.webp" width="144" height="144" alt="Vanguard Institute of Technology logo" class="w-9 h-9 rounded-md object-cover border border-dark-outline-variant/50 shrink-0">
+        <div class="flex flex-col">
+          <span class="font-headline text-headline-md text-dark-primary leading-none" data-design-text-token="headline-md">CampusPulse</span>
+          <span class="font-mono text-mono-sm text-dark-on-surface-variant" data-design-text-token="mono-sm">VIT • Student Portal</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-gutter-xs">
+        <button id="btn-notifications" data-component-id="button-icon" data-component-type="button" data-component-variant="icon" type="button" aria-label="Notifications" class="relative inline-flex items-center justify-center w-10 h-10 rounded-full text-dark-on-surface hover:bg-dark-surface-container-low transition-colors duration-state-change ease-state-change">
+          <span class="material-symbols-outlined text-[22px]">notifications</span>
+          <span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-story-rose ring-2 ring-dark-surface-container-lowest"></span>
+        </button>
+
+        <button id="btn-messages" data-component-id="button-icon" data-component-type="button" data-component-variant="icon" type="button" aria-label="Direct Messages" class="relative inline-flex items-center justify-center w-10 h-10 rounded-full text-dark-on-surface hover:bg-dark-surface-container-low transition-colors duration-state-change ease-state-change">
+          <span class="material-symbols-outlined text-[22px]">chat_bubble_outline</span>
+          <span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-dark-primary ring-2 ring-dark-surface-container-lowest"></span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Scrollable Content -->
+    <main class="flex-1 flex flex-col gap-gutter-md pb-gutter-xl">
+
+      <!-- Stories Section (Instagram-style horizontal tray) -->
+      <section aria-label="Campus Stories" class="bg-dark-surface-container-lowest border-b border-dark-outline-variant/50 py-gutter-md">
+        <div class="flex items-start gap-gutter-md overflow-x-auto no-scrollbar px-gutter-lg">
+
+          <!-- Add Your Story -->
+          <button type="button" class="story-trigger flex flex-col items-center gap-gutter-xs shrink-0 w-16 group" data-story-title="Add Campus Story" data-story-author="Aarav Kulkarni • CSE Sem 5" data-story-category="Student Story" data-story-text="Share a quick campus update, club moment, or study tip with your batchmates.">
+            <div class="relative w-16 h-16 rounded-full p-0.5 border border-dark-outline-variant bg-dark-surface-container-low flex items-center justify-center">
+              <img src="https://lh3.googleusercontent.com/aida/ALJJyrDerPS2l3M99Gka6utSlKFegmlHUZC3Nt6xhDjiMoSkNxlPLUqWHhAsnv_lCIe31Xz8kKmvkN7HMtr6_w19IOia40G3tZ6lfkPzr_KHzGLRRO9aBxFbWGunioqXJiKibSHnRk7fndbPYo3uD4EVfzy24ps8XwNYt3vwXH7Wa6NInNqkngE4Lz2Vc1p4Zrj6io7iHph1h0sEBpGJuB1ox_n_j4pXr15G7r3nGBjjBAsY3g_nHXRM0xyxZZDVjQQ" alt="Aarav Kulkarni" class="w-full h-full rounded-full object-cover">
+              <span class="absolute bottom-0 right-0 w-5 h-5 rounded-full bg-dark-primary text-dark-on-primary flex items-center justify-center border-2 border-dark-surface-container-lowest">
+                <span class="material-symbols-outlined text-[14px]">add</span>
+              </span>
+            </div>
+            <span class="font-body text-body-sm text-dark-on-surface-variant text-center leading-tight" data-design-text-token="body-sm">Your Story</span>
+          </button>
+
+          <!-- Story 1: Important Notices -->
+          <button type="button" class="story-trigger flex flex-col items-center gap-gutter-xs shrink-0 w-16" data-story-title="Mid-Sem Hall Tickets Live" data-story-author="VIT Exam Cell" data-story-category="Important Notices" data-story-text="Download your Semester V hall ticket from Student Records before Friday, 5:00 PM. Carry your physical ID card to all exam halls.">
+            <div class="p-0.5 rounded-full bg-gradient-to-tr from-dark-primary via-story-rose to-accent">
+              <div class="p-0.5 rounded-full bg-dark-surface-container-lowest">
+                <img src="https://lh3.googleusercontent.com/aida/ALJJyrD27Av7MK_3KRcpZMua-XGuMuhWf0yvdmy21MYdJc7ZAk3SCHKlykEt50aaKnAS4M_1y5jSWITEhiBJZEVQ8OmpxwR5bNO49Q1z5wJqS_9dF3twy-YcAf6eYY9kei55NER96fmdYcip4vmdJr1KWdDEWzJDyn5m2RVfGIJgQ2O_Yxqc9Gw1gKrfUF9UZLYLFNvys0mv03XDpjBcW0GZJOTDR-oOdo-wUDoibr0biiInJ-UQsfRUg5DDbQ" alt="VIT Exam Cell" class="w-14 h-14 rounded-full object-cover">
+              </div>
+            </div>
+            <span class="font-body text-body-sm text-dark-on-surface text-center leading-tight" data-design-text-token="body-sm">Notices</span>
+          </button>
+
+          <!-- Story 2: Academic Updates -->
+          <button type="button" class="story-trigger flex flex-col items-center gap-gutter-xs shrink-0 w-16" data-story-title="CS301 Lab Rescheduled" data-story-author="Dr. Priya Nair • CSE" data-story-category="Academic Updates" data-story-text="Wednesday&#39;s Operating Systems Lab (Batch B2) moves to Lab 402 at 2:30 PM. Bring your kernel lab manuals.">
+            <div class="p-0.5 rounded-full bg-gradient-to-tr from-dark-primary via-story-rose to-accent">
+              <div class="p-0.5 rounded-full bg-dark-surface-container-lowest">
+                <img src="https://lh3.googleusercontent.com/aida/ALJJyrBXDQY-wzzbjKul4pmF9-YYWCa9764Nhiq6wDdagsE52QJJtT1x-ROFDh8xEXUWR0YKOybfq0Rzz85ZxG5sa7f9CYHoG4wpT1n9UNbFl5piQHKeWTMVBBEv5HA6kaiWM2wmzmAmHySzAI3Alkp4T5k8qq3KPSkFsR-b3Jd_xbatgiw6cm8kRbEx5c3D8r24CG2dH6iUyMMsDiyD3FGXHD-X5mYNLLpKWm6lHLXBX_OzqOvFJbOqNwfoRQw" alt="Dr. Priya Nair" class="w-14 h-14 rounded-full object-cover">
+              </div>
+            </div>
+            <span class="font-body text-body-sm text-dark-on-surface text-center leading-tight" data-design-text-token="body-sm">Academics</span>
+          </button>
+
+          <!-- Story 3: Upcoming Events -->
+          <button type="button" class="story-trigger flex flex-col items-center gap-gutter-xs shrink-0 w-16" data-story-title="HackVIT 2026 Kickoff" data-story-author="Coding Club VIT" data-story-category="Upcoming Events" data-story-text="Team check-in starts tomorrow at 9:00 AM in the Main Auditorium. Mentors from 6 partner startups will be on-site!">
+            <div class="p-0.5 rounded-full bg-gradient-to-tr from-dark-primary via-story-rose to-accent">
+              <div class="p-0.5 rounded-full bg-dark-surface-container-lowest">
+                <div class="w-14 h-14 rounded-full bg-dark-primary-container text-dark-on-primary-container flex items-center justify-center">
+                  <span class="material-symbols-outlined text-[24px]">code</span>
+                </div>
+              </div>
+            </div>
+            <span class="font-body text-body-sm text-dark-on-surface text-center leading-tight" data-design-text-token="body-sm">HackVIT</span>
+          </button>
+
+          <!-- Story 4: Placement Updates -->
+          <button type="button" class="story-trigger flex flex-col items-center gap-gutter-xs shrink-0 w-16" data-story-title="Summer Internships Open" data-story-author="Placement Cell" data-story-category="Placement Updates" data-story-text="Atlassian &amp; Razorpay SDE Intern applications close Nov 28. Minimum CGPA 7.5 with zero active backlogs.">
+            <div class="p-0.5 rounded-full bg-gradient-to-tr from-dark-primary via-story-rose to-accent">
+              <div class="p-0.5 rounded-full bg-dark-surface-container-lowest">
+                <div class="w-14 h-14 rounded-full bg-dark-secondary-container text-dark-on-secondary-container flex items-center justify-center">
+                  <span class="material-symbols-outlined text-[24px]">work</span>
+                </div>
+              </div>
+            </div>
+            <span class="font-body text-body-sm text-dark-on-surface text-center leading-tight" data-design-text-token="body-sm">Placements</span>
+          </button>
+
+          <!-- Story 5: Student Achievements -->
+          <button type="button" class="story-trigger flex flex-col items-center gap-gutter-xs shrink-0 w-16" data-story-title="Smart India Hackathon Finals" data-story-author="Ananya Sharma • ECE" data-story-category="Achievements" data-story-text="Team PulseGrid from VIT just qualified for the national SIH hardware finals! Thank you to everyone who tested our prototype.">
+            <div class="p-0.5 rounded-full bg-gradient-to-tr from-dark-primary via-story-rose to-accent">
+              <div class="p-0.5 rounded-full bg-dark-surface-container-lowest">
+                <img src="https://lh3.googleusercontent.com/aida/ALJJyrC_eoL-ICoMB543vkiBlfX-IP-28CZ3EQGGs0Vh5cHOH9GzE4x0FBE8WbeXmmnFVJssDP6FWUDhEybO1f3vViZPa6Ckekakzr2senrgUFDmJ5vRX5PX4SpApKZ7xxPrdl2ofjyGf7Yz4c1OV0E_8M3FeMmdhVDxScLbx0wToZzUyoOBHpLh5GfS5xLSgJq--l9MMDD01zlrRDLCmKekM329jsBOxgj_x4_pS6JeRpHoJCBYIqq2rgD7UhsE" alt="Ananya Sharma" class="w-14 h-14 rounded-full object-cover">
+              </div>
+            </div>
+            <span class="font-body text-body-sm text-dark-on-surface text-center leading-tight" data-design-text-token="body-sm">Ananya S.</span>
+          </button>
+
+        </div>
+      </section>
+
+      <!-- Feed Filter Chips -->
+      <section aria-label="Feed Filters" class="px-gutter-lg">
+        <div class="flex items-center gap-gutter-sm overflow-x-auto no-scrollbar py-gutter-xs">
+          <button data-filter="all" data-component-id="chip-filter-selected" data-component-type="chip" data-component-variant="filter" aria-pressed="true" type="button" class="feed-filter-chip inline-flex items-center justify-center rounded-full bg-dark-primary text-dark-on-primary px-4 py-1.5 whitespace-nowrap transition-colors duration-state-change ease-state-change">
+            <span class="font-label text-label-md" data-design-text-token="label-md">All</span>
+          </button>
+
+          <button data-filter="official" data-component-id="chip-action" data-component-type="chip" data-component-variant="filter" aria-pressed="false" type="button" class="feed-filter-chip inline-flex items-center justify-center rounded-full bg-dark-surface-container-lowest text-dark-on-surface-variant border border-dark-outline-variant/60 px-4 py-1.5 whitespace-nowrap transition-colors duration-state-change ease-state-change hover:bg-dark-surface-container-low">
+            <span class="font-label text-label-md" data-design-text-token="label-md">Official Notices</span>
+          </button>
+
+          <button data-filter="academics" data-component-id="chip-action" data-component-type="chip" data-component-variant="filter" aria-pressed="false" type="button" class="feed-filter-chip inline-flex items-center justify-center rounded-full bg-dark-surface-container-lowest text-dark-on-surface-variant border border-dark-outline-variant/60 px-4 py-1.5 whitespace-nowrap transition-colors duration-state-change ease-state-change hover:bg-dark-surface-container-low">
+            <span class="font-label text-label-md" data-design-text-token="label-md">Academics</span>
+          </button>
+
+          <button data-filter="events" data-component-id="chip-action" data-component-type="chip" data-component-variant="filter" aria-pressed="false" type="button" class="feed-filter-chip inline-flex items-center justify-center rounded-full bg-dark-surface-container-lowest text-dark-on-surface-variant border border-dark-outline-variant/60 px-4 py-1.5 whitespace-nowrap transition-colors duration-state-change ease-state-change hover:bg-dark-surface-container-low">
+            <span class="font-label text-label-md" data-design-text-token="label-md">Events</span>
+          </button>
+
+          <button data-filter="placements" data-component-id="chip-action" data-component-type="chip" data-component-variant="filter" aria-pressed="false" type="button" class="feed-filter-chip inline-flex items-center justify-center rounded-full bg-dark-surface-container-lowest text-dark-on-surface-variant border border-dark-outline-variant/60 px-4 py-1.5 whitespace-nowrap transition-colors duration-state-change ease-state-change hover:bg-dark-surface-container-low">
+            <span class="font-label text-label-md" data-design-text-token="label-md">Placements</span>
+          </button>
+
+          <button data-filter="community" data-component-id="chip-action" data-component-type="chip" data-component-variant="filter" aria-pressed="false" type="button" class="feed-filter-chip inline-flex items-center justify-center rounded-full bg-dark-surface-container-lowest text-dark-on-surface-variant border border-dark-outline-variant/60 px-4 py-1.5 whitespace-nowrap transition-colors duration-state-change ease-state-change hover:bg-dark-surface-container-low">
+            <span class="font-label text-label-md" data-design-text-token="label-md">Student Community</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Instagram-Style Campus Feed -->
+      <section aria-label="Campus Feed" class="flex flex-col gap-gutter-lg px-gutter-lg">
+
+        <!-- POST 1: Official Notice (Verified) -->
+        <article data-category="official academics" data-component-id="card-elevated" data-component-type="card" data-component-variant="elevated" class="feed-post bg-dark-surface-container-lowest rounded-lg border border-dark-outline-variant/60 overflow-hidden flex flex-col">
+          <!-- Post Header -->
+          <header class="flex items-center justify-between px-gutter-lg py-gutter-md">
+            <div class="flex items-center gap-gutter-md">
+              <img src="https://lh3.googleusercontent.com/aida/ALJJyrD27Av7MK_3KRcpZMua-XGuMuhWf0yvdmy21MYdJc7ZAk3SCHKlykEt50aaKnAS4M_1y5jSWITEhiBJZEVQ8OmpxwR5bNO49Q1z5wJqS_9dF3twy-YcAf6eYY9kei55NER96fmdYcip4vmdJr1KWdDEWzJDyn5m2RVfGIJgQ2O_Yxqc9Gw1gKrfUF9UZLYLFNvys0mv03XDpjBcW0GZJOTDR-oOdo-wUDoibr0biiInJ-UQsfRUg5DDbQ" alt="Office of Academic Affairs" class="w-10 h-10 rounded-full object-cover border border-dark-outline-variant/50 shrink-0">
+              <div class="flex flex-col">
+                <div class="flex items-center gap-gutter-xs">
+                  <h2 class="font-title text-title-sm text-dark-on-surface" data-design-text-token="title-sm">Office of Academic Affairs</h2>
+                  <span class="material-symbols-outlined text-[16px] text-dark-primary" title="Verified Official Account" style="font-variation-settings: &#39;FILL&#39; 1;">verified</span>
+                </div>
+                <p class="font-body text-body-sm text-dark-on-surface-variant" data-design-text-token="body-sm">Administration • <span class="font-mono text-mono-sm tabular-nums">2h ago</span></p>
+              </div>
+            </div>
+            <span class="inline-flex items-center gap-1 rounded-full bg-dark-secondary-container text-dark-on-secondary-container px-2.5 py-0.5">
+              <span class="font-label text-label-sm" data-design-text-token="label-sm">Official</span>
+            </span>
+          </header>
+
+          <!-- Notice Attachment Card -->
+          <div class="mx-gutter-lg rounded-md bg-dark-surface-container-low border border-dark-outline-variant/50 p-gutter-lg flex flex-col gap-gutter-sm">
+            <div class="flex items-center justify-between">
+              <span class="font-mono text-mono-sm text-dark-primary tabular-nums" data-design-text-token="mono-sm">REF: VIT/EXAM/2026-S5</span>
+              <span class="font-label text-label-sm text-warning bg-warning-container px-2 py-0.5 rounded-sm" data-design-text-token="label-sm">Action Required</span>
+            </div>
+            <h3 class="font-headline text-headline-md text-dark-on-surface text-balance" data-design-text-token="headline-md">Mid-Semester Examination Schedule &amp; Hall Tickets</h3>
+            <p class="font-body text-body-md text-dark-on-surface-variant text-pretty" data-design-text-token="body-md">
+              Exams commence Dec 2, 2026. Students with ≥75% attendance can download their hall tickets directly from Student Records.
+            </p>
+          </div>
+
+          <!-- Action Bar -->
+          <div class="flex items-center justify-between px-gutter-lg py-gutter-md">
+            <div class="flex items-center gap-gutter-lg">
+              <button type="button" class="like-btn inline-flex items-center gap-1.5 text-dark-on-surface hover:text-story-rose transition-colors duration-state-change" aria-pressed="false" data-count="184">
+                <span class="material-symbols-outlined text-[22px]">favorite</span>
+                <span class="like-count font-mono text-mono-sm tabular-nums" data-design-text-token="mono-sm">184</span>
+              </button>
+              <button type="button" class="comment-toggle-btn inline-flex items-center gap-1.5 text-dark-on-surface hover:text-dark-primary transition-colors duration-state-change">
+                <span class="material-symbols-outlined text-[22px]">chat_bubble_outline</span>
+                <span class="font-mono text-mono-sm tabular-nums" data-design-text-token="mono-sm">24</span>
+              </button>
+              <button type="button" class="share-btn inline-flex items-center gap-1.5 text-dark-on-surface hover:text-dark-primary transition-colors duration-state-change" aria-label="Share post">
+                <span class="material-symbols-outlined text-[22px]">send</span>
+              </button>
+            </div>
+            <button type="button" class="save-btn inline-flex items-center justify-center text-dark-on-surface hover:text-dark-primary transition-colors duration-state-change" aria-pressed="false" aria-label="Save notice">
+              <span class="material-symbols-outlined text-[22px]">bookmark_border</span>
+            </button>
+          </div>
+
+          <!-- Expandable Comment Preview -->
+          <div class="comment-drawer hidden px-gutter-lg pb-gutter-md pt-gutter-xs border-t border-dark-outline-variant/40 bg-dark-surface-container-low/50">
+            <p class="font-body text-body-sm text-dark-on-surface" data-design-text-token="body-sm">
+              <span class="font-title text-title-sm">Rohan Verma</span> Will lab internals happen before Dec 2?
+            </p>
+            <p class="font-body text-body-sm text-dark-on-surface-variant mt-1" data-design-text-token="body-sm">
+              <span class="font-title text-title-sm text-dark-primary">Exam Cell</span> Yes, lab evaluations conclude Nov 29.
+            </p>
+          </div>
+        </article>
+
+        <!-- POST 2: Campus Event with Photo (HackVIT 2026) -->
+        <article data-category="events community" data-component-id="card-elevated" data-component-type="card" data-component-variant="elevated" class="feed-post bg-dark-surface-container-lowest rounded-lg border border-dark-outline-variant/60 overflow-hidden flex flex-col">
+          <header class="flex items-center justify-between px-gutter-lg py-gutter-md">
+            <div class="flex items-center gap-gutter-md">
+              <div class="w-10 h-10 rounded-full bg-dark-primary-container text-dark-on-primary-container flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined text-[20px]">code</span>
+              </div>
+              <div class="flex flex-col">
+                <div class="flex items-center gap-gutter-xs">
+                  <h2 class="font-title text-title-sm text-dark-on-surface" data-design-text-token="title-sm">VIT Coding Club</h2>
+                  <span class="material-symbols-outlined text-[16px] text-dark-primary" title="Recognized Student Club" style="font-variation-settings: &#39;FILL&#39; 1;">verified</span>
+                </div>
+                <p class="font-body text-body-sm text-dark-on-surface-variant" data-design-text-token="body-sm">Main Auditorium • <span class="font-mono text-mono-sm tabular-nums">5h ago</span></p>
+              </div>
+            </div>
+            <button type="button" class="rounded-full bg-dark-primary text-dark-on-primary px-3.5 py-1 transition-colors duration-state-change hover:bg-dark-primary-container">
+              <span class="font-label text-label-md" data-design-text-token="label-md">Register</span>
+            </button>
+          </header>
+
+          <img src="https://lh3.googleusercontent.com/aida/ALJJyrDF4dExuwU9pKWIDcx54TZyP9s4I1kw2v6_zQbOqxcVND7t3aaHKC_7ejMRcoaV5Lkn0haR68NDT7JWqOaYhDsfYRqcb-nSXg0XRcv4hzJx9ihADkx66dbYqudBwVYBsG2vE4agGQh-VQ4Md1NKMbkqni2x8x-1hyAZduZ-0lGXjOr95hRGCjh1i2rAaBm5Jo5A52xpHij4hXH-ToqU3RYDBDO67qghAQ97Ll-CTZ2cduZ3M7VoHK4kZA" alt="Students collaborating at HackVIT 2026" class="w-full aspect-[4/3] object-cover">
+
+          <div class="flex items-center justify-between px-gutter-lg pt-gutter-md pb-gutter-xs">
+            <div class="flex items-center gap-gutter-lg">
+              <button type="button" class="like-btn inline-flex items-center gap-1.5 text-dark-on-surface hover:text-story-rose transition-colors duration-state-change" aria-pressed="true" data-count="312">
+                <span class="material-symbols-outlined text-[22px] text-story-rose" style="font-variation-settings: &#39;FILL&#39; 1;">favorite</span>
+                <span class="like-count font-mono text-mono-sm tabular-nums" data-design-text-token="mono-sm">312</span>
+              </button>
+              <button type="button" class="comment-toggle-btn inline-flex items-center gap-1.5 text-dark-on-surface hover:text-dark-primary transition-colors duration-state-change">
+                <span class="material-symbols-outlined text-[22px]">chat_bubble_outline</span>
+                <span class="font-mono text-mono-sm tabular-nums" data-design-text-token="mono-sm">41</span>
+              </button>
+              <button type="button" class="share-btn inline-flex items-center gap-1.5 text-dark-on-surface hover:text-dark-primary transition-colors duration-state-change" aria-label="Share post">
+                <span class="material-symbols-outlined text-[22px]">send</span>
+              </button>
+            </div>
+            <button type="button" class="save-btn inline-flex items-center justify-center text-dark-primary transition-colors duration-state-change" aria-pressed="true" aria-label="Saved event">
+              <span class="material-symbols-outlined text-[22px]" style="font-variation-settings: &#39;FILL&#39; 1;">bookmark</span>
+            </button>
+          </div>
+
+          <div class="px-gutter-lg pb-gutter-md">
+            <p class="font-body text-body-md text-dark-on-surface text-pretty" data-design-text-token="body-md">
+              <span class="font-title text-title-sm">VIT Coding Club</span> Registrations for <span class="font-title text-title-sm">HackVIT 2026</span> close tonight at 11:59 PM! Build for Smart Campus, FinTech, or Green Energy. ₹1.5L prize pool.
+            </p>
+          </div>
+        </article>
+
+        <!-- POST 3: Placement Update (Verified) -->
+        <article data-category="placements official" data-component-id="card-elevated" data-component-type="card" data-component-variant="elevated" class="feed-post bg-dark-surface-container-lowest rounded-lg border border-dark-outline-variant/60 overflow-hidden flex flex-col">
+          <header class="flex items-center justify-between px-gutter-lg py-gutter-md">
+            <div class="flex items-center gap-gutter-md">
+              <div class="w-10 h-10 rounded-full bg-dark-secondary-container text-dark-on-secondary-container flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined text-[20px]">work</span>
+              </div>
+              <div class="flex flex-col">
+                <div class="flex items-center gap-gutter-xs">
+                  <h2 class="font-title text-title-sm text-dark-on-surface" data-design-text-token="title-sm">Training &amp; Placement Cell</h2>
+                  <span class="material-symbols-outlined text-[16px] text-dark-primary" title="Verified Official Account" style="font-variation-settings: &#39;FILL&#39; 1;">verified</span>
+                </div>
+                <p class="font-body text-body-sm text-dark-on-surface-variant" data-design-text-token="body-sm">Career Services • <span class="font-mono text-mono-sm tabular-nums">1d ago</span></p>
+              </div>
+            </div>
+            <span class="inline-flex items-center rounded-full bg-success-container text-on-success-container px-2.5 py-0.5">
+              <span class="font-label text-label-sm" data-design-text-token="label-sm">Internships</span>
+            </span>
+          </header>
+
+          <div class="px-gutter-lg pb-gutter-sm flex flex-col gap-gutter-sm">
+            <h3 class="font-title text-title-md text-dark-on-surface" data-design-text-token="title-md">Atlassian &amp; Razorpay — Summer 2027 SDE Internships</h3>
+            <p class="font-body text-body-md text-dark-on-surface-variant text-pretty" data-design-text-token="body-md">
+              Eligible: B.Tech CSE, IT &amp; ECE (Sem 5). Stipend: ₹85,000–₹1,10,000/month. Upload your updated resume in Profile → Placement &amp; Internship before Nov 28.
+            </p>
+          </div>
+
+          <div class="flex items-center justify-between px-gutter-lg py-gutter-md border-t border-dark-outline-variant/40">
+            <div class="flex items-center gap-gutter-lg">
+              <button type="button" class="like-btn inline-flex items-center gap-1.5 text-dark-on-surface hover:text-story-rose transition-colors duration-state-change" aria-pressed="false" data-count="249">
+                <span class="material-symbols-outlined text-[22px]">favorite</span>
+                <span class="like-count font-mono text-mono-sm tabular-nums" data-design-text-token="mono-sm">249</span>
+              </button>
+              <button type="button" class="comment-toggle-btn inline-flex items-center gap-1.5 text-dark-on-surface hover:text-dark-primary transition-colors duration-state-change">
+                <span class="material-symbols-outlined text-[22px]">chat_bubble_outline</span>
+                <span class="font-mono text-mono-sm tabular-nums" data-design-text-token="mono-sm">18</span>
+              </button>
+              <button type="button" class="share-btn inline-flex items-center gap-1.5 text-dark-on-surface hover:text-dark-primary transition-colors duration-state-change" aria-label="Share post">
+                <span class="material-symbols-outlined text-[22px]">send</span>
+              </button>
+            </div>
+            <button type="button" class="save-btn inline-flex items-center justify-center text-dark-on-surface hover:text-dark-primary transition-colors duration-state-change" aria-pressed="false" aria-label="Save internship">
+              <span class="material-symbols-outlined text-[22px]">bookmark_border</span>
+            </button>
+          </div>
+        </article>
+
+        <!-- POST 4: Student Community & Study Resource -->
+        <article data-category="community academics" data-component-id="card-elevated" data-component-type="card" data-component-variant="elevated" class="feed-post bg-dark-surface-container-lowest rounded-lg border border-dark-outline-variant/60 overflow-hidden flex flex-col">
+          <header class="flex items-center justify-between px-gutter-lg py-gutter-md">
+            <div class="flex items-center gap-gutter-md">
+              <img src="https://lh3.googleusercontent.com/aida/ALJJyrC_eoL-ICoMB543vkiBlfX-IP-28CZ3EQGGs0Vh5cHOH9GzE4x0FBE8WbeXmmnFVJssDP6FWUDhEybO1f3vViZPa6Ckekakzr2senrgUFDmJ5vRX5PX4SpApKZ7xxPrdl2ofjyGf7Yz4c1OV0E_8M3FeMmdhVDxScLbx0wToZzUyoOBHpLh5GfS5xLSgJq--l9MMDD01zlrRDLCmKekM329jsBOxgj_x4_pS6JeRpHoJCBYIqq2rgD7UhsE" alt="Ananya Sharma" class="w-10 h-10 rounded-full object-cover border border-dark-outline-variant/50 shrink-0">
+              <div class="flex flex-col">
+                <h2 class="font-title text-title-sm text-dark-on-surface" data-design-text-token="title-sm">Ananya Sharma</h2>
+                <p class="font-body text-body-sm text-dark-on-surface-variant" data-design-text-token="body-sm">ECE Sem 5 • Central Library • <span class="font-mono text-mono-sm tabular-nums">1d ago</span></p>
+              </div>
+            </div>
+          </header>
+
+          <img src="https://lh3.googleusercontent.com/aida/ALJJyrABqBD-QY0j9WrDi3m7wwWawkTKqdHmYgGi4KsRZ-FEjBkHhZ1wNs12y_2O74lFxE5mU-K8BVbxpbwF020jx50e4HLN2lMipu0EWsDp2fLYxV09H7G1drKxHJcaTeLn3yAPLLI94vyQ0UsboQVxJ-hZVIc6QA3hfVRUcMyZF6sXFmIulQ2izZV0h4t7QCRtKUxzChRU-xChbPVMM6McBvqcjjwaCoUZY-VniqeJOio1o_Gdj902Vg" alt="Students studying in the Central Library reading room" class="w-full aspect-[4/3] object-cover">
+
+          <div class="flex items-center justify-between px-gutter-lg pt-gutter-md pb-gutter-xs">
+            <div class="flex items-center gap-gutter-lg">
+              <button type="button" class="like-btn inline-flex items-center gap-1.5 text-dark-on-surface hover:text-story-rose transition-colors duration-state-change" aria-pressed="false" data-count="127">
+                <span class="material-symbols-outlined text-[22px]">favorite</span>
+                <span class="like-count font-mono text-mono-sm tabular-nums" data-design-text-token="mono-sm">127</span>
+              </button>
+              <button type="button" class="comment-toggle-btn inline-flex items-center gap-1.5 text-dark-on-surface hover:text-dark-primary transition-colors duration-state-change">
+                <span class="material-symbols-outlined text-[22px]">chat_bubble_outline</span>
+                <span class="font-mono text-mono-sm tabular-nums" data-design-text-token="mono-sm">9</span>
+              </button>
+              <button type="button" class="share-btn inline-flex items-center gap-1.5 text-dark-on-surface hover:text-dark-primary transition-colors duration-state-change" aria-label="Share post">
+                <span class="material-symbols-outlined text-[22px]">send</span>
+              </button>
+            </div>
+            <button type="button" class="save-btn inline-flex items-center justify-center text-dark-on-surface hover:text-dark-primary transition-colors duration-state-change" aria-pressed="false" aria-label="Save post">
+              <span class="material-symbols-outlined text-[22px]">bookmark_border</span>
+            </button>
+          </div>
+
+          <div class="px-gutter-lg pb-gutter-md">
+            <p class="font-body text-body-md text-dark-on-surface text-pretty" data-design-text-token="body-md">
+              <span class="font-title text-title-sm">Ananya Sharma</span> Central Library Reading Hall B is now open until 11:30 PM all week! Uploaded my Unit 3 Signals &amp; Systems summary in the Study Hub.
+            </p>
+          </div>
+        </article>
+
+      </section>
+    </main>
+
+    <!-- Fixed/Sticky 5-Icon Bottom Navigation Bar (Exact Order) -->
+    <nav aria-label="Primary Navigation" class="sticky bottom-0 z-30 bg-dark-surface-container-lowest border-t border-dark-outline-variant/60 px-gutter-sm py-gutter-xs grid grid-cols-5 items-center">
+      <!-- 1. Home (Bottom Left) -->
+      <a href="#home" aria-current="page" class="nav-item flex flex-col items-center justify-center gap-0.5 py-1.5 text-dark-primary">
+        <span class="material-symbols-outlined text-[24px]" style="font-variation-settings: &#39;FILL&#39; 1;">home</span>
+        <span class="font-label text-label-sm" data-design-text-token="label-sm">Home</span>
+      </a>
+
+      <!-- 2. Clubs & Events -->
+      <a href="#clubs" class="nav-item flex flex-col items-center justify-center gap-0.5 py-1.5 text-dark-on-surface-variant hover:text-dark-primary transition-colors duration-state-change">
+        <span class="material-symbols-outlined text-[24px]">groups</span>
+        <span class="font-label text-label-sm" data-design-text-token="label-sm">Clubs</span>
+      </a>
+
+      <!-- 3. Study (Centre — Prominent) -->
+      <a href="#study" class="nav-item flex flex-col items-center justify-center -mt-4">
+        <span class="w-12 h-12 rounded-full bg-dark-primary text-dark-on-primary flex items-center justify-center shadow-md ring-4 ring-dark-surface-container-lowest transition-transform duration-state-change active:scale-95">
+          <span class="material-symbols-outlined text-[26px]" style="font-variation-settings: &#39;FILL&#39; 1;">school</span>
+        </span>
+        <span class="font-label text-label-sm text-dark-primary mt-0.5" data-design-text-token="label-sm">Study</span>
+      </a>
+
+      <!-- 4. Search -->
+      <a href="#search" class="nav-item flex flex-col items-center justify-center gap-0.5 py-1.5 text-dark-on-surface-variant hover:text-dark-primary transition-colors duration-state-change">
+        <span class="material-symbols-outlined text-[24px]">search</span>
+        <span class="font-label text-label-sm" data-design-text-token="label-sm">Search</span>
+      </a>
+
+      <!-- 5. Student Profile (Bottom Right) -->
+      <a href="#profile" class="nav-item flex flex-col items-center justify-center gap-0.5 py-1.5 text-dark-on-surface-variant hover:text-dark-primary transition-colors duration-state-change">
+        <img src="https://lh3.googleusercontent.com/aida/ALJJyrDerPS2l3M99Gka6utSlKFegmlHUZC3Nt6xhDjiMoSkNxlPLUqWHhAsnv_lCIe31Xz8kKmvkN7HMtr6_w19IOia40G3tZ6lfkPzr_KHzGLRRO9aBxFbWGunioqXJiKibSHnRk7fndbPYo3uD4EVfzy24ps8XwNYt3vwXH7Wa6NInNqkngE4Lz2Vc1p4Zrj6io7iHph1h0sEBpGJuB1ox_n_j4pXr15G7r3nGBjjBAsY3g_nHXRM0xyxZZDVjQQ" alt="Student Profile" class="w-6 h-6 rounded-full object-cover border border-dark-outline-variant">
+        <span class="font-label text-label-sm" data-design-text-token="label-sm">Profile</span>
+      </a>
+    </nav>
+
+    <!-- Story Viewer Modal Overlay -->
+    <div id="story-modal" class="hidden fixed inset-0 z-50 bg-dark-inverse-surface/95 flex items-center justify-center p-gutter-lg" role="dialog" aria-modal="true" aria-labelledby="story-modal-title">
+      <div class="w-full max-w-[390px] bg-dark-surface-container-lowest rounded-xl overflow-hidden flex flex-col">
+        <div class="h-1 bg-dark-surface-container-high w-full">
+          <div class="h-full bg-dark-primary w-2/3"></div>
+        </div>
+        <div class="p-gutter-lg flex items-center justify-between border-b border-dark-outline-variant/40">
+          <div>
+            <span id="story-modal-category" class="font-label text-label-sm text-dark-primary" data-design-text-token="label-sm">Category</span>
+            <p id="story-modal-author" class="font-title text-title-sm text-dark-on-surface" data-design-text-token="title-sm">Author</p>
+          </div>
+          <button id="close-story-modal" type="button" aria-label="Close story" class="w-9 h-9 rounded-full hover:bg-dark-surface-container-low flex items-center justify-center text-dark-on-surface">
+            <span class="material-symbols-outlined text-[20px]">close</span>
+          </button>
+        </div>
+        <div class="p-gutter-xl flex flex-col gap-gutter-md">
+          <h3 id="story-modal-title" class="font-headline text-headline-lg text-dark-on-surface" data-design-text-token="headline-lg">Story Title</h3>
+          <p id="story-modal-body" class="font-body text-body-lg text-dark-on-surface-variant" data-design-text-token="body-lg">Story details...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notification Centre Drawer -->
+    <div id="notif-drawer" class="hidden fixed inset-0 z-50 bg-dark-inverse-surface/40 flex justify-center items-end sm:items-center p-gutter-md" role="dialog" aria-modal="true" aria-label="Notification Centre">
+      <div class="w-full max-w-[400px] bg-dark-surface-container-lowest rounded-xl border border-dark-outline-variant/60 overflow-hidden flex flex-col max-h-[707px]" data-stitch-vh="max-h-[707px]===max-h-[80vh]">
+        <header class="px-gutter-lg py-gutter-md border-b border-dark-outline-variant/50 flex items-center justify-between">
+          <h2 class="font-headline text-headline-md text-dark-on-surface" data-design-text-token="headline-md">Notifications</h2>
+          <button id="close-notif-drawer" type="button" aria-label="Close notifications" class="w-9 h-9 rounded-full hover:bg-dark-surface-container-low flex items-center justify-center text-dark-on-surface">
+            <span class="material-symbols-outlined text-[20px]">close</span>
+          </button>
+        </header>
+        <div class="divide-y divide-dark-outline-variant/40 overflow-y-auto">
+          <div class="px-gutter-lg py-gutter-md bg-dark-secondary-container/30 flex items-start gap-gutter-md">
+            <span class="material-symbols-outlined text-[20px] text-dark-primary mt-0.5">verified</span>
+            <div class="flex-1">
+              <p class="font-title text-title-sm text-dark-on-surface" data-design-text-token="title-sm">Mid-Sem Hall Tickets Published</p>
+              <p class="font-body text-body-sm text-dark-on-surface-variant" data-design-text-token="body-sm">Official Notice • 2h ago</p>
+            </div>
+            <span class="w-2 h-2 rounded-full bg-dark-primary mt-2"></span>
+          </div>
+          <div class="px-gutter-lg py-gutter-md flex items-start gap-gutter-md">
+            <span class="material-symbols-outlined text-[20px] text-accent mt-0.5">assignment</span>
+            <div class="flex-1">
+              <p class="font-title text-title-sm text-dark-on-surface" data-design-text-token="title-sm">CS301 Assignment 4 due tomorrow</p>
+              <p class="font-body text-body-sm text-dark-on-surface-variant" data-design-text-token="body-sm">Academics • 4h ago</p>
+            </div>
+          </div>
+          <div class="px-gutter-lg py-gutter-md flex items-start gap-gutter-md">
+            <span class="material-symbols-outlined text-[20px] text-success mt-0.5">work</span>
+            <div class="flex-1">
+              <p class="font-title text-title-sm text-dark-on-surface" data-design-text-token="title-sm">Atlassian SDE Internships open</p>
+              <p class="font-body text-body-sm text-dark-on-surface-variant" data-design-text-token="body-sm">Placements • 1d ago</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Filter chips
+    const filterChips = document.querySelectorAll('.feed-filter-chip');
+    const feedPosts = document.querySelectorAll('.feed-post');
+
+    filterChips.forEach((chip) => {
+      chip.addEventListener('click', () => {
+        const filter = chip.getAttribute('data-filter');
+        filterChips.forEach((c) => {
+          const isSelected = c === chip;
+          c.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
+          if (isSelected) {
+            c.classList.remove('bg-dark-surface-container-lowest', 'text-dark-on-surface-variant', 'border', 'border-dark-outline-variant/60');
+            c.classList.add('bg-dark-primary', 'text-dark-on-primary');
+          } else {
+            c.classList.remove('bg-dark-primary', 'text-dark-on-primary');
+            c.classList.add('bg-dark-surface-container-lowest', 'text-dark-on-surface-variant', 'border', 'border-dark-outline-variant/60');
+          }
+        });
+
+        feedPosts.forEach((post) => {
+          const cats = (post.getAttribute('data-category') || '').split(' ');
+          if (filter === 'all' || cats.includes(filter)) {
+            post.classList.remove('hidden');
+          } else {
+            post.classList.add('hidden');
+          }
+        });
+      });
+    });
+
+    // Like & Save toggles
+    document.querySelectorAll('.like-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const pressed = btn.getAttribute('aria-pressed') === 'true';
+        const icon = btn.querySelector('.material-symbols-outlined');
+        const countEl = btn.querySelector('.like-count');
+        let count = parseInt(btn.getAttribute('data-count') || '0', 10);
+        if (pressed) {
+          btn.setAttribute('aria-pressed', 'false');
+          icon.classList.remove('text-story-rose');
+          icon.style.fontVariationSettings = "'FILL' 0";
+          count -= 1;
+        } else {
+          btn.setAttribute('aria-pressed', 'true');
+          icon.classList.add('text-story-rose');
+          icon.style.fontVariationSettings = "'FILL' 1";
+          count += 1;
+        }
+        btn.setAttribute('data-count', String(count));
+        countEl.textContent = String(count);
+      });
+    });
+
+    document.querySelectorAll('.save-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const pressed = btn.getAttribute('aria-pressed') === 'true';
+        const icon = btn.querySelector('.material-symbols-outlined');
+        if (pressed) {
+          btn.setAttribute('aria-pressed', 'false');
+          btn.classList.remove('text-dark-primary');
+          icon.textContent = 'bookmark_border';
+          icon.style.fontVariationSettings = "'FILL' 0";
+        } else {
+          btn.setAttribute('aria-pressed', 'true');
+          btn.classList.add('text-dark-primary');
+          icon.textContent = 'bookmark';
+          icon.style.fontVariationSettings = "'FILL' 1";
+        }
+      });
+    });
+
+    // Comment drawer toggle
+    document.querySelectorAll('.comment-toggle-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const post = btn.closest('.feed-post');
+        const drawer = post ? post.querySelector('.comment-drawer') : null;
+        if (drawer) drawer.classList.toggle('hidden');
+      });
+    });
+
+    // Story modal
+    const storyModal = document.getElementById('story-modal');
+    document.querySelectorAll('.story-trigger').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        document.getElementById('story-modal-category').textContent = btn.getAttribute('data-story-category') || '';
+        document.getElementById('story-modal-author').textContent = btn.getAttribute('data-story-author') || '';
+        document.getElementById('story-modal-title').textContent = btn.getAttribute('data-story-title') || '';
+        document.getElementById('story-modal-body').textContent = btn.getAttribute('data-story-text') || '';
+        storyModal.classList.remove('hidden');
+      });
+    });
+    document.getElementById('close-story-modal').addEventListener('click', () => storyModal.classList.add('hidden'));
+
+    // Notification drawer
+    const notifDrawer = document.getElementById('notif-drawer');
+    document.getElementById('btn-notifications').addEventListener('click', () => notifDrawer.classList.remove('hidden'));
+    document.getElementById('close-notif-drawer').addEventListener('click', () => notifDrawer.classList.add('hidden'));
+  </script>
+
+
+
+</body></html>

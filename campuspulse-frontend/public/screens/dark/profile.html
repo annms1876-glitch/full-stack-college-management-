@@ -1,0 +1,747 @@
+<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CampusPulse — Student Profile (Dark Mode)</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">/** @type {import('tailwindcss').Config} */
+globalThis.tailwind = globalThis.tailwind || {};
+globalThis.tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        'accent': '#D97706',
+        'on-accent': '#2A2A2A',
+        'story-rose': '#E11D48',
+        'success': '#15803D',
+        'on-success': '#FFFFFF',
+        'success-container': '#DCFCE7',
+        'on-success-container': '#14532D',
+        'warning': '#B45309',
+        'on-warning': '#FFFFFF',
+        'warning-container': '#FEF3C7',
+        'on-warning-container': '#78350F',
+        'light-primary': '#00236F',
+        'light-on-primary': '#FFFFFF',
+        'light-primary-container': '#1E3A8A',
+        'light-on-primary-container': '#DCE1FF',
+        'light-secondary': '#555D7E',
+        'light-on-secondary': '#FFFFFF',
+        'light-secondary-container': '#D0D8FF',
+        'light-on-secondary-container': '#111A37',
+        'light-tertiary': '#4B1C00',
+        'light-on-tertiary': '#FFFFFF',
+        'light-tertiary-container': '#6E2C00',
+        'light-on-tertiary-container': '#FFDBCB',
+        'light-error': '#BA1A1A',
+        'light-on-error': '#FFFFFF',
+        'light-error-container': '#FFDAD6',
+        'light-on-error-container': '#93000A',
+        'light-background': '#FAF8FF',
+        'light-on-background': '#1A1B21',
+        'light-surface': '#FAF8FF',
+        'light-surface-dim': '#DAD9E1',
+        'light-surface-bright': '#FFFFFF',
+        'light-surface-container-lowest': '#FFFFFF',
+        'light-surface-container-low': '#F4F3FA',
+        'light-surface-container': '#EEEDF4',
+        'light-surface-container-high': '#E9E7EF',
+        'light-surface-container-highest': '#E3E1E9',
+        'light-on-surface': '#1A1B21',
+        'light-surface-variant': '#E1E1EF',
+        'light-on-surface-variant': '#444651',
+        'light-outline': '#757682',
+        'light-outline-variant': '#C5C5D3',
+        'light-inverse-surface': '#2F3036',
+        'light-inverse-on-surface': '#F1F0F7',
+        'light-inverse-primary': '#B6C4FF',
+        'dark-primary': '#B6C4FF',
+        'dark-on-primary': '#05297A',
+        'dark-primary-container': '#1E3A8A',
+        'dark-on-primary-container': '#DCE1FF',
+        'dark-secondary': '#BDC5EB',
+        'dark-on-secondary': '#262F4D',
+        'dark-secondary-container': '#3D4565',
+        'dark-on-secondary-container': '#DCE1FF',
+        'dark-tertiary': '#FFB691',
+        'dark-on-tertiary': '#552000',
+        'dark-tertiary-container': '#6E2C00',
+        'dark-on-tertiary-container': '#FFDBCB',
+        'dark-error': '#FFB4AB',
+        'dark-on-error': '#690005',
+        'dark-error-container': '#93000A',
+        'dark-on-error-container': '#FFDAD6',
+        'dark-background': '#121318',
+        'dark-on-background': '#E3E1E9',
+        'dark-surface': '#121318',
+        'dark-surface-dim': '#121318',
+        'dark-surface-bright': '#38393F',
+        'dark-surface-container-lowest': '#0D0E13',
+        'dark-surface-container-low': '#1A1B21',
+        'dark-surface-container': '#1E1F25',
+        'dark-surface-container-high': '#292A2F',
+        'dark-surface-container-highest': '#34343A',
+        'dark-on-surface': '#E3E1E9',
+        'dark-surface-variant': '#444651',
+        'dark-on-surface-variant': '#C5C5D3',
+        'dark-outline': '#8F909D',
+        'dark-outline-variant': '#444651',
+        'dark-inverse-surface': '#E3E1E9',
+        'dark-inverse-on-surface': '#2F3036',
+        'dark-inverse-primary': '#4059AA',
+      },
+      borderRadius: {
+        'sm': '6px',
+        'DEFAULT': '10px',
+        'md': '12px',
+        'lg': '16px',
+        'xl': '20px',
+        'full': '9999px',
+      },
+      spacing: {
+        'gutter-xs': '4px',
+        'gutter-sm': '8px',
+        'gutter-md': '12px',
+        'gutter-lg': '16px',
+        'gutter-xl': '24px',
+        'section': '32px',
+        'page-margin': '16px',
+      },
+      fontFamily: {
+        'display': ['"Alata"', 'sans-serif'],
+        'headline': ['"Alata"', 'sans-serif'],
+        'title': ['"Instrument Sans"', 'sans-serif'],
+        'body': ['"Instrument Sans"', 'sans-serif'],
+        'label': ['"Instrument Sans"', 'sans-serif'],
+        'mono': ['"Spline Sans Mono"', 'monospace'],
+      },
+      fontSize: {
+        'display-lg': ['36px', { lineHeight: '44px', letterSpacing: '-0.5px', fontWeight: '400' }],
+        'display-lg-mobile': ['28px', { lineHeight: '34px', letterSpacing: '-0.25px', fontWeight: '400' }],
+        'headline-lg': ['24px', { lineHeight: '30px', letterSpacing: '-0.2px', fontWeight: '400' }],
+        'headline-md': ['20px', { lineHeight: '26px', letterSpacing: '0px', fontWeight: '400' }],
+        'title-lg': ['18px', { lineHeight: '24px', letterSpacing: '0px', fontWeight: '600' }],
+        'title-md': ['16px', { lineHeight: '22px', letterSpacing: '0px', fontWeight: '600' }],
+        'title-sm': ['14px', { lineHeight: '20px', letterSpacing: '0px', fontWeight: '600' }],
+        'body-lg': ['15px', { lineHeight: '22px', letterSpacing: '0px', fontWeight: '400' }],
+        'body-md': ['14px', { lineHeight: '20px', letterSpacing: '0px', fontWeight: '400' }],
+        'body-sm': ['12px', { lineHeight: '16px', letterSpacing: '0.1px', fontWeight: '400' }],
+        'label-lg': ['14px', { lineHeight: '18px', letterSpacing: '0.1px', fontWeight: '600' }],
+        'label-md': ['12px', { lineHeight: '16px', letterSpacing: '0.2px', fontWeight: '600' }],
+        'label-sm': ['12px', { lineHeight: '16px', letterSpacing: '0.2px', fontWeight: '500' }],
+        'mono-sm': ['12px', { lineHeight: '16px', letterSpacing: '0.2px', fontWeight: '500' }],
+      },
+      transitionDuration: {
+        'state-change': '120ms',
+        'surface-enter': '240ms',
+        'surface-exit': '160ms',
+      },
+      transitionDelay: {
+        'state-change': '0ms',
+        'surface-enter': '0ms',
+        'surface-exit': '0ms',
+      },
+      transitionTimingFunction: {
+        'state-change': 'ease-out',
+        'surface-enter': 'cubic-bezier(0.2, 0, 0, 1)',
+        'surface-exit': 'cubic-bezier(0.3, 0, 1, 1)',
+      },
+    },
+  },
+};
+if (typeof module !== 'undefined') module.exports = globalThis.tailwind.config;
+</script>
+  <link href="https://fonts.googleapis.com/css2?family=Alata&amp;family=Instrument+Sans:wght@400;500;600;700&amp;family=Spline+Sans+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet">
+  <style>
+    .material-symbols-outlined, .material-symbols-rounded, .material-symbols-sharp, .material-icons {
+      display: inline-block;
+      width: 1em;
+      height: 1em;
+      line-height: 1 !important;
+      box-sizing: content-box;
+      overflow: hidden;
+      white-space: nowrap;
+      direction: ltr;
+      vertical-align: middle;
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="bg-dark-surface-container-low text-dark-on-surface font-body antialiased">
+
+  <!-- Mobile-First App Shell (exact parity with HomeFeed.html) -->
+  <div class="min-h-[884px] max-w-[430px] mx-auto bg-dark-surface flex flex-col border-x border-dark-outline-variant/40 relative" data-stitch-vh="min-h-[884px]===min-h-screen">
+
+    <!-- Compact Sticky Top Header -->
+    <header class="sticky top-0 z-30 bg-dark-surface-container-lowest border-b border-dark-outline-variant/60 px-gutter-lg py-gutter-md flex items-center justify-between">
+      <div class="flex items-center gap-gutter-sm">
+        <img src="/brand/campus-logo-144-712f764a4b82.webp" width="144" height="144" alt="Vanguard Institute of Technology logo" class="w-9 h-9 rounded-md object-cover border border-dark-outline-variant/50 shrink-0">
+        <div class="flex flex-col">
+          <span class="font-headline text-headline-md text-dark-primary leading-none" data-design-text-token="headline-md">CampusPulse</span>
+          <span class="font-mono text-mono-sm text-dark-on-surface-variant" data-design-text-token="mono-sm">VIT • Student Portal</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-gutter-xs">
+        <button id="btn-notifications" data-component-id="button-icon" data-component-type="button" data-component-variant="icon" type="button" aria-label="Notifications" class="relative inline-flex items-center justify-center w-10 h-10 rounded-full text-dark-on-surface hover:bg-dark-surface-container-low transition-colors duration-state-change ease-state-change">
+          <span class="material-symbols-outlined text-[22px]">notifications</span>
+          <span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-story-rose ring-2 ring-dark-surface-container-lowest"></span>
+        </button>
+
+        <button id="btn-messages" data-component-id="button-icon" data-component-type="button" data-component-variant="icon" type="button" aria-label="Direct Messages" class="relative inline-flex items-center justify-center w-10 h-10 rounded-full text-dark-on-surface hover:bg-dark-surface-container-low transition-colors duration-state-change ease-state-change">
+          <span class="material-symbols-outlined text-[22px]">chat_bubble_outline</span>
+          <span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-dark-primary ring-2 ring-dark-surface-container-lowest"></span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Scrollable Content -->
+    <main class="flex-1 flex flex-col pb-section">
+
+      <!-- Instagram-Style Student Profile Header -->
+      <section aria-label="Student Identity" class="bg-dark-surface-container-lowest px-gutter-lg pt-gutter-lg pb-gutter-md border-b border-dark-outline-variant/50 flex flex-col gap-gutter-md">
+
+        <!-- Avatar + Academic Stats Row -->
+        <div class="flex items-center gap-gutter-lg">
+          <div class="p-0.5 rounded-full bg-gradient-to-tr from-dark-primary via-story-rose to-accent shrink-0">
+            <div class="p-0.5 rounded-full bg-dark-surface-container-lowest">
+              <img src="https://lh3.googleusercontent.com/aida/ALJJyrDerPS2l3M99Gka6utSlKFegmlHUZC3Nt6xhDjiMoSkNxlPLUqWHhAsnv_lCIe31Xz8kKmvkN7HMtr6_w19IOia40G3tZ6lfkPzr_KHzGLRRO9aBxFbWGunioqXJiKibSHnRk7fndbPYo3uD4EVfzy24ps8XwNYt3vwXH7Wa6NInNqkngE4Lz2Vc1p4Zrj6io7iHph1h0sEBpGJuB1ox_n_j4pXr15G7r3nGBjjBAsY3g_nHXRM0xyxZZDVjQQ" alt="Aarav Kulkarni" class="w-20 h-20 rounded-full object-cover">
+            </div>
+          </div>
+
+          <div class="flex-1 grid grid-cols-3 text-center gap-gutter-xs">
+            <div class="flex flex-col">
+              <span class="font-headline text-headline-md text-dark-on-surface tabular-nums" data-design-text-token="headline-md">8.84</span>
+              <span class="font-body text-body-sm text-dark-on-surface-variant" data-design-text-token="body-sm">CGPA</span>
+            </div>
+            <div class="flex flex-col">
+              <span class="font-headline text-headline-md text-dark-on-surface tabular-nums" data-design-text-token="headline-md">89%</span>
+              <span class="font-body text-body-sm text-dark-on-surface-variant" data-design-text-token="body-sm">Attendance</span>
+            </div>
+            <div class="flex flex-col">
+              <span class="font-headline text-headline-md text-dark-on-surface tabular-nums" data-design-text-token="headline-md">112</span>
+              <span class="font-body text-body-sm text-dark-on-surface-variant" data-design-text-token="body-sm">Credits</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bio & Academic Credentials -->
+        <div class="flex flex-col gap-gutter-xs">
+          <div class="flex items-center justify-between">
+            <h1 class="font-title text-title-lg text-dark-on-surface" data-design-text-token="title-lg">Aarav Kulkarni</h1>
+            <span class="inline-flex items-center gap-1 rounded-full bg-dark-secondary-container text-dark-on-secondary-container px-2.5 py-0.5">
+              <span class="font-mono text-mono-sm tabular-nums" data-design-text-token="mono-sm">23CSE1042</span>
+            </span>
+          </div>
+          <p class="font-body text-body-md text-dark-on-surface" data-design-text-token="body-md">B.Tech Computer Science &amp; Engineering • Semester V</p>
+          <p class="font-body text-body-sm text-dark-on-surface-variant" data-design-text-token="body-sm">Reg No: <span class="font-mono text-mono-sm tabular-nums">VIT2023004819</span> • AY 2026–27</p>
+          <p class="font-body text-body-sm text-dark-primary" data-design-text-token="body-sm">aarav.kulkarni@vit.edu.in</p>
+        </div>
+
+        <!-- Edit Profile & Quick ID Actions -->
+        <div class="grid grid-cols-2 gap-gutter-sm">
+          <button id="btn-edit-profile" data-component-id="button-secondary" data-component-type="button" data-component-variant="secondary" type="button" class="inline-flex items-center justify-center gap-1.5 rounded-full bg-dark-surface-container text-dark-on-surface py-2 px-4 transition-colors duration-state-change hover:bg-dark-surface-container-high">
+            <span class="material-symbols-outlined text-[17px]" aria-hidden="true">edit</span>
+            <span class="font-label text-label-md" data-design-text-token="label-md">Edit Profile</span>
+          </button>
+
+          <button type="button" class="inline-flex items-center justify-center gap-1.5 rounded-full bg-dark-secondary-container text-dark-on-secondary-container py-2 px-4 transition-colors duration-state-change hover:bg-dark-surface-container-high">
+            <span class="material-symbols-outlined text-[17px]" aria-hidden="true">badge</span>
+            <span class="font-label text-label-md" data-design-text-token="label-md">Digital ID</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Instagram-Style Dashboard Tab Strip (6 Tabs) -->
+      <nav aria-label="Profile Dashboard Tabs" class="relative z-20 bg-dark-surface-container-lowest border-b border-dark-outline-variant/60">
+        <div class="flex items-center overflow-x-auto no-scrollbar px-gutter-sm">
+          <button type="button" data-tab="records" aria-selected="true" class="profile-tab flex items-center gap-1.5 px-3.5 py-3 border-b-2 border-dark-primary text-dark-primary whitespace-nowrap transition-colors duration-state-change">
+            <span class="material-symbols-outlined text-[18px]">folder_shared</span>
+            <span class="font-label text-label-md" data-design-text-token="label-md">Records</span>
+          </button>
+
+          <button type="button" data-tab="timetable" aria-selected="false" class="profile-tab flex items-center gap-1.5 px-3.5 py-3 border-b-2 border-transparent text-dark-on-surface-variant hover:text-dark-on-surface whitespace-nowrap transition-colors duration-state-change">
+            <span class="material-symbols-outlined text-[18px]">calendar_month</span>
+            <span class="font-label text-label-md" data-design-text-token="label-md">Timetable</span>
+          </button>
+
+          <button type="button" data-tab="assignments" aria-selected="false" class="profile-tab flex items-center gap-1.5 px-3.5 py-3 border-b-2 border-transparent text-dark-on-surface-variant hover:text-dark-on-surface whitespace-nowrap transition-colors duration-state-change">
+            <span class="material-symbols-outlined text-[18px]">assignment</span>
+            <span class="font-label text-label-md" data-design-text-token="label-md">Assignments</span>
+          </button>
+
+          <button type="button" data-tab="scholarships" aria-selected="false" class="profile-tab flex items-center gap-1.5 px-3.5 py-3 border-b-2 border-transparent text-dark-on-surface-variant hover:text-dark-on-surface whitespace-nowrap transition-colors duration-state-change">
+            <span class="material-symbols-outlined text-[18px]">workspace_premium</span>
+            <span class="font-label text-label-md" data-design-text-token="label-md">Scholarships</span>
+          </button>
+
+          <button type="button" data-tab="placements" aria-selected="false" class="profile-tab flex items-center gap-1.5 px-3.5 py-3 border-b-2 border-transparent text-dark-on-surface-variant hover:text-dark-on-surface whitespace-nowrap transition-colors duration-state-change">
+            <span class="material-symbols-outlined text-[18px]">work</span>
+            <span class="font-label text-label-md" data-design-text-token="label-md">Placements</span>
+          </button>
+
+          <button type="button" data-tab="welfare" aria-selected="false" class="profile-tab flex items-center gap-1.5 px-3.5 py-3 border-b-2 border-transparent text-dark-on-surface-variant hover:text-dark-on-surface whitespace-nowrap transition-colors duration-state-change">
+            <span class="material-symbols-outlined text-[18px]">health_and_safety</span>
+            <span class="font-label text-label-md" data-design-text-token="label-md">Health &amp; Waste</span>
+          </button>
+        </div>
+      </nav>
+
+      <!-- TAB 1: STUDENT RECORDS -->
+      <section id="panel-records" class="tab-panel p-gutter-lg flex flex-col gap-gutter-md">
+        <!-- Personal & Academic Summary -->
+        <article class="bg-dark-surface-container-lowest rounded-lg border border-dark-outline-variant/60 p-gutter-lg flex flex-col gap-gutter-md">
+          <div class="flex items-center justify-between">
+            <h2 class="font-title text-title-md text-dark-on-surface" data-design-text-token="title-md">Academic Overview</h2>
+            <span class="font-label text-label-sm text-success bg-success-container px-2.5 py-0.5 rounded-full" data-design-text-token="label-sm">Good Standing</span>
+          </div>
+          <div class="grid grid-cols-2 gap-gutter-md">
+            <div class="bg-dark-surface-container-low rounded-md p-gutter-md">
+              <p class="font-body text-body-sm text-dark-on-surface-variant" data-design-text-token="body-sm">Faculty Advisor</p>
+              <p class="font-title text-title-sm text-dark-on-surface mt-0.5" data-design-text-token="title-sm">Dr. Priya Nair</p>
+            </div>
+            <div class="bg-dark-surface-container-low rounded-md p-gutter-md">
+              <p class="font-body text-body-sm text-dark-on-surface-variant" data-design-text-token="body-sm">Batch / Section</p>
+              <p class="font-title text-title-sm text-dark-on-surface mt-0.5" data-design-text-token="title-sm">CSE-A • Batch B2</p>
+            </div>
+          </div>
+        </article>
+
+        <!-- Semester-wise SGPA & Internal Marks -->
+        <article class="bg-dark-surface-container-lowest rounded-lg border border-dark-outline-variant/60 p-gutter-lg flex flex-col gap-gutter-md">
+          <h2 class="font-title text-title-md text-dark-on-surface" data-design-text-token="title-md">Semester Results &amp; Attendance</h2>
+          <div class="grid grid-cols-4 gap-gutter-sm text-center">
+            <div class="bg-dark-surface-container-low rounded-md py-gutter-sm px-1">
+              <span class="font-body text-body-sm text-dark-on-surface-variant block" data-design-text-token="body-sm">Sem I</span>
+              <span class="font-mono text-mono-sm text-dark-primary tabular-nums" data-design-text-token="mono-sm">8.45</span>
+            </div>
+            <div class="bg-dark-surface-container-low rounded-md py-gutter-sm px-1">
+              <span class="font-body text-body-sm text-dark-on-surface-variant block" data-design-text-token="body-sm">Sem II</span>
+              <span class="font-mono text-mono-sm text-dark-primary tabular-nums" data-design-text-token="mono-sm">8.72</span>
+            </div>
+            <div class="bg-dark-surface-container-low rounded-md py-gutter-sm px-1">
+              <span class="font-body text-body-sm text-dark-on-surface-variant block" data-design-text-token="body-sm">Sem III</span>
+              <span class="font-mono text-mono-sm text-dark-primary tabular-nums" data-design-text-token="mono-sm">9.04</span>
+            </div>
+            <div class="bg-dark-surface-container-low rounded-md py-gutter-sm px-1">
+              <span class="font-body text-body-sm text-dark-on-surface-variant block" data-design-text-token="body-sm">Sem IV</span>
+              <span class="font-mono text-mono-sm text-dark-primary tabular-nums" data-design-text-token="mono-sm">9.15</span>
+            </div>
+          </div>
+
+          <div class="divide-y divide-dark-outline-variant/40">
+            <div class="py-gutter-sm flex items-center justify-between">
+              <div>
+                <p class="font-title text-title-sm text-dark-on-surface" data-design-text-token="title-sm">CS301 • Operating Systems</p>
+                <p class="font-body text-body-sm text-dark-on-surface-variant" data-design-text-token="body-sm">Internal: <span class="font-mono tabular-nums">27/30</span></p>
+              </div>
+              <span class="font-mono text-mono-sm text-success bg-success-container px-2.5 py-0.5 rounded-full tabular-nums" data-design-text-token="mono-sm">92%</span>
+            </div>
+            <div class="py-gutter-sm flex items-center justify-between">
+              <div>
+                <p class="font-title text-title-sm text-dark-on-surface" data-design-text-token="title-sm">CS303 • Computer Networks</p>
+                <p class="font-body text-body-sm text-dark-on-surface-variant" data-design-text-token="body-sm">Internal: <span class="font-mono tabular-nums">24/30</span></p>
+              </div>
+              <span class="font-mono text-mono-sm text-success bg-success-container px-2.5 py-0.5 rounded-full tabular-nums" data-design-text-token="mono-sm">88%</span>
+            </div>
+            <div class="py-gutter-sm flex items-center justify-between">
+              <div>
+                <p class="font-title text-title-sm text-dark-on-surface" data-design-text-token="title-sm">CS305 • Database Systems</p>
+                <p class="font-body text-body-sm text-dark-on-surface-variant" data-design-text-token="body-sm">Internal: <span class="font-mono tabular-nums">25/30</span></p>
+              </div>
+              <span class="font-mono text-mono-sm text-on-warning-container bg-warning-container px-2.5 py-0.5 rounded-full tabular-nums" data-design-text-token="mono-sm">78%</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- Downloadable Academic Documents -->
+        <article class="bg-dark-surface-container-lowest rounded-lg border border-dark-outline-variant/60 p-gutter-lg flex flex-col gap-gutter-sm">
+          <h2 class="font-title text-title-md text-dark-on-surface" data-design-text-token="title-md">Academic Documents</h2>
+          <div class="flex flex-col gap-gutter-sm">
+            <button type="button" class="flex items-center justify-between p-gutter-md rounded-md bg-dark-surface-container-low hover:bg-dark-surface-container transition-colors duration-state-change text-left">
+              <div class="flex items-center gap-gutter-md">
+                <span class="material-symbols-outlined text-[20px] text-dark-primary">description</span>
+                <div>
+                  <p class="font-title text-title-sm text-dark-on-surface" data-design-text-token="title-sm">Sem V Mid-Sem Hall Ticket</p>
+                  <p class="font-body text-body-sm text-dark-on-surface-variant" data-design-text-token="body-sm">PDF • Verified by Exam Cell</p>
+                </div>
+              </div>
+              <span class="material-symbols-outlined text-[20px] text-dark-primary">download</span>
+            </button>
+
+            <button type="button" class="flex items-center justify-between p-gutter-md rounded-md bg-dark-surface-container-low hover:bg-dark-surface-container transition-colors duration-state-change text-left">
+              <div class="flex items-center gap-gutter-md">
+                <span class="material-symbols-outlined text-[20px] text-dark-primary">school</span>
+                <div>
+                  <p class="font-title text-title-sm text-dark-on-surface" data-design-text-token="title-sm">Provisional Grade Card (Sem I–IV)</p>
+                  <p class="font-body text-body-sm text-dark-on-surface-variant" data-design-text-token="body-sm">PDF • Digital Signature</p>
+                </div>
+              </div>
+              <span class="material-symbols-outlined text-[20px] text-dark-primary">download</span>
+            </button>
+          </div>
+        </article>
+      </section>
+
+      <!-- TAB 2: TIMETABLE -->
+      <section id="panel-timetable" class="tab-panel hidden p-gutter-lg flex flex-col gap-gutter-md">
+        <!-- Day Selector -->
+        <div class="grid grid-cols-5 gap-gutter-xs bg-dark-surface-container-lowest p-gutter-xs rounded-full border border-dark-outline-variant/60">
+          <button type="button" class="day-pill rounded-full py-1.5 bg-dark-primary text-dark-on-primary font-label text-label-md" data-day="mon">Mon</button>
+          <button type="button" class="day-pill rounded-full py-1.5 text-dark-on-surface-variant font-label text-label-md hover:bg-dark-surface-container-low" data-day="tue">Tue</button>
+          <button type="button" class="day-pill rounded-full py-1.5 text-dark-on-surface-variant font-label text-label-md hover:bg-dark-surface-container-low" data-day="wed">Wed</button>
+          <button type="button" class="day-pill rounded-full py-1.5 text-dark-on-surface-variant font-label text-label-md hover:bg-dark-surface-container-low" data-day="thu">Thu</button>
+          <button type="button" class="day-pill rounded-full py-1.5 text-dark-on-surface-variant font-label text-label-md hover:bg-dark-surface-container-low" data-day="fri">Fri</button>
+        </div>
+
+        <!-- Daily Schedule -->
+        <article class="bg-dark-surface-container-lowest rounded-lg border border-dark-outline-variant/60 p-gutter-lg flex flex-col gap-gutter-md">
+          <div class="flex items-center justify-between">
+            <h2 class="font-title text-title-md text-dark-on-surface" data-design-text-token="title-md">Today’s Classes</h2>
+            <span class="font-mono text-mono-sm text-dark-primary tabular-nums" data-design-text-token="mono-sm">4 Sessions</span>
+          </div>
+
+          <div class="flex flex-col gap-gutter-sm">
+            <div class="p-gutter-md rounded-md bg-dark-secondary-container/40 border border-dark-primary/20 flex items-center justify-between">
+              <div class="flex flex-col gap-0.5">
+                <span class="font-mono text-mono-sm text-dark-primary tabular-nums" data-design-text-token="mono-sm">09:00 – 10:00 AM</span>
+                <p class="font-title text-title-sm text-dark-on-surface" data-design-text-token="title-sm">Operating Systems (CS301)</p>
+                <p class="font-body text-body-sm text-dark-on-surface-variant" data-design-text-token="body-sm">Dr. Priya Nair • Room LH-204</p>
+              </div>
+              <span class="font-label text-label-sm bg-dark-primary text-dark-on-primary px-2.5 py-0.5 rounded-full" data-design-text-token="label-sm">Lecture</span>
+            </div>
+
+            <div class="p-gutter-md rounded-md bg-dark-surface-container-low flex items-center justify-between">
+              <div class="flex flex-col gap-0.5">
+                <span class="font-mono text-mono-sm text-dark-on-surface-variant tabular-nums" data-design-text-token="mono-sm">10:15 – 11:15 AM</span>
+                <p class="font-title text-title-sm text-dark-on-surface" data-design-text-token="title-sm">Computer Networks (CS303)</p>
+                <p class="font-body text-body-sm text-dark-on-surface-variant" data-design-text-token="body-sm">Prof. Vikram Rao • Room LH-204</p>
+              </div>
+              <span class="font-label text-label-sm bg-dark-surface-container-high text-dark-on-surface px-2.5 py-0.5 rounded-full" data-design-text-token="label-sm">Lecture</span>
+            </div>
+
+            <div class="p-gutter-md rounded-md bg-dark-surface-container-low flex items-center justify-between">
+              <div class="flex flex-col gap-0.5">
+                <span class="font-mono text-mono-sm text-dark-on-surface-variant tabular-nums" data-design-text-token="mono-sm">02:00 – 04:00 PM</span>
+                <p class="font-title text-title-sm text-dark-on-surface" data-design-text-token="title-sm">OS &amp; Systems Lab (CS301L)</p>
+                <p class="font-body text-body-sm text-dark-on-surface-variant" data-design-text-token="body-sm">Dr. Priya Nair • Lab 402 (Batch B2)</p>
+              </div>
+              <span class="font-label text-label-sm bg-dark-secondary-container text-dark-on-secondary-container px-2.5 py-0.5 rounded-full" data-design-text-token="label-sm">Lab</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- Upcoming Examinations -->
+        <article class="bg-dark-surface-container-lowest rounded-lg border border-dark-outline-variant/60 p-gutter-lg flex flex-col gap-gutter-sm">
+          <h2 class="font-title text-title-md text-dark-on-surface" data-design-text-token="title-md">Upcoming Examinations</h2>
+          <div class="flex items-center justify-between p-gutter-md rounded-md bg-warning-container/60">
+            <div>
+              <p class="font-title text-title-sm text-on-warning-container" data-design-text-token="title-sm">CS301 Mid-Sem Exam</p>
+              <p class="font-body text-body-sm text-on-warning-container" data-design-text-token="body-sm">Exam Hall B • Seat 14</p>
+            </div>
+            <span class="font-mono text-mono-sm text-on-warning-container tabular-nums" data-design-text-token="mono-sm">Dec 02, 09:30</span>
+          </div>
+        </article>
+      </section>
+
+      <!-- TAB 3: ASSIGNMENT MANAGEMENT -->
+      <section id="panel-assignments" class="tab-panel hidden p-gutter-lg flex flex-col gap-gutter-md">
+        <!-- Pending Assignment -->
+        <article class="bg-dark-surface-container-lowest rounded-lg border border-dark-outline-variant/60 p-gutter-lg flex flex-col gap-gutter-md">
+          <div class="flex items-start justify-between gap-gutter-sm">
+            <div>
+              <span class="font-mono text-mono-sm text-dark-primary" data-design-text-token="mono-sm">CS301 • Operating Systems</span>
+              <h2 class="font-title text-title-md text-dark-on-surface mt-0.5" data-design-text-token="title-md">Assignment 4: CPU Scheduling Simulator</h2>
+            </div>
+            <span class="font-label text-label-sm bg-warning-container text-on-warning-container px-2.5 py-0.5 rounded-full shrink-0" data-design-text-token="label-sm">Pending</span>
+          </div>
+          <p class="font-body text-body-md text-dark-on-surface-variant text-pretty" data-design-text-token="body-md">
+            Implement Round Robin and MLFQ schedulers in C/Python with turnaround time comparison report (PDF).
+          </p>
+          <div class="flex items-center justify-between pt-gutter-sm border-t border-dark-outline-variant/40">
+            <span class="font-mono text-mono-sm text-dark-error tabular-nums" data-design-text-token="mono-sm">Due: Nov 25, 11:59 PM</span>
+            <button type="button" class="upload-assign-btn inline-flex items-center gap-1.5 rounded-full bg-dark-primary text-dark-on-primary px-4 py-1.5 transition-colors duration-state-change hover:bg-dark-primary-container">
+              <span class="material-symbols-outlined text-[16px]" aria-hidden="true">upload_file</span>
+              <span class="font-label text-label-md" data-design-text-token="label-md">Upload PDF</span>
+            </button>
+          </div>
+        </article>
+
+        <!-- Completed / Graded Assignment -->
+        <article class="bg-dark-surface-container-lowest rounded-lg border border-dark-outline-variant/60 p-gutter-lg flex flex-col gap-gutter-sm">
+          <div class="flex items-start justify-between gap-gutter-sm">
+            <div>
+              <span class="font-mono text-mono-sm text-dark-on-surface-variant" data-design-text-token="mono-sm">CS305 • Database Systems</span>
+              <h2 class="font-title text-title-md text-dark-on-surface mt-0.5" data-design-text-token="title-md">Assignment 3: B+ Tree Indexing</h2>
+            </div>
+            <span class="font-label text-label-sm bg-success-container text-on-success-container px-2.5 py-0.5 rounded-full shrink-0" data-design-text-token="label-sm">Graded</span>
+          </div>
+          <p class="font-body text-body-sm text-dark-on-surface-variant" data-design-text-token="body-sm">
+            Feedback: “Clean ER normalization and edge-case handling.” • Marks: <span class="font-mono text-mono-sm text-dark-on-surface tabular-nums">19 / 20</span>
+          </p>
+        </article>
+      </section>
+
+      <!-- TAB 4: SCHOLARSHIP TRACKER -->
+      <section id="panel-scholarships" class="tab-panel hidden p-gutter-lg flex flex-col gap-gutter-md">
+        <!-- Active Application -->
+        <article class="bg-dark-surface-container-lowest rounded-lg border border-dark-outline-variant/60 p-gutter-lg flex flex-col gap-gutter-md">
+          <div class="flex items-start justify-between gap-gutter-sm">
+            <div>
+              <span class="font-label text-label-sm text-dark-primary" data-design-text-token="label-sm">National Scholarship Portal (NSP)</span>
+              <h2 class="font-title text-title-md text-dark-on-surface mt-0.5" data-design-text-token="title-md">Central Sector Merit Scholarship</h2>
+            </div>
+            <span class="font-label text-label-sm bg-dark-secondary-container text-dark-on-secondary-container px-2.5 py-0.5 rounded-full shrink-0" data-design-text-token="label-sm">Under Review</span>
+          </div>
+          <p class="font-body text-body-sm text-dark-on-surface-variant" data-design-text-token="body-sm">Eligibility: CGPA ≥ 8.0, Family Income &lt; ₹8L • Benefit: ₹20,000/yr</p>
+          <div class="bg-dark-surface-container-low rounded-md p-gutter-md flex flex-col gap-gutter-xs">
+            <p class="font-title text-title-sm text-dark-on-surface" data-design-text-token="title-sm">Documents Checklist</p>
+            <div class="flex items-center gap-2 font-body text-body-sm text-success">
+              <span class="material-symbols-outlined text-[16px]">check_circle</span>
+              <span>Bonafide Certificate &amp; Sem IV Marks Verified</span>
+            </div>
+            <div class="flex items-center gap-2 font-body text-body-sm text-success">
+              <span class="material-symbols-outlined text-[16px]">check_circle</span>
+              <span>Institute Nodal Officer Approved</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- Open Opportunity -->
+        <article class="bg-dark-surface-container-lowest rounded-lg border border-dark-outline-variant/60 p-gutter-lg flex flex-col gap-gutter-sm">
+          <div class="flex items-start justify-between gap-gutter-sm">
+            <div>
+              <span class="font-label text-label-sm text-accent" data-design-text-token="label-sm">State-Level • Open</span>
+              <h2 class="font-title text-title-md text-dark-on-surface mt-0.5" data-design-text-token="title-md">State Tech Innovation Grant</h2>
+            </div>
+            <span class="font-mono text-mono-sm text-dark-error tabular-nums shrink-0" data-design-text-token="mono-sm">Dec 10</span>
+          </div>
+          <p class="font-body text-body-md text-dark-on-surface-variant" data-design-text-token="body-md">For undergraduate engineering students with active research or hackathon prototypes.</p>
+          <div class="flex justify-end pt-gutter-xs">
+            <button type="button" class="rounded-full bg-dark-primary text-dark-on-primary px-4 py-1.5">
+              <span class="font-label text-label-md" data-design-text-token="label-md">Apply Now</span>
+            </button>
+          </div>
+        </article>
+      </section>
+
+      <!-- TAB 5: PLACEMENT & INTERNSHIP -->
+      <section id="panel-placements" class="tab-panel hidden p-gutter-lg flex flex-col gap-gutter-md">
+        <!-- Resume Status Card -->
+        <article class="bg-dark-surface-container-lowest rounded-lg border border-dark-outline-variant/60 p-gutter-lg flex items-center justify-between gap-gutter-md">
+          <div class="flex items-center gap-gutter-md">
+            <div class="w-10 h-10 rounded-full bg-dark-secondary-container text-dark-on-secondary-container flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-[20px]">description</span>
+            </div>
+            <div>
+              <h2 class="font-title text-title-sm text-dark-on-surface" data-design-text-token="title-sm">Aarav_Kulkarni_SDE_v3.pdf</h2>
+              <p class="font-body text-body-sm text-success" data-design-text-token="body-sm">Verified by Placement Cell</p>
+            </div>
+          </div>
+          <button type="button" class="rounded-full bg-dark-surface-container px-3.5 py-1.5 text-dark-on-surface hover:bg-dark-surface-container-high">
+            <span class="font-label text-label-md" data-design-text-token="label-md">Update</span>
+          </button>
+        </article>
+
+        <!-- Opportunity Card -->
+        <article class="bg-dark-surface-container-lowest rounded-lg border border-dark-outline-variant/60 p-gutter-lg flex flex-col gap-gutter-md">
+          <div class="flex items-start justify-between">
+            <div>
+              <h3 class="font-title text-title-md text-dark-on-surface" data-design-text-token="title-md">Atlassian — SDE Intern</h3>
+              <p class="font-body text-body-sm text-dark-on-surface-variant" data-design-text-token="body-sm">Bengaluru • ₹1,10,000/mo • CGPA ≥ 7.5</p>
+            </div>
+            <span class="font-label text-label-sm bg-success-container text-on-success-container px-2.5 py-0.5 rounded-full" data-design-text-token="label-sm">Applied</span>
+          </div>
+          <div class="p-gutter-md rounded-md bg-dark-surface-container-low flex items-center justify-between">
+            <span class="font-body text-body-sm text-dark-on-surface" data-design-text-token="body-sm">Online Coding Assessment</span>
+            <span class="font-mono text-mono-sm text-dark-primary tabular-nums" data-design-text-token="mono-sm">Nov 30, 06:00 PM</span>
+          </div>
+        </article>
+
+        <!-- Prep Resources -->
+        <article class="bg-dark-surface-container-lowest rounded-lg border border-dark-outline-variant/60 p-gutter-lg flex items-center justify-between">
+          <div>
+            <h3 class="font-title text-title-sm text-dark-on-surface" data-design-text-token="title-sm">Aptitude &amp; DSA Prep Kit</h3>
+            <p class="font-body text-body-sm text-dark-on-surface-variant" data-design-text-token="body-sm">120 curated campus interview problems</p>
+          </div>
+          <span class="material-symbols-outlined text-[22px] text-dark-primary">arrow_forward</span>
+        </article>
+      </section>
+
+      <!-- TAB 6: HEALTH & WASTE SUPPORT -->
+      <section id="panel-welfare" class="tab-panel hidden p-gutter-lg flex flex-col gap-gutter-md">
+        <!-- Sub-section Toggle -->
+        <div class="grid grid-cols-2 gap-gutter-xs bg-dark-surface-container-lowest p-gutter-xs rounded-full border border-dark-outline-variant/60">
+          <button type="button" data-welfare="health" class="welfare-toggle rounded-full py-1.5 bg-dark-primary text-dark-on-primary font-label text-label-md">Health Support</button>
+          <button type="button" data-welfare="waste" class="welfare-toggle rounded-full py-1.5 text-dark-on-surface-variant font-label text-label-md">Waste Support</button>
+        </div>
+
+        <!-- Health Support Sub-panel -->
+        <div id="subpanel-health" class="flex flex-col gap-gutter-md">
+          <article class="bg-dark-surface-container-lowest rounded-lg border border-dark-outline-variant/60 p-gutter-lg flex flex-col gap-gutter-md">
+            <div class="flex items-center justify-between">
+              <h2 class="font-title text-title-md text-dark-on-surface" data-design-text-token="title-md">VIT Campus Health Centre</h2>
+              <span class="font-label text-label-sm bg-success-container text-on-success-container px-2.5 py-0.5 rounded-full" data-design-text-token="label-sm">Open 24/7</span>
+            </div>
+            <p class="font-body text-body-md text-dark-on-surface-variant" data-design-text-token="body-md">Block C Ground Floor • Duty Doctor &amp; Ambulance available round the clock.</p>
+            <div class="grid grid-cols-2 gap-gutter-sm">
+              <div class="p-gutter-md rounded-md bg-dark-error-container/50">
+                <p class="font-body text-body-sm text-dark-on-error-container" data-design-text-token="body-sm">Emergency</p>
+                <p class="font-mono text-mono-sm text-dark-on-error-container tabular-nums" data-design-text-token="mono-sm">1800-419-2090</p>
+              </div>
+              <div class="p-gutter-md rounded-md bg-dark-surface-container-low">
+                <p class="font-body text-body-sm text-dark-on-surface-variant" data-design-text-token="body-sm">Counselling</p>
+                <p class="font-mono text-mono-sm text-dark-on-surface tabular-nums" data-design-text-token="mono-sm">Ext. 4412</p>
+              </div>
+            </div>
+            <button type="button" class="w-full rounded-full bg-dark-primary text-dark-on-primary py-2.5">
+              <span class="font-label text-label-lg" data-design-text-token="label-lg">Book Health / Counselling Slot</span>
+            </button>
+          </article>
+        </div>
+
+        <!-- Waste Support Sub-panel -->
+        <div id="subpanel-waste" class="hidden flex flex-col gap-gutter-md">
+          <article class="bg-dark-surface-container-lowest rounded-lg border border-dark-outline-variant/60 p-gutter-lg flex flex-col gap-gutter-md">
+            <h2 class="font-title text-title-md text-dark-on-surface" data-design-text-token="title-md">Report Sanitation Issue</h2>
+            <div class="flex flex-col gap-gutter-sm">
+              <select aria-label="Campus Location" class="w-full rounded-md border-dark-outline-variant bg-dark-surface-container-low font-body text-body-md text-dark-on-surface">
+                <option>Select campus location...</option>
+                <option>Academic Block A — Corridor</option>
+                <option>Central Cafeteria Courtyard</option>
+                <option>Hostel Block 2 — Ground Floor</option>
+              </select>
+              <button type="button" class="w-full rounded-md border border-dashed border-dark-outline py-4 flex flex-col items-center gap-1 text-dark-on-surface-variant hover:bg-dark-surface-container-low">
+                <span class="material-symbols-outlined text-[24px]">add_a_photo</span>
+                <span class="font-label text-label-md" data-design-text-token="label-md">Upload Issue Photo</span>
+              </button>
+              <button type="button" class="w-full rounded-full bg-dark-primary text-dark-on-primary py-2.5">
+                <span class="font-label text-label-lg" data-design-text-token="label-lg">Submit Complaint</span>
+              </button>
+            </div>
+          </article>
+
+          <article class="bg-dark-surface-container-lowest rounded-lg border border-dark-outline-variant/60 p-gutter-lg flex items-center justify-between">
+            <div>
+              <p class="font-title text-title-sm text-dark-on-surface" data-design-text-token="title-sm">Cafeteria Bin Overflow #W-204</p>
+              <p class="font-body text-body-sm text-dark-on-surface-variant" data-design-text-token="body-sm">Reported Nov 22 • Housekeeping</p>
+            </div>
+            <span class="font-label text-label-sm bg-success-container text-on-success-container px-2.5 py-0.5 rounded-full" data-design-text-token="label-sm">Resolved</span>
+          </article>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Fixed/Sticky 5-Icon Bottom Navigation Bar (Exact Parity with HomeFeed.html) -->
+    <nav aria-label="Primary Navigation" class="sticky bottom-0 z-30 bg-dark-surface-container-lowest border-t border-dark-outline-variant/60 px-gutter-sm py-gutter-xs grid grid-cols-5 items-center">
+      <!-- 1. Home (Bottom Left) -->
+      <a href="../home-feed/HomeFeed.html" class="nav-item flex flex-col items-center justify-center gap-0.5 py-1.5 text-dark-on-surface-variant hover:text-dark-primary transition-colors duration-state-change">
+        <span class="material-symbols-outlined text-[24px]">home</span>
+        <span class="font-label text-label-sm" data-design-text-token="label-sm">Home</span>
+      </a>
+
+      <!-- 2. Clubs & Events -->
+      <a href="#clubs" class="nav-item flex flex-col items-center justify-center gap-0.5 py-1.5 text-dark-on-surface-variant hover:text-dark-primary transition-colors duration-state-change">
+        <span class="material-symbols-outlined text-[24px]">groups</span>
+        <span class="font-label text-label-sm" data-design-text-token="label-sm">Clubs</span>
+      </a>
+
+      <!-- 3. Study (Centre — Prominent) -->
+      <a href="#study" class="nav-item flex flex-col items-center justify-center -mt-4">
+        <span class="w-12 h-12 rounded-full bg-dark-primary text-dark-on-primary flex items-center justify-center shadow-md ring-4 ring-dark-surface-container-lowest transition-transform duration-state-change active:scale-95">
+          <span class="material-symbols-outlined text-[26px]" style="font-variation-settings: &#39;FILL&#39; 1;">school</span>
+        </span>
+        <span class="font-label text-label-sm text-dark-primary mt-0.5" data-design-text-token="label-sm">Study</span>
+      </a>
+
+      <!-- 4. Search -->
+      <a href="#search" class="nav-item flex flex-col items-center justify-center gap-0.5 py-1.5 text-dark-on-surface-variant hover:text-dark-primary transition-colors duration-state-change">
+        <span class="material-symbols-outlined text-[24px]">search</span>
+        <span class="font-label text-label-sm" data-design-text-token="label-sm">Search</span>
+      </a>
+
+      <!-- 5. Student Profile (Bottom Right — Active) -->
+      <a href="#profile" aria-current="page" class="nav-item flex flex-col items-center justify-center gap-0.5 py-1.5 text-dark-primary">
+        <img src="https://lh3.googleusercontent.com/aida/ALJJyrDerPS2l3M99Gka6utSlKFegmlHUZC3Nt6xhDjiMoSkNxlPLUqWHhAsnv_lCIe31Xz8kKmvkN7HMtr6_w19IOia40G3tZ6lfkPzr_KHzGLRRO9aBxFbWGunioqXJiKibSHnRk7fndbPYo3uD4EVfzy24ps8XwNYt3vwXH7Wa6NInNqkngE4Lz2Vc1p4Zrj6io7iHph1h0sEBpGJuB1ox_n_j4pXr15G7r3nGBjjBAsY3g_nHXRM0xyxZZDVjQQ" alt="Student Profile" class="w-6 h-6 rounded-full object-cover ring-2 ring-dark-primary">
+        <span class="font-label text-label-sm" data-design-text-token="label-sm">Profile</span>
+      </a>
+    </nav>
+
+  </div>
+
+  <script>
+    // Profile Dashboard Tabs
+    const tabs = document.querySelectorAll('.profile-tab');
+    const panels = document.querySelectorAll('.tab-panel');
+
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const target = tab.getAttribute('data-tab');
+        tabs.forEach((t) => {
+          const active = t === tab;
+          t.setAttribute('aria-selected', active ? 'true' : 'false');
+          if (active) {
+            t.classList.remove('border-transparent', 'text-dark-on-surface-variant');
+            t.classList.add('border-dark-primary', 'text-dark-primary');
+          } else {
+            t.classList.remove('border-dark-primary', 'text-dark-primary');
+            t.classList.add('border-transparent', 'text-dark-on-surface-variant');
+          }
+        });
+        panels.forEach((p) => {
+          if (p.id === 'panel-' + target) {
+            p.classList.remove('hidden');
+          } else {
+            p.classList.add('hidden');
+          }
+        });
+      });
+    });
+
+    // Health & Waste Sub-panel Toggle
+    const welfareToggles = document.querySelectorAll('.welfare-toggle');
+    const subHealth = document.getElementById('subpanel-health');
+    const subWaste = document.getElementById('subpanel-waste');
+
+    welfareToggles.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const mode = btn.getAttribute('data-welfare');
+        welfareToggles.forEach((b) => {
+          const active = b === btn;
+          if (active) {
+            b.classList.add('bg-dark-primary', 'text-dark-on-primary');
+            b.classList.remove('text-dark-on-surface-variant');
+          } else {
+            b.classList.remove('bg-dark-primary', 'text-dark-on-primary');
+            b.classList.add('text-dark-on-surface-variant');
+          }
+        });
+        if (mode === 'health') {
+          subHealth.classList.remove('hidden');
+          subWaste.classList.add('hidden');
+        } else {
+          subWaste.classList.remove('hidden');
+          subHealth.classList.add('hidden');
+        }
+      });
+    });
+
+    // Timetable Day Pills
+    document.querySelectorAll('.day-pill').forEach((pill) => {
+      pill.addEventListener('click', () => {
+        document.querySelectorAll('.day-pill').forEach((p) => {
+          p.classList.remove('bg-dark-primary', 'text-dark-on-primary');
+          p.classList.add('text-dark-on-surface-variant');
+        });
+        pill.classList.add('bg-dark-primary', 'text-dark-on-primary');
+        pill.classList.remove('text-dark-on-surface-variant');
+      });
+    });
+  </script>
+
+
+
+</body></html>

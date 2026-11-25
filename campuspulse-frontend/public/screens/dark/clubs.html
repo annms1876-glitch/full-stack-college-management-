@@ -1,0 +1,519 @@
+<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CampusPulse — Clubs &lt;title&gt;CampusPulse — Clubs &amp; Events</title></head><body class="bg-dark-surface-container-low text-dark-on-surface font-body antialiased">amp; Events (Dark Mode)
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">/** @type {import('tailwindcss').Config} */
+globalThis.tailwind = globalThis.tailwind || {};
+globalThis.tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        'accent': '#D97706',
+        'on-accent': '#2A2A2A',
+        'story-rose': '#E11D48',
+        'success': '#15803D',
+        'on-success': '#FFFFFF',
+        'success-container': '#DCFCE7',
+        'on-success-container': '#14532D',
+        'warning': '#B45309',
+        'on-warning': '#FFFFFF',
+        'warning-container': '#FEF3C7',
+        'on-warning-container': '#78350F',
+        'light-primary': '#00236F',
+        'light-on-primary': '#FFFFFF',
+        'light-primary-container': '#1E3A8A',
+        'light-on-primary-container': '#DCE1FF',
+        'light-secondary': '#555D7E',
+        'light-on-secondary': '#FFFFFF',
+        'light-secondary-container': '#D0D8FF',
+        'light-on-secondary-container': '#111A37',
+        'light-tertiary': '#4B1C00',
+        'light-on-tertiary': '#FFFFFF',
+        'light-tertiary-container': '#6E2C00',
+        'light-on-tertiary-container': '#FFDBCB',
+        'light-error': '#BA1A1A',
+        'light-on-error': '#FFFFFF',
+        'light-error-container': '#FFDAD6',
+        'light-on-error-container': '#93000A',
+        'light-background': '#FAF8FF',
+        'light-on-background': '#1A1B21',
+        'light-surface': '#FAF8FF',
+        'light-surface-dim': '#DAD9E1',
+        'light-surface-bright': '#FFFFFF',
+        'light-surface-container-lowest': '#FFFFFF',
+        'light-surface-container-low': '#F4F3FA',
+        'light-surface-container': '#EEEDF4',
+        'light-surface-container-high': '#E9E7EF',
+        'light-surface-container-highest': '#E3E1E9',
+        'light-on-surface': '#1A1B21',
+        'light-surface-variant': '#E1E1EF',
+        'light-on-surface-variant': '#444651',
+        'light-outline': '#757682',
+        'light-outline-variant': '#C5C5D3',
+        'light-inverse-surface': '#2F3036',
+        'light-inverse-on-surface': '#F1F0F7',
+        'light-inverse-primary': '#B6C4FF',
+        'dark-primary': '#B6C4FF',
+        'dark-on-primary': '#05297A',
+        'dark-primary-container': '#1E3A8A',
+        'dark-on-primary-container': '#DCE1FF',
+        'dark-secondary': '#BDC5EB',
+        'dark-on-secondary': '#262F4D',
+        'dark-secondary-container': '#3D4565',
+        'dark-on-secondary-container': '#DCE1FF',
+        'dark-tertiary': '#FFB691',
+        'dark-on-tertiary': '#552000',
+        'dark-tertiary-container': '#6E2C00',
+        'dark-on-tertiary-container': '#FFDBCB',
+        'dark-error': '#FFB4AB',
+        'dark-on-error': '#690005',
+        'dark-error-container': '#93000A',
+        'dark-on-error-container': '#FFDAD6',
+        'dark-background': '#121318',
+        'dark-on-background': '#E3E1E9',
+        'dark-surface': '#121318',
+        'dark-surface-dim': '#121318',
+        'dark-surface-bright': '#38393F',
+        'dark-surface-container-lowest': '#0D0E13',
+        'dark-surface-container-low': '#1A1B21',
+        'dark-surface-container': '#1E1F25',
+        'dark-surface-container-high': '#292A2F',
+        'dark-surface-container-highest': '#34343A',
+        'dark-on-surface': '#E3E1E9',
+        'dark-surface-variant': '#444651',
+        'dark-on-surface-variant': '#C5C5D3',
+        'dark-outline': '#8F909D',
+        'dark-outline-variant': '#444651',
+        'dark-inverse-surface': '#E3E1E9',
+        'dark-inverse-on-surface': '#2F3036',
+        'dark-inverse-primary': '#4059AA',
+      },
+      borderRadius: {
+        'sm': '6px',
+        'DEFAULT': '10px',
+        'md': '12px',
+        'lg': '16px',
+        'xl': '20px',
+        'full': '9999px',
+      },
+      spacing: {
+        'gutter-xs': '4px',
+        'gutter-sm': '8px',
+        'gutter-md': '12px',
+        'gutter-lg': '16px',
+        'gutter-xl': '24px',
+        'section': '32px',
+        'page-margin': '16px',
+      },
+      fontFamily: {
+        'display': ['"Alata"', 'sans-serif'],
+        'headline': ['"Alata"', 'sans-serif'],
+        'title': ['"Instrument Sans"', 'sans-serif'],
+        'body': ['"Instrument Sans"', 'sans-serif'],
+        'label': ['"Instrument Sans"', 'sans-serif'],
+        'mono': ['"Spline Sans Mono"', 'monospace'],
+      },
+      fontSize: {
+        'display-lg': ['36px', { lineHeight: '44px', letterSpacing: '-0.5px', fontWeight: '400' }],
+        'display-lg-mobile': ['28px', { lineHeight: '34px', letterSpacing: '-0.25px', fontWeight: '400' }],
+        'headline-lg': ['24px', { lineHeight: '30px', letterSpacing: '-0.2px', fontWeight: '400' }],
+        'headline-md': ['20px', { lineHeight: '26px', letterSpacing: '0px', fontWeight: '400' }],
+        'title-lg': ['18px', { lineHeight: '24px', letterSpacing: '0px', fontWeight: '600' }],
+        'title-md': ['16px', { lineHeight: '22px', letterSpacing: '0px', fontWeight: '600' }],
+        'title-sm': ['14px', { lineHeight: '20px', letterSpacing: '0px', fontWeight: '600' }],
+        'body-lg': ['15px', { lineHeight: '22px', letterSpacing: '0px', fontWeight: '400' }],
+        'body-md': ['14px', { lineHeight: '20px', letterSpacing: '0px', fontWeight: '400' }],
+        'body-sm': ['12px', { lineHeight: '16px', letterSpacing: '0.1px', fontWeight: '400' }],
+        'label-lg': ['14px', { lineHeight: '18px', letterSpacing: '0.1px', fontWeight: '600' }],
+        'label-md': ['12px', { lineHeight: '16px', letterSpacing: '0.2px', fontWeight: '600' }],
+        'label-sm': ['12px', { lineHeight: '16px', letterSpacing: '0.2px', fontWeight: '500' }],
+        'mono-sm': ['12px', { lineHeight: '16px', letterSpacing: '0.2px', fontWeight: '500' }],
+      },
+      transitionDuration: {
+        'state-change': '120ms',
+        'surface-enter': '240ms',
+        'surface-exit': '160ms',
+      },
+      transitionDelay: {
+        'state-change': '0ms',
+        'surface-enter': '0ms',
+        'surface-exit': '0ms',
+      },
+      transitionTimingFunction: {
+        'state-change': 'ease-out',
+        'surface-enter': 'cubic-bezier(0.2, 0, 0, 1)',
+        'surface-exit': 'cubic-bezier(0.3, 0, 1, 1)',
+      },
+    },
+  },
+};
+if (typeof module !== 'undefined') module.exports = globalThis.tailwind.config;
+</script>
+  <link href="https://fonts.googleapis.com/css2?family=Alata&amp;family=Instrument+Sans:wght@400;500;600;700&amp;family=Spline+Sans+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet">
+  <style>
+    .material-symbols-outlined, .material-symbols-rounded, .material-symbols-sharp, .material-icons {
+      display: inline-block;
+      width: 1em;
+      height: 1em;
+      line-height: 1 !important;
+      box-sizing: content-box;
+      overflow: hidden;
+      white-space: nowrap;
+      direction: ltr;
+      vertical-align: middle;
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+
+
+
+  <!-- Mobile-First App Shell (exact parity with HomeFeed.html) -->
+  <div class="min-h-[884px] max-w-[430px] mx-auto bg-dark-surface flex flex-col border-x border-dark-outline-variant/40 relative" data-stitch-vh="min-h-[884px]===min-h-screen">
+
+    <!-- Compact Sticky Top Header -->
+    <header class="sticky top-0 z-30 bg-dark-surface-container-lowest border-b border-dark-outline-variant/60 px-gutter-lg py-gutter-md flex items-center justify-between">
+      <div class="flex items-center gap-gutter-sm">
+        <img src="/brand/campus-logo-144-712f764a4b82.webp" width="144" height="144" alt="Vanguard Institute of Technology logo" class="w-9 h-9 rounded-md object-cover border border-dark-outline-variant/50 shrink-0">
+        <div class="flex flex-col">
+          <span class="font-headline text-headline-md text-dark-primary leading-none" data-design-text-token="headline-md">CampusPulse</span>
+          <span class="font-mono text-mono-sm text-dark-on-surface-variant" data-design-text-token="mono-sm">VIT • Clubs &amp; Events</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-gutter-xs">
+        <button id="btn-notifications" data-component-id="button-icon" data-component-type="button" data-component-variant="icon" type="button" aria-label="Notifications" class="relative inline-flex items-center justify-center w-10 h-10 rounded-full text-dark-on-surface hover:bg-dark-surface-container-low transition-colors duration-state-change ease-state-change">
+          <span class="material-symbols-outlined text-[22px]">notifications</span>
+          <span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-story-rose ring-2 ring-dark-surface-container-lowest"></span>
+        </button>
+
+        <button id="btn-messages" data-component-id="button-icon" data-component-type="button" data-component-variant="icon" type="button" aria-label="Direct Messages" class="relative inline-flex items-center justify-center w-10 h-10 rounded-full text-dark-on-surface hover:bg-dark-surface-container-low transition-colors duration-state-change ease-state-change">
+          <span class="material-symbols-outlined text-[22px]">chat_bubble_outline</span>
+          <span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-dark-primary ring-2 ring-dark-surface-container-lowest"></span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Scrollable Content -->
+    <main class="flex-1 flex flex-col pb-section">
+
+      <!-- Top Section Tabs: Events | Clubs | My Activity -->
+      <nav aria-label="Clubs and Events Tabs" class="bg-dark-surface-container-lowest border-b border-dark-outline-variant/60">
+        <div class="grid grid-cols-3">
+          <button type="button" data-ce-tab="events" aria-selected="true" class="ce-tab py-3 border-b-2 border-dark-primary text-dark-primary font-label text-label-md transition-colors duration-state-change">
+            Events
+          </button>
+          <button type="button" data-ce-tab="clubs" aria-selected="false" class="ce-tab py-3 border-b-2 border-transparent text-dark-on-surface-variant hover:text-dark-on-surface font-label text-label-md transition-colors duration-state-change">
+            Clubs
+          </button>
+          <button type="button" data-ce-tab="my" aria-selected="false" class="ce-tab py-3 border-b-2 border-transparent text-dark-on-surface-variant hover:text-dark-on-surface font-label text-label-md transition-colors duration-state-change">
+            My Activity
+          </button>
+        </div>
+      </nav>
+
+      <!-- TAB 1: EVENTS (Default Active) -->
+      <section id="ce-panel-events" class="ce-panel p-gutter-lg flex flex-col gap-gutter-md">
+        <!-- Event Category Filters -->
+        <div class="flex items-center gap-gutter-sm overflow-x-auto no-scrollbar">
+          <button type="button" data-ecat="all" class="ecat-chip rounded-full bg-dark-primary text-dark-on-primary px-3.5 py-1.5 font-label text-label-md whitespace-nowrap">All Events</button>
+          <button type="button" data-ecat="hackathon" class="ecat-chip rounded-full bg-dark-surface-container-lowest text-dark-on-surface-variant border border-dark-outline-variant/60 px-3.5 py-1.5 font-label text-label-md whitespace-nowrap">Hackathons</button>
+          <button type="button" data-ecat="workshop" class="ecat-chip rounded-full bg-dark-surface-container-lowest text-dark-on-surface-variant border border-dark-outline-variant/60 px-3.5 py-1.5 font-label text-label-md whitespace-nowrap">Workshops</button>
+          <button type="button" data-ecat="cultural" class="ecat-chip rounded-full bg-dark-surface-container-lowest text-dark-on-surface-variant border border-dark-outline-variant/60 px-3.5 py-1.5 font-label text-label-md whitespace-nowrap">Cultural</button>
+          <button type="button" data-ecat="sports" class="ecat-chip rounded-full bg-dark-surface-container-lowest text-dark-on-surface-variant border border-dark-outline-variant/60 px-3.5 py-1.5 font-label text-label-md whitespace-nowrap">Sports</button>
+        </div>
+
+        <!-- Event 1: HackVIT 2026 -->
+        <article data-ecat="hackathon" class="event-card bg-dark-surface-container-lowest rounded-lg border border-dark-outline-variant/60 overflow-hidden flex flex-col">
+          <img src="https://lh3.googleusercontent.com/aida/ALJJyrDF4dExuwU9pKWIDcx54TZyP9s4I1kw2v6_zQbOqxcVND7t3aaHKC_7ejMRcoaV5Lkn0haR68NDT7JWqOaYhDsfYRqcb-nSXg0XRcv4hzJx9ihADkx66dbYqudBwVYBsG2vE4agGQh-VQ4Md1NKMbkqni2x8x-1hyAZduZ-0lGXjOr95hRGCjh1i2rAaBm5Jo5A52xpHij4hXH-ToqU3RYDBDO67qghAQ97Ll-CTZ2cduZ3M7VoHK4kZA" alt="HackVIT 2026 Hackathon" class="w-full aspect-[4/3] object-cover">
+          <div class="p-gutter-lg flex flex-col gap-gutter-sm">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-label text-label-sm bg-dark-secondary-container text-dark-on-secondary-container px-2.5 py-0.5 rounded-full" data-design-text-token="label-sm">Hackathon</span>
+              <span class="font-mono text-mono-sm text-dark-error tabular-nums" data-design-text-token="mono-sm">Closes Tonight</span>
+            </div>
+            <h1 class="font-headline text-headline-md text-dark-on-surface" data-design-text-token="headline-md">HackVIT 2026 — 36h Campus Build</h1>
+            <p class="font-body text-body-md text-dark-on-surface-variant" data-design-text-token="body-md">Organized by VIT Coding Club • Main Auditorium</p>
+            <div class="flex items-center gap-gutter-lg text-dark-on-surface-variant pt-1">
+              <span class="inline-flex items-center gap-1 font-mono text-mono-sm tabular-nums">
+                <span class="material-symbols-outlined text-[16px] text-dark-primary">calendar_today</span>
+                Nov 25, 9:00 AM
+              </span>
+              <span class="inline-flex items-center gap-1 font-body text-body-sm">
+                <span class="material-symbols-outlined text-[16px] text-dark-primary">groups</span>
+                240 Registered
+              </span>
+            </div>
+            <div class="pt-gutter-sm border-t border-dark-outline-variant/40 flex items-center justify-between">
+              <span class="font-body text-body-sm text-dark-on-surface-variant" data-design-text-token="body-sm">Team of 2–4 students</span>
+              <button type="button" class="register-event-btn rounded-full bg-dark-primary text-dark-on-primary px-4 py-2 font-label text-label-md transition-colors duration-state-change hover:bg-dark-primary-container" data-registered="false">
+                Register Now
+              </button>
+            </div>
+          </div>
+        </article>
+
+        <!-- Event 2: Robotics Workshop -->
+        <article data-ecat="workshop" class="event-card bg-dark-surface-container-lowest rounded-lg border border-dark-outline-variant/60 p-gutter-lg flex flex-col gap-gutter-sm">
+          <div class="flex items-center justify-between gap-2">
+            <span class="font-label text-label-sm bg-dark-secondary-container text-dark-on-secondary-container px-2.5 py-0.5 rounded-full" data-design-text-token="label-sm">Workshop</span>
+            <span class="font-mono text-mono-sm text-dark-primary tabular-nums" data-design-text-token="mono-sm">Dec 04 • 2:00 PM</span>
+          </div>
+          <h2 class="font-title text-title-md text-dark-on-surface" data-design-text-token="title-md">ROS2 &amp; Autonomous Rover Lab</h2>
+          <p class="font-body text-body-md text-dark-on-surface-variant" data-design-text-token="body-md">Hands-on simulation and LiDAR navigation session by Robotics Club • Innovation Lab 102.</p>
+          <div class="pt-gutter-sm border-t border-dark-outline-variant/40 flex items-center justify-between">
+            <span class="font-body text-body-sm text-dark-on-surface-variant" data-design-text-token="body-sm">Deadline: Dec 02</span>
+            <button type="button" class="register-event-btn rounded-full bg-success-container text-on-success-container px-4 py-2 font-label text-label-md transition-colors duration-state-change" data-registered="true">
+              Registered ✓
+            </button>
+          </div>
+        </article>
+
+        <!-- Event 3: Cultural Fest -->
+        <article data-ecat="cultural" class="event-card bg-dark-surface-container-lowest rounded-lg border border-dark-outline-variant/60 p-gutter-lg flex flex-col gap-gutter-sm">
+          <div class="flex items-center justify-between gap-2">
+            <span class="font-label text-label-sm bg-warning-container text-on-warning-container px-2.5 py-0.5 rounded-full" data-design-text-token="label-sm">Cultural Fest</span>
+            <span class="font-mono text-mono-sm text-dark-on-surface-variant tabular-nums" data-design-text-token="mono-sm">Dec 12–14</span>
+          </div>
+          <h2 class="font-title text-title-md text-dark-on-surface" data-design-text-token="title-md">Aura ’26 — Annual Cultural &amp; Music Night</h2>
+          <p class="font-body text-body-md text-dark-on-surface-variant" data-design-text-token="body-md">Auditions open for Battle of Bands, Classical Dance, and Street Photography • Open Amphitheatre.</p>
+          <div class="pt-gutter-sm border-t border-dark-outline-variant/40 flex items-center justify-between">
+            <span class="font-body text-body-sm text-dark-on-surface-variant" data-design-text-token="body-sm">Cultural &amp; Music Clubs</span>
+            <button type="button" class="register-event-btn rounded-full bg-dark-primary text-dark-on-primary px-4 py-2 font-label text-label-md transition-colors duration-state-change hover:bg-dark-primary-container" data-registered="false">
+              Register Now
+            </button>
+          </div>
+        </article>
+      </section>
+
+      <!-- TAB 2: CLUBS DIRECTORY -->
+      <section id="ce-panel-clubs" class="ce-panel hidden p-gutter-lg flex flex-col gap-gutter-md">
+        <div class="flex items-center justify-between">
+          <h2 class="font-headline text-headline-md text-dark-on-surface" data-design-text-token="headline-md">Campus Clubs</h2>
+          <span class="font-mono text-mono-sm text-dark-primary tabular-nums" data-design-text-token="mono-sm">10 Active Clubs</span>
+        </div>
+
+        <!-- Club 1: Coding Club -->
+        <article class="bg-dark-surface-container-lowest rounded-lg border border-dark-outline-variant/60 p-gutter-lg flex flex-col gap-gutter-sm">
+          <div class="flex items-start justify-between gap-gutter-md">
+            <div class="flex items-center gap-gutter-md">
+              <div class="w-11 h-11 rounded-full bg-dark-primary-container text-dark-on-primary-container flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined text-[22px]">code</span>
+              </div>
+              <div>
+                <h3 class="font-title text-title-md text-dark-on-surface" data-design-text-token="title-md">Coding Club</h3>
+                <p class="font-body text-body-sm text-dark-on-surface-variant" data-design-text-token="body-sm">Faculty: Dr. Priya Nair • Lead: Aarav K.</p>
+              </div>
+            </div>
+            <button type="button" class="join-club-btn rounded-full bg-success-container text-on-success-container px-3.5 py-1.5 font-label text-label-md shrink-0" data-joined="true">Joined ✓</button>
+          </div>
+          <p class="font-body text-body-md text-dark-on-surface-variant" data-design-text-token="body-md">Competitive programming, open-source sprints, and HackVIT flagship hackathon.</p>
+          <p class="font-mono text-mono-sm text-dark-primary" data-design-text-token="mono-sm">Next Meeting: Thu 5:00 PM • Seminar Hall 2</p>
+        </article>
+
+        <!-- Club 2: Robotics Club -->
+        <article class="bg-dark-surface-container-lowest rounded-lg border border-dark-outline-variant/60 p-gutter-lg flex flex-col gap-gutter-sm">
+          <div class="flex items-start justify-between gap-gutter-md">
+            <div class="flex items-center gap-gutter-md">
+              <div class="w-11 h-11 rounded-full bg-dark-secondary-container text-dark-on-secondary-container flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined text-[22px]">precision_manufacturing</span>
+              </div>
+              <div>
+                <h3 class="font-title text-title-md text-dark-on-surface" data-design-text-token="title-md">Robotics Club</h3>
+                <p class="font-body text-body-sm text-dark-on-surface-variant" data-design-text-token="body-sm">Faculty: Dr. Meera D. • Lead: Kabir M.</p>
+              </div>
+            </div>
+            <button type="button" class="join-club-btn rounded-full bg-dark-primary text-dark-on-primary px-3.5 py-1.5 font-label text-label-md shrink-0" data-joined="false">Join Club</button>
+          </div>
+          <p class="font-body text-body-md text-dark-on-surface-variant" data-design-text-token="body-md">Autonomous drones, ROS2 rovers, and national Robocon hardware builds.</p>
+          <p class="font-mono text-mono-sm text-dark-primary" data-design-text-token="mono-sm">Next Meeting: Sat 10:30 AM • Innovation Lab</p>
+        </article>
+
+        <!-- Club 3: Photography & Literary Clubs -->
+        <article class="bg-dark-surface-container-lowest rounded-lg border border-dark-outline-variant/60 p-gutter-lg flex flex-col gap-gutter-sm">
+          <div class="flex items-start justify-between gap-gutter-md">
+            <div class="flex items-center gap-gutter-md">
+              <div class="w-11 h-11 rounded-full bg-warning-container text-on-warning-container flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined text-[22px]">photo_camera</span>
+              </div>
+              <div>
+                <h3 class="font-title text-title-md text-dark-on-surface" data-design-text-token="title-md">Photography Club</h3>
+                <p class="font-body text-body-sm text-dark-on-surface-variant" data-design-text-token="body-sm">Faculty: Prof. S. Iyer • Lead: Diya R.</p>
+              </div>
+            </div>
+            <button type="button" class="join-club-btn rounded-full bg-dark-primary text-dark-on-primary px-3.5 py-1.5 font-label text-label-md shrink-0" data-joined="false">Join Club</button>
+          </div>
+          <p class="font-body text-body-md text-dark-on-surface-variant" data-design-text-token="body-md">Campus photowalks, fest media coverage, and visual storytelling workshops.</p>
+        </article>
+
+        <article class="bg-dark-surface-container-lowest rounded-lg border border-dark-outline-variant/60 p-gutter-lg flex flex-col gap-gutter-sm">
+          <div class="flex items-start justify-between gap-gutter-md">
+            <div class="flex items-center gap-gutter-md">
+              <div class="w-11 h-11 rounded-full bg-success-container text-on-success-container flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined text-[22px]">eco</span>
+              </div>
+              <div>
+                <h3 class="font-title text-title-md text-dark-on-surface" data-design-text-token="title-md">Environmental &amp; Debate Clubs</h3>
+                <p class="font-body text-body-sm text-dark-on-surface-variant" data-design-text-token="body-sm">Zero-Waste Campus &amp; Parliamentary Debate</p>
+              </div>
+            </div>
+            <button type="button" class="join-club-btn rounded-full bg-dark-primary text-dark-on-primary px-3.5 py-1.5 font-label text-label-md shrink-0" data-joined="false">Join Club</button>
+          </div>
+          <p class="font-body text-body-md text-dark-on-surface-variant" data-design-text-token="body-md">Also active: Cultural, Literary, Entrepreneurship, Sports, and Music &amp; Dance Clubs.</p>
+        </article>
+      </section>
+
+      <!-- TAB 3: MY CLUBS & REGISTERED EVENTS -->
+      <section id="ce-panel-my" class="ce-panel hidden p-gutter-lg flex flex-col gap-gutter-lg">
+        <div class="flex flex-col gap-gutter-sm">
+          <h2 class="font-headline text-headline-md text-dark-on-surface" data-design-text-token="headline-md">My Registered Events</h2>
+          <article class="bg-dark-surface-container-lowest rounded-lg border border-dark-outline-variant/60 p-gutter-md flex items-center justify-between">
+            <div>
+              <p class="font-title text-title-sm text-dark-on-surface" data-design-text-token="title-sm">ROS2 &amp; Autonomous Rover Lab</p>
+              <p class="font-body text-body-sm text-dark-on-surface-variant" data-design-text-token="body-sm">Dec 04, 2:00 PM • Innovation Lab 102</p>
+            </div>
+            <span class="font-label text-label-sm bg-success-container text-on-success-container px-2.5 py-0.5 rounded-full" data-design-text-token="label-sm">Confirmed</span>
+          </article>
+        </div>
+
+        <div class="flex flex-col gap-gutter-sm">
+          <h2 class="font-headline text-headline-md text-dark-on-surface" data-design-text-token="headline-md">My Clubs</h2>
+          <article class="bg-dark-surface-container-lowest rounded-lg border border-dark-outline-variant/60 p-gutter-md flex items-center justify-between">
+            <div class="flex items-center gap-gutter-md">
+              <div class="w-10 h-10 rounded-full bg-dark-primary-container text-dark-on-primary-container flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined text-[20px]">code</span>
+              </div>
+              <div>
+                <p class="font-title text-title-sm text-dark-on-surface" data-design-text-token="title-sm">Coding Club</p>
+                <p class="font-body text-body-sm text-dark-on-surface-variant" data-design-text-token="body-sm">Member • Next Meet Thu 5:00 PM</p>
+              </div>
+            </div>
+            <span class="font-label text-label-sm text-dark-primary" data-design-text-token="label-sm">Active</span>
+          </article>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Fixed/Sticky 5-Icon Bottom Navigation Bar (Exact Parity with HomeFeed.html) -->
+    <nav aria-label="Primary Navigation" class="sticky bottom-0 z-30 bg-dark-surface-container-lowest border-t border-dark-outline-variant/60 px-gutter-sm py-gutter-xs grid grid-cols-5 items-center">
+      <!-- 1. Home (Bottom Left) -->
+      <a href="../home-feed/HomeFeed.html" class="nav-item flex flex-col items-center justify-center gap-0.5 py-1.5 text-dark-on-surface-variant hover:text-dark-primary transition-colors duration-state-change">
+        <span class="material-symbols-outlined text-[24px]">home</span>
+        <span class="font-label text-label-sm" data-design-text-token="label-sm">Home</span>
+      </a>
+
+      <!-- 2. Clubs & Events (Active) -->
+      <a href="#clubs" aria-current="page" class="nav-item flex flex-col items-center justify-center gap-0.5 py-1.5 text-dark-primary">
+        <span class="material-symbols-outlined text-[24px]" style="font-variation-settings: &#39;FILL&#39; 1;">groups</span>
+        <span class="font-label text-label-sm" data-design-text-token="label-sm">Clubs</span>
+      </a>
+
+      <!-- 3. Study (Centre — Prominent) -->
+      <a href="../study-hub/StudyHub.html" class="nav-item flex flex-col items-center justify-center -mt-4">
+        <span class="w-12 h-12 rounded-full bg-dark-primary text-dark-on-primary flex items-center justify-center shadow-md ring-4 ring-dark-surface-container-lowest transition-transform duration-state-change active:scale-95">
+          <span class="material-symbols-outlined text-[26px]" style="font-variation-settings: &#39;FILL&#39; 1;">school</span>
+        </span>
+        <span class="font-label text-label-sm text-dark-primary mt-0.5" data-design-text-token="label-sm">Study</span>
+      </a>
+
+      <!-- 4. Search -->
+      <a href="../search/Search.html" class="nav-item flex flex-col items-center justify-center gap-0.5 py-1.5 text-dark-on-surface-variant hover:text-dark-primary transition-colors duration-state-change">
+        <span class="material-symbols-outlined text-[24px]">search</span>
+        <span class="font-label text-label-sm" data-design-text-token="label-sm">Search</span>
+      </a>
+
+      <!-- 5. Student Profile (Bottom Right) -->
+      <a href="../student-profile/StudentProfile.html" class="nav-item flex flex-col items-center justify-center gap-0.5 py-1.5 text-dark-on-surface-variant hover:text-dark-primary transition-colors duration-state-change">
+        <img src="https://lh3.googleusercontent.com/aida/ALJJyrDerPS2l3M99Gka6utSlKFegmlHUZC3Nt6xhDjiMoSkNxlPLUqWHhAsnv_lCIe31Xz8kKmvkN7HMtr6_w19IOia40G3tZ6lfkPzr_KHzGLRRO9aBxFbWGunioqXJiKibSHnRk7fndbPYo3uD4EVfzy24ps8XwNYt3vwXH7Wa6NInNqkngE4Lz2Vc1p4Zrj6io7iHph1h0sEBpGJuB1ox_n_j4pXr15G7r3nGBjjBAsY3g_nHXRM0xyxZZDVjQQ" alt="Student Profile" class="w-6 h-6 rounded-full object-cover border border-dark-outline-variant">
+        <span class="font-label text-label-sm" data-design-text-token="label-sm">Profile</span>
+      </a>
+    </nav>
+
+  </div>
+
+  <script>
+    // Top tabs: Events / Clubs / My Activity
+    const ceTabs = document.querySelectorAll('.ce-tab');
+    const cePanels = document.querySelectorAll('.ce-panel');
+
+    ceTabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const target = tab.getAttribute('data-ce-tab');
+        ceTabs.forEach((t) => {
+          const active = t === tab;
+          t.setAttribute('aria-selected', active ? 'true' : 'false');
+          if (active) {
+            t.classList.remove('border-transparent', 'text-dark-on-surface-variant');
+            t.classList.add('border-dark-primary', 'text-dark-primary');
+          } else {
+            t.classList.remove('border-dark-primary', 'text-dark-primary');
+            t.classList.add('border-transparent', 'text-dark-on-surface-variant');
+          }
+        });
+        cePanels.forEach((p) => {
+          p.classList.toggle('hidden', p.id !== 'ce-panel-' + target);
+        });
+      });
+    });
+
+    // Event Category Filter
+    document.querySelectorAll('.ecat-chip').forEach((chip) => {
+      chip.addEventListener('click', () => {
+        const cat = chip.getAttribute('data-ecat');
+        document.querySelectorAll('.ecat-chip').forEach((c) => {
+          const active = c === chip;
+          if (active) {
+            c.classList.add('bg-dark-primary', 'text-dark-on-primary');
+            c.classList.remove('bg-dark-surface-container-lowest', 'text-dark-on-surface-variant', 'border', 'border-dark-outline-variant/60');
+          } else {
+            c.classList.remove('bg-dark-primary', 'text-dark-on-primary');
+            c.classList.add('bg-dark-surface-container-lowest', 'text-dark-on-surface-variant', 'border', 'border-dark-outline-variant/60');
+          }
+        });
+        document.querySelectorAll('.event-card').forEach((card) => {
+          card.classList.toggle('hidden', cat !== 'all' && card.getAttribute('data-ecat') !== cat);
+        });
+      });
+    });
+
+    // Register Now toggle
+    document.querySelectorAll('.register-event-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const reg = btn.getAttribute('data-registered') === 'true';
+        btn.setAttribute('data-registered', reg ? 'false' : 'true');
+        if (reg) {
+          btn.textContent = 'Register Now';
+          btn.classList.remove('bg-success-container', 'text-on-success-container');
+          btn.classList.add('bg-dark-primary', 'text-dark-on-primary');
+        } else {
+          btn.textContent = 'Registered ✓';
+          btn.classList.remove('bg-dark-primary', 'text-dark-on-primary');
+          btn.classList.add('bg-success-container', 'text-on-success-container');
+        }
+      });
+    });
+
+    // Join Club toggle
+    document.querySelectorAll('.join-club-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const joined = btn.getAttribute('data-joined') === 'true';
+        btn.setAttribute('data-joined', joined ? 'false' : 'true');
+        if (joined) {
+          btn.textContent = 'Join Club';
+          btn.classList.remove('bg-success-container', 'text-on-success-container');
+          btn.classList.add('bg-dark-primary', 'text-dark-on-primary');
+        } else {
+          btn.textContent = 'Joined ✓';
+          btn.classList.remove('bg-dark-primary', 'text-dark-on-primary');
+          btn.classList.add('bg-success-container', 'text-on-success-container');
+        }
+      });
+    });
+  </script>
+
+
+
+</body></html>
