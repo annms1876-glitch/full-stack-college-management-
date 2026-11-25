@@ -89,11 +89,11 @@ campuspulse-frontend/
 ```
 
 
-## AcademiaOS admin portal
+## CampusPulse Admin Dashboard
 
-The new AcademiaOS frontend is available under [`academiaos-admin-portal/`](academiaos-admin-portal/). It recreates the supplied Vanguard Institute Portal / AcademiaOS admin design with a responsive ChatGPT-style navigation rail, indigo action system, dense operational tables, dashboard analytics, theme switching, global search, creation modals, approval states, and an Agentic Workflow workspace.
+The new CampusPulse Admin Dashboard frontend is available under [`campuspulse-admin-dashboard/`](campuspulse-admin-dashboard/). It recreates the supplied CampusPulse admin dashboard design with a responsive ChatGPT-style navigation rail, indigo action system, dense operational tables, dashboard analytics, theme switching, global search, creation modals, approval states, and an Agentic Workflow workspace.
 
-### AcademiaOS routes
+### CampusPulse Admin Dashboard routes
 
 | Route | Screen |
 | --- | --- |
@@ -113,12 +113,12 @@ The new AcademiaOS frontend is available under [`academiaos-admin-portal/`](acad
 | `/agentic-workflow` | AI workflow orchestrator |
 | `/admin-settings` | Admin settings and security |
 
-### Run the AcademiaOS portal
+### Run the CampusPulse Admin Dashboard
 
 ```bash
-cd academiaos-admin-portal
+cd campuspulse-admin-dashboard
 npm install
 npm run dev
 ```
 
-Create a production build with `npm run build`. The portal is frontend-only and uses local mock data. Its shared interactions include a collapsible desktop sidebar, responsive mobile drawer, light/dark themes, global search, filters, pagination affordances, profile and creation modals, toast feedback, and simulated AI workflow execution with approval gating. The visual system is implemented in [`academiaos-admin-portal/src/styles.css`](academiaos-admin-portal/src/styles.css), and the route declarations are in [`academiaos-admin-portal/public/manus-routes.json`](academiaos-admin-portal/public/manus-routes.json).
+Create a production build with `npm run build`. The portal is frontend-only and uses local mock data. Its shared interactions include a collapsible desktop sidebar, responsive mobile drawer, light/dark themes, global search, filters, pagination affordances, profile and creation modals, toast feedback, and simulated AI workflow execution with approval gating. The visual system is implemented in [`campuspulse-admin-dashboard/src/styles.css`](campuspulse-admin-dashboard/src/styles.css), and the route declarations are in [`campuspulse-admin-dashboard/public/manus-routes.json`](campuspulse-admin-dashboard/public/manus-routes.json).

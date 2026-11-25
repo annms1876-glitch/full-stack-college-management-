@@ -1,6 +1,6 @@
-# AcademiaOS Admin Portal
+# CampusPulse Admin Dashboard
 
-- [x] Recreate the responsive persistent sidebar shell with Vanguard branding, collapsible navigation, global search, new action, profile menu, and light/dark treatment.
+- [x] Recreate the responsive persistent sidebar shell with CampusPulse branding, collapsible navigation, global search, new action, profile menu, and light/dark treatment.
 - [x] Recreate the dashboard with KPI summaries, quick actions, operational analytics, pending approvals, and recent activity.
 - [x] Add navigable student and faculty administration screens with searchable/filterable tables, status badges, pagination, and record actions.
 - [x] Add academic operations screens for timetable, assignments, examinations, course information, and notices/announcements.

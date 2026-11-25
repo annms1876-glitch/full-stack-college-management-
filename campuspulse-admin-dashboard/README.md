@@ -1,6 +1,6 @@
-# AcademiaOS Admin Portal
+# CampusPulse Admin Dashboard
 
-Responsive frontend recreation of the supplied AcademiaOS / Vanguard Institute admin portal references.
+Responsive frontend recreation of the supplied CampusPulse admin dashboard references.
 
 ## Run locally
 
