@@ -1,5 +1,3 @@
-import { createClient } from '@supabase/supabase-js';
-
 const DEMO_KEY = 'campuspulse:faculty-demo';
 
 function authView(message = '') {
@@ -40,6 +38,7 @@ export async function startPortalAuth({ onAuthorized }) {
     if (!response.ok) throw new Error('Runtime Supabase configuration endpoint is unavailable.');
     const { supabaseUrl, publishableKey } = await response.json();
     if (!supabaseUrl || !publishableKey) throw new Error('Set SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY in this portal process, then restart Vite.');
+    const { createClient } = await import('@supabase/supabase-js');
     client = createClient(supabaseUrl, publishableKey);
     const { data: { session }, error } = await client.auth.getSession();
     if (error) throw error;
