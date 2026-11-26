@@ -266,7 +266,7 @@ function renderFaculty() {
     subtitle: `${staff.length} faculty/admin profile(s) visible in your college.`,
     actions: `<button class="primary" id="invite-faculty">${icon('user-plus', 14)}Invite Faculty/Admin</button>`,
     body: liveTable(['Member', 'Role', 'Courses', 'Profile', 'Access'], rows, 'No faculty profiles are visible yet. Use Invite to send a trusted invitation.') +
-      '<section class="card"><div class="card-header"><h3 class="card-title">Trusted role changes</h3></div><p class="subhead">Role changes run through the grant-role Edge function: your admin role is re-read from public.profiles, every change is written to public.role_change_audit, and a failed audit row rolls the change back. The browser never holds a service-role key.</p></section>',
+      '<section class="card"><div class="card-header"><h3 class="card-title">Trusted role changes</h3></div><p class="subhead">Role changes call admin_set_role, which re-checks your admin role, keeps the college boundary and writes an audit row. </p></section>',
   });
   document.getElementById('invite-faculty')?.addEventListener('click', () => openInviteModal());
   document.querySelectorAll('.live-role').forEach(button => button.addEventListener('click', () => openRoleModal(button.dataset.person)));
@@ -423,7 +423,7 @@ function renderSettings() {
   });
 }
 function openStudent(person) {
-  openModal(`<div class="modal-header"><div class="person"><span class="person-avatar" style="width:44px;height:44px">${esc(initials(person.full_name || 'Student'))}</span><span><h3 class="modal-title">${esc(person.full_name || 'Unnamed student')}</h3><p class="card-note">${esc(person.role)} profile</p></span></div><button class="icon-button" data-close-modal>${icon('x')}</button></div><div class="modal-body"><div class="detail-grid"><div class="info-block"><p class="info-label">Profile ID</p><p class="info-value mono">${esc(person.id)}</p></div><div class="info-block"><p class="info-label">Role</p><p class="info-value">${esc(person.role)}</p></div><div class="info-block"><p class="info-label">College</p><p class="info-value mono">${esc(person.college_id || 'not assigned')}</p></div><div class="info-block"><p class="info-label">Joined</p><p class="info-value">${esc(person.created_at ? new Date(person.created_at).toLocaleDateString() : '—')}</p></div></div><p class="card-note">Role and college are server-controlled. Use the grant-role Edge function from Faculty Management to change access.</p></div>`);
+  openModal(`<div class="modal-header"><div class="person"><span class="person-avatar" style="width:44px;height:44px">${esc(initials(person.full_name || 'Student'))}</span><span><h3 class="modal-title">${esc(person.full_name || 'Unnamed student')}</h3><p class="card-note">${esc(person.role)} profile</p></span></div><button class="icon-button" data-close-modal>${icon('x')}</button></div><div class="modal-body"><div class="detail-grid"><div class="info-block"><p class="info-label">Profile ID</p><p class="info-value mono">${esc(person.id)}</p></div><div class="info-block"><p class="info-label">Role</p><p class="info-value">${esc(person.role)}</p></div><div class="info-block"><p class="info-label">College</p><p class="info-value mono">${esc(person.college_id || 'not assigned')}</p></div><div class="info-block"><p class="info-label">Joined</p><p class="info-value">${esc(person.created_at ? new Date(person.created_at).toLocaleDateString() : '—')}</p></div></div><p class="card-note">Role and college are server-controlled. Use Change role in Faculty Management to update access.</p></div>`);
 }
 
 function openCreateModal(moduleId) {
@@ -433,46 +433,28 @@ function openCreateModal(moduleId) {
 }
 async function openInviteModal() {
   if (!portalAuth?.client || portalAuth?.demo) {
-    showToast('Sign in with a verified administrator account to send invitations.');
+    showToast('Sign in with a verified administrator account to manage members.');
     return;
   }
-  let colleges = [];
-  let directoryNotice = '';
-  try {
-    const { data, error } = await portalAuth.client.functions.invoke('invite-user', { body: { action: 'list_colleges' } });
-    if (error || data?.error) throw error || new Error(data.error);
-    colleges = Array.isArray(data?.colleges) ? data.colleges : [];
-  } catch {
-    directoryNotice = 'College list is unavailable; you may continue without a college assignment.';
-  }
-  const collegeOptions = colleges.map((college) => `<option value="${esc(college.id)}">${esc(college.name)}</option>`).join('');
-  openModal(`<div class="modal-header"><div><h3 class="modal-title">Invite a portal user</h3><p class="card-note">Only trusted admins can assign faculty or admin access.</p></div><button class="icon-button" data-close-modal aria-label="Close">${icon('x')}</button></div><div class="modal-body"><form class="form-grid invite-form" id="invite-user-form"><label class="form-field"><span class="form-label">Full name</span><input class="field" name="full_name" maxlength="160" autocomplete="name" required></label><label class="form-field"><span class="form-label">Email address</span><input class="field" name="email" type="email" maxlength="254" autocomplete="email" required></label><label class="form-field"><span class="form-label">Portal role</span><select class="select" name="role" required><option value="faculty">Faculty</option><option value="admin">Administrator</option></select></label><label class="form-field"><span class="form-label">College (optional)</span><select class="select" name="college_id"><option value="">No college assigned</option>${collegeOptions}</select></label><p class="invite-note" role="status">${esc(directoryNotice || (colleges.length ? 'The email domain must match the selected college.' : 'An invitation email will be sent; the recipient sets their own password.'))}</p><div class="modal-footer"><button class="secondary" type="button" data-close-modal>Cancel</button><button class="primary" type="submit" id="send-invite">Send invitation</button></div></form></div>`);
-  document.getElementById('invite-user-form')?.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const form = event.currentTarget;
-    if (!form.reportValidity()) return;
-    const button = document.getElementById('send-invite');
+  const members = snapshotData().profiles
+    .map(person => `<option value="${esc(person.id)}">${esc(person.full_name || person.id)} · ${esc(person.role)}</option>`)
+    .join('');
+  openModal(`<div class="modal-header"><div><h3 class="modal-title">Add a faculty or admin member</h3><p class="card-note">Accounts sign themselves up; you grant the role.</p></div><button class="icon-button" data-close-modal aria-label="Close">${icon('x')}</button></div><div class="modal-body"><p class="subhead">Portal accounts are created by the person themselves with their college email at the sign-up page, because creating an account requires the Supabase admin API and a service key this console must never hold. As soon as they appear in your college, grant them faculty or admin access here.</p><label class="form-field full"><span class="form-label">Member</span><select class="select" id="invite-member">${members || '<option value="">No members in your college yet</option>'}</select></label><label class="form-field"><span class="form-label">Grant role</span><select class="select" id="invite-role"><option value="faculty">Faculty</option><option value="admin">Administrator</option><option value="student">Student</option></select></label><label class="form-field full"><span class="form-label">Reason</span><input class="field" id="invite-reason" maxlength="2000" placeholder="Recorded in role_change_audit" /></label><p class="card-note" id="invite-note">Only accounts already inside your college can be granted access.</p><div class="modal-footer"><button class="secondary" data-close-modal>Cancel</button><button class="primary" id="grant-invite-role">Grant access</button></div></div>`);
+  document.getElementById('grant-invite-role')?.addEventListener('click', async (event) => {
+    const member = document.getElementById('invite-member')?.value;
+    const role = document.getElementById('invite-role')?.value;
+    const note = document.getElementById('invite-note');
+    if (!member) { if (note) note.textContent = 'There is no member to grant access to yet.'; return; }
+    const button = event.currentTarget;
     button.disabled = true;
-    button.textContent = 'Sending…';
-    const values = new FormData(form);
     try {
-      const { data, error } = await portalAuth.client.functions.invoke('invite-user', {
-        body: {
-          full_name: String(values.get('full_name') || '').trim(),
-          email: String(values.get('email') || '').trim(),
-          role: String(values.get('role') || ''),
-          college_id: String(values.get('college_id') || '') || null,
-        },
-      });
-      if (error) throw new Error(data?.error || error.message || 'The invitation could not be sent.');
-      if (data?.error || !data?.success) throw new Error(data?.error || 'The invitation could not be sent.');
+      await grantRole(portalAuth.client, { userId: member, role, reason: document.getElementById('invite-reason')?.value || '' });
       closeModal();
-      showToast('Invitation sent. The recipient can set a password from the email link.', false);
+      showToast(`Access granted: ${role}.`, false);
+      await refresh();
     } catch (error) {
-      const note = document.querySelector('#invite-user-form .invite-note');
-      if (note) note.textContent = error.message || 'The invitation could not be sent.';
+      if (note) note.textContent = error.message || 'The role change failed.';
       button.disabled = false;
-      button.textContent = 'Send invitation';
     }
   });
 }
@@ -615,16 +597,7 @@ function openRoleModal(userId) {
   const snap = snapshotData();
   const options = snap.profiles.map(person => `<option value="${esc(person.id)}" ${person.id === userId ? 'selected' : ''}>${esc(person.full_name || person.id)} · ${esc(person.role)}</option>`).join('');
   const target = snap.profiles.find(p => p.id === userId);
-  openModal(`<div class="modal-header"><div><h3 class="modal-title">Change a trusted role</h3><p class="card-note">Runs the grant-role Edge function with an audit row.</p></div><button class="icon-button" data-close-modal>${icon('x')}</button></div><div class="modal-body"><label class="form-field full"><span class="form-label">Member</span><select class="select" id="role-user" required>${options}</select></label><label class="form-field"><span class="form-label">New role</span><select class="select" id="role-value"><option value="student">student</option><option value="faculty">faculty</option><option value="admin">admin</option></select></label><label class="form-field"><span class="form-label">College</span><select class="select" id="role-college"><option value="">No college</option>${target?.college_id ? `<option value="${esc(target.college_id)}" selected>Current college</option>` : ''}</select></label><label class="form-field full"><span class="form-label">Reason</span><input class="field" id="role-reason" maxlength="2000" placeholder="Recorded in role_change_audit" /></label><p class="card-note" id="role-note">Your admin role is re-read from public.profiles inside the function; a failed audit write rolls the change back.</p><div class="modal-footer"><button class="secondary" data-close-modal>Cancel</button><button class="primary" id="confirm-role">Save role</button></div></div>`);
-  if (live()) {
-    listColleges(portalAuth.client).then(colleges => {
-      const select = document.getElementById('role-college');
-      if (!select || !colleges.length) return;
-      const current = select.value;
-      select.innerHTML = `<option value="">No college</option>${colleges.map(college => `<option value="${esc(college.id)}">${esc(college.name)}</option>`).join('')}`;
-      if (current) select.value = current;
-    }).catch(() => {});
-  }
+  openModal(`<div class="modal-header"><div><h3 class="modal-title">Change a trusted role</h3><p class="card-note">Calls admin_set_role, which re-checks your admin role and writes an audit row.</p></div><button class="icon-button" data-close-modal>${icon('x')}</button></div><div class="modal-body"><label class="form-field full"><span class="form-label">Member</span><select class="select" id="role-user" required>${options}</select></label><label class="form-field"><span class="form-label">New role</span><select class="select" id="role-value"><option value="student">student</option><option value="faculty">faculty</option><option value="admin">admin</option></select></label><label class="form-field full"><span class="form-label">Reason</span><input class="field" id="role-reason" maxlength="2000" placeholder="Recorded in role_change_audit" /></label><p class="card-note" id="role-note">Your admin role and the target's college are re-read inside the database function, so the browser cannot widen either.</p><div class="modal-footer"><button class="secondary" data-close-modal>Cancel</button><button class="primary" id="confirm-role">Save role</button></div></div>`);
   document.getElementById('confirm-role')?.addEventListener('click', async event => {
     if (!live()) { showToast('Sign in with a verified administrator account to change roles.'); return; }
     const button = event.currentTarget;
@@ -633,7 +606,6 @@ function openRoleModal(userId) {
       await grantRole(portalAuth.client, {
         userId: document.getElementById('role-user')?.value,
         role: document.getElementById('role-value')?.value,
-        collegeId: document.getElementById('role-college')?.value || null,
         reason: document.getElementById('role-reason')?.value || '',
       });
       closeModal();
@@ -692,7 +664,7 @@ function renderAssignments() {
     actions: `<a class="secondary" href="${portalPath('/notices-announcements')}">${icon('megaphone', 14)}Publish notice</a>`,
     body: liveTable(['Assignment', 'Course', 'Due', 'Submissions', 'Status'], assignmentRows, 'No assignments published yet in your college.') +
       liveTable(['Student', 'Assignment', 'Course', 'Status', 'Submitted', 'File'], submissionRows, 'No submissions yet.') +
-      '<section class="card"><div class="card-header"><h3 class="card-title">Private files</h3></div><p class="subhead">“Open file” asks the get-signed-url Edge function for a short-lived link. The function re-checks that your admin profile can read the submission row and sniffs the stored bytes before signing, so a renamed file cannot be served.</p></section>',
+      '<section class="card"><div class="card-header"><h3 class="card-title">Private files</h3></div><p class="subhead">“Open file” asks Supabase Storage for a short-lived signed link, authorised by the assignments storage policies. </p></section>',
   });
   document.querySelectorAll('.live-download').forEach(button => button.addEventListener('click', async () => {
     const submission = snap.submissions.find(s => s.id === button.dataset.submission);

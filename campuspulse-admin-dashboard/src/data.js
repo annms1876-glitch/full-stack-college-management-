@@ -78,26 +78,30 @@ export async function setEnrolmentStatus(client, courseId, studentId, status) {
   );
 }
 
-/** Trusted role change — authority and audit are enforced inside grant-role. */
-export async function grantRole(client, { userId, role, collegeId, reason }) {
-  const { data, error } = await client.functions.invoke('grant-role', { body: { user_id: userId, role, college_id: collegeId, reason } });
-  if (error) throw new Error(data?.error || error.message || 'The role change could not be completed');
-  if (data?.error) throw new Error(data.error);
+/** The RPC re-checks the caller's admin role, the college boundary and writes the audit row. */
+export async function grantRole(client, { userId, role, reason }) {
+  const { data, error } = await client.rpc('admin_set_role', {
+    target_user: userId,
+    new_role: role,
+    reason: reason || '',
+  });
+  if (error) throw new Error(error.message || 'The role change could not be completed');
   return data;
 }
 
 export async function listColleges(client) {
-  const { data, error } = await client.functions.invoke('invite-user', { body: { action: 'list_colleges' } });
-  if (error) throw new Error(data?.error || error.message || 'The college directory is unavailable');
-  if (data?.error) throw new Error(data.error);
-  return Array.isArray(data?.colleges) ? data.colleges : [];
+  const { data, error } = await client.from('colleges').select('id, name, domain').order('name');
+  if (error) throw new Error(error.message || 'The college directory is unavailable');
+  return Array.isArray(data) ? data : [];
 }
 
-/** Storage RLS authorises the read, so no Edge function is required. */
 export async function loadModuleRecords(client) {
   return await unwrap(
-    client.from('module_records').select('id,module,title,status,details,created_at,created_by').order('created_at', { ascending: false }).limit(500),
-    'Module records could not load',
+    client.from('module_records')
+      .select('id,module,title,status,details,created_at')
+      .order('created_at', { ascending: false })
+      .limit(500),
+    'Records could not be loaded',
   );
 }
 
