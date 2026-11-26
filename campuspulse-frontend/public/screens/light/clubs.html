@@ -331,17 +331,7 @@
       });
     });
 
-    // Sample event registration is preview-only; no RSVP is persisted.
-    document.querySelectorAll('.register-event-btn').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const status = document.getElementById('campuspulse-demo-status') || (() => {
-          const el = document.createElement('p'); el.id = 'campuspulse-demo-status';
-          el.setAttribute('role', 'status'); el.setAttribute('aria-live', 'polite');
-          btn.closest('main')?.prepend(el); return el;
-        })();
-        status.textContent = 'Preview only: event registration is not connected and was not saved.';
-      });
-    });
+    // Event RSVPs are stored by /clubs.js against public.event_rsvps.
     // Club buttons are handled by the API integration when a matching backend record exists.
 
   </script>

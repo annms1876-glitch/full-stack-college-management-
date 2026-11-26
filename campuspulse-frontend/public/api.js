@@ -7,7 +7,7 @@ export const supabase = configured ? createClient(config.supabaseUrl, config.pub
 const client = () => { if (!supabase) throw new Error("Set SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY to enable backend features."); return supabase; };
 const storageBase = String(config.supabaseUrl || "").replace(/\/+$/, "");
 const storagePublicUrl = (bucket, path) => `${storageBase}/storage/v1/object/public/${bucket}/${String(path || "").split("/").filter(Boolean).map(encodeURIComponent).join("/")}`;
-const missingStorageMessage = (bucket) => new Error(`Uploads need the "${bucket}" storage bucket. Run supabase/migrations/202611260010_student_stories_and_uploads.sql in the Supabase SQL editor, then reload.`);
+const missingStorageMessage = (bucket) => new Error(`Uploads need the "${bucket}" storage bucket. Run supabase/migrations/202611260011_study_hub_and_campus_uploads.sql in the Supabase SQL editor, then reload.`);
 const result = async (promise) => { const { data, error } = await promise; if (error) throw error; return data; };
 const currentUser = async () => { const { data, error } = await client().auth.getUser(); if (error) throw error; if (!data.user) throw new Error("Sign in to continue."); return data.user; };
 const safeName = (name) => String(name || "upload").replace(/[^A-Za-z0-9._-]/g, "_").replace(/\.\./g, "_").slice(0, 180) || "upload";
@@ -26,6 +26,13 @@ export const api = {
   save: async (postId, enabled) => { const c=client(), { data: { user } } = await c.auth.getUser(); if (!user) throw new Error("Sign in to save posts."); return result(enabled ? c.from("saved_posts").upsert({ post_id: postId, user_id: user.id }, { onConflict: "post_id,user_id", ignoreDuplicates: true }) : c.from("saved_posts").delete().match({ post_id: postId, user_id: user.id })); },
   joinClub: async (clubId, joining) => { const c=client(), { data: { user } } = await c.auth.getUser(); if (!user) throw new Error("Sign in to join a club."); return result(joining ? c.from("club_members").upsert({ club_id: clubId, user_id: user.id, role: "member" }, { onConflict: "club_id,user_id", ignoreDuplicates: true }) : c.from("club_members").delete().match({ club_id: clubId, user_id: user.id })); },
   rsvp: async (eventId, status = "going") => { const c=client(), { data: { user } } = await c.auth.getUser(); if (!user) throw new Error("Sign in to RSVP."); return result(c.from("event_rsvps").upsert({ event_id: eventId, user_id: user.id, status }, { onConflict: "event_id,user_id" })); },
+  events: async (limit = 30) => result(client().from("events")
+    .select("id,title,description,starts_at,ends_at,location,capacity,club:clubs!events_club_id_fkey(id,name)")
+    .gte("starts_at", new Date(Date.now() - 2 * 864e5).toISOString())
+    .order("starts_at", { ascending: true }).limit(Math.min(50, Math.max(1, limit)))),
+  myRsvps: async () => result(client().from("event_rsvps")
+    .select("event_id,status,event:events!event_rsvps_event_id_fkey(id,title,starts_at,ends_at,location)")),
+  unrsvp: async (eventId) => { const c = client(), user = await currentUser(); return result(c.from("event_rsvps").delete().match({ event_id: eventId, user_id: user.id })); },
 
   // ---- Live coursework reads (RLS scopes every row to this student) ----
   notices: async (limit = 20) => result(client().from("notices").select("id,title,body,audience,published_at,author:profiles!notices_author_id_fkey(id,full_name)").order("published_at", { ascending: false }).limit(Math.min(50, Math.max(1, limit)))),

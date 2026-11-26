@@ -117,3 +117,5 @@ window.CampusPulse=Object.freeze({theme:dark?"dark":"light",routes:Object.freeze
 await import("/social.js");
 // Study hub: doubts, votes, solutions and shared study files.
 await import("/study.js");
+// Clubs and events: live event cards and saved RSVPs.
+await import("/clubs.js");
