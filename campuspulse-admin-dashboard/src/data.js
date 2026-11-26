@@ -102,9 +102,15 @@ export async function loadModuleRecords(client) {
 }
 
 export async function createModuleRecord(client, profile, { module, title, status, details }) {
+  let collegeId = profile?.college_id;
+  if (!collegeId) {
+    const me = await unwrap(client.from('profiles').select('college_id').eq('id', profile.id).single(), 'Your college could not be resolved');
+    collegeId = me?.college_id;
+  }
+  if (!collegeId) throw new Error('Your profile has no college assigned, so records cannot be scoped.');
   return await unwrap(
     client.from('module_records')
-      .insert({ module, title, status: status || 'Open', details: details || '', college_id: profile.college_id, created_by: profile.id })
+      .insert({ module, title, status: status || 'Open', details: details || '', college_id: collegeId, created_by: profile.id })
       .select('id,module,title,status,details,created_at')
       .single(),
     'The record could not be saved',

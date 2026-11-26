@@ -21,7 +21,7 @@ function setMessage(text, isError = false) {
 }
 
 async function verifyRole(client, user) {
-  const { data, error } = await client.from('profiles').select('id, full_name, role').eq('id', user.id).single();
+  const { data, error } = await client.from('profiles').select('id, full_name, role, college_id, bio').eq('id', user.id).single();
   if (error) throw new Error(`Could not verify your CampusPulse profile: ${error.message}. Confirm migrations are applied and the account is provisioned.`);
   if (data?.role !== 'admin') throw new Error(`This account has the ${data?.role || 'unassigned'} role. The admin portal requires an admin profile.`);
   return data;
