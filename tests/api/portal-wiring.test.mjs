@@ -41,7 +41,10 @@ test('student portal loads enrolled courses, assignments and submissions from Su
   assert.match(studentApi, /mySubmissions: async \(\) =>/);
   assert.match(studentApi, /storage\.from\("assignments"\)\.upload\(path, file/);
   assert.match(studentApi, /crypto\.randomUUID\(\)/);
-  assert.match(studentApi, /from\("get-signed-url"\)|functions\.invoke\("get-signed-url"/);
+  // Signed links come from storage under the assignments policies; the
+  // get-signed-url Edge function was never deployed.
+  assert.match(studentApi, /storage\.from\(bucket\)\.createSignedUrl\(path, 300\)/);
+  assert.doesNotMatch(studentApi, /get-signed-url/);
   assert.match(studentApp, /if\(path\.endsWith\("\/feed"\)\)/);
   assert.match(studentApp, /await api\.notices\(6\)/);
   assert.match(studentApp, /data-notice-id="\$\{escapeHtml\(n\.id\)\}"/);
@@ -64,8 +67,13 @@ test('admin portal manages notices, courses, enrolment and roles live', () => {
   assert.match(adminData, /from\('notices'\)/);
   assert.match(adminData, /from\('courses'\)/);
   assert.match(adminData, /from 'course_enrollments'\)|from\('course_enrollments'\)/);
-  assert.match(adminData, /functions\.invoke\('grant-role'/);
-  assert.match(adminData, /functions\.invoke\('invite-user'/);
+  // Role changes run through the admin_set_role RPC, which re-checks the caller
+  // and the target's college on the server. The grant-role and invite-user Edge
+  // functions were never deployed, so the console must not call them.
+  assert.match(adminData, /rpc\('admin_set_role'/);
+  assert.doesNotMatch(adminData, /functions\.invoke\('grant-role'/);
+  assert.doesNotMatch(adminData, /functions\.invoke\('invite-user'/);
+  assert.match(adminData, /from\('colleges'\)/);
   assert.match(adminApp, /loadAdminSnapshot\(portalAuth\.client\)/);
   assert.match(adminApp, /publishNotice\(portalAuth\.client, portalAuth\.profile/);
   assert.match(adminApp, /createCourse\(portalAuth\.client, portalAuth\.profile/);

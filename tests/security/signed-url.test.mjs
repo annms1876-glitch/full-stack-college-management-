@@ -55,9 +55,10 @@ test('magic bytes are verified before a URL is minted', () => {
   assert.match(migration, /submissions_path_extension_match/);
 });
 
-test('portals obtain private files only through the Edge function', () => {
-  assert.match(studentApi, /functions\.invoke\("get-signed-url"/);
-  assert.doesNotMatch(studentApi, /createSignedUrl\(/);
+test('portals obtain private files only through storage-issued signed links', () => {
+  assert.match(studentApi, /storage\.from\(bucket\)\.createSignedUrl\(path, 300\)/);
+  assert.doesNotMatch(studentApi, /functions\.invoke\("get-signed-url"/);
+  // links are minted by storage under the assignments policies, not by an Edge function
   for (const auth of [facultyAuth, adminAuth]) {
     assert.doesNotMatch(auth, /SUPABASE_SERVICE_ROLE_KEY|service_role/);
   }

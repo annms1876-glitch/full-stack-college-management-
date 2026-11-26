@@ -22,7 +22,8 @@ const [facultyAuth, adminAuth, facultyMain, adminApp, facultyVite, adminVite, fa
 for (const [label, source, role] of [['faculty', facultyAuth, 'faculty'], ['admin', adminAuth, 'admin']]) {
   test(`${label} portal uses password auth and gates rendering on the trusted profile role`, () => {
     assert.match(source, /auth\.signInWithPassword\(/);
-    assert.match(source, /from\('profiles'\)\.select\('id, full_name, role'\)/);
+    // college_id and bio ride along so college-scoped writes and the profile form work.
+    assert.match(source, /from\('profiles'\)\.select\('id, full_name, role[^']*'\)/);
     assert.ok(source.includes(role === 'faculty' ? 'data?.role !== expectedRole' : "data?.role !== 'admin'"));
     if (role === 'faculty') assert.match(source, /verifyRole\(client, data\.user, 'faculty'\)/);
     assert.match(source, /onAuthorized\(/);

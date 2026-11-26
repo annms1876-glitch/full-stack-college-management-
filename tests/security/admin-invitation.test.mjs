@@ -38,7 +38,10 @@ test('college directory and email-domain validation are server-side', () => {
 });
 
 test('admin UI offers only faculty/admin invitations and rejects anonymous demo mode', () => {
-  assert.match(adminApp, /functions\.invoke\('invite-user'/);
+  // The console cannot create accounts (that needs the service key), so it grants
+  // the role to a member who already signed up, through admin_set_role.
+  assert.match(adminApp, /grantRole\(portalAuth\.client/);
+  assert.doesNotMatch(adminApp, /functions\.invoke\('invite-user'/);
   assert.match(adminApp, /value="faculty"/);
   assert.match(adminApp, /value="admin"/);
   assert.match(adminApp, /portalAuth\?\.demo/);
