@@ -9,8 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/home.css">
-  <link rel="modulepreload" href="/vendor/supabase-js.js">
-  <link rel="modulepreload" href="/api.js">
+    <link rel="modulepreload" href="/api.js">
 </head>
 <body class="landing-page">
   <main class="auth-page">
@@ -49,6 +48,7 @@
           <h2 id="reset-title">Choose a new password</h2>
           <p class="auth-subtitle">Your password-reset link is verified. Set a new password to continue.</p>
           <form class="auth-form" id="reset-form">
+            <label class="auth-field"><span>Reset code</span><input id="reset-code" type="text" inputmode="numeric" autocomplete="one-time-code" required></label>
             <label class="auth-field"><span>New password</span><input id="reset-password" type="password" autocomplete="new-password" minlength="8" required></label>
             <button class="auth-submit" type="submit">Save new password <span aria-hidden="true">↗</span></button>
           </form>
@@ -65,7 +65,7 @@
         <section class="demo-box is-hidden" id="demo-box" aria-labelledby="demo-title">
           <div class="demo-header"><h3 id="demo-title">Local demo accounts</h3><span>development only</span></div>
           <div class="demo-list" id="demo-list"></div>
-          <p class="demo-help">These test accounts work only after you seed local Supabase. Never use them on production.</p>
+          <p class="demo-help">These development accounts are available only when configured by your administrator.</p>
         </section>
         <p class="auth-legal">Your role is read from your trusted profile; it cannot be changed from this page. <a href="/">Learn about CampusPulse</a></p>
       </div>

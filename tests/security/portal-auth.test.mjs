@@ -20,14 +20,15 @@ const [facultyAuth, adminAuth, facultyMain, adminApp, facultyVite, adminVite, fa
 ]);
 
 for (const [label, source, role] of [['faculty', facultyAuth, 'faculty'], ['admin', adminAuth, 'admin']]) {
-  test(`${label} portal uses password auth and gates rendering on the trusted profile role`, () => {
-    assert.match(source, /auth\.signInWithPassword\(/);
+  test(`${label} portal uses Clerk password auth and gates rendering on the trusted profile role`, () => {
+    assert.match(source, /client\.signIn\.create\(/);
+    assert.match(source, /createClerkSupabaseClient/);
     // college_id and bio ride along so college-scoped writes and the profile form work.
     assert.match(source, /from\('profiles'\)\.select\('id, full_name, role[^']*'\)/);
+    assert.match(source, /eq\('clerk_user_id', user\.id\)/);
     assert.ok(source.includes(role === 'faculty' ? 'data?.role !== expectedRole' : "data?.role !== 'admin'"));
-    if (role === 'faculty') assert.match(source, /verifyRole\(client, data\.user, 'faculty'\)/);
     assert.match(source, /onAuthorized\(/);
-    assert.match(source, /auth\.signOut\(/);
+    assert.match(source, /setActive\(\{ session: result\.createdSessionId \}\)/);
     assert.match(source, /import\.meta\.env\.DEV/);
     assert.match(source, /LOCAL_DEV_BYPASS/);
     assert.doesNotMatch(source, /user_metadata.*role|role.*user_metadata/);
@@ -37,14 +38,14 @@ for (const [label, source, role] of [['faculty', facultyAuth, 'faculty'], ['admi
     assert.match(source, /id="portal-anonymous-demo"/);
     assert.match(source, /client: null, demo: true/);
     assert.match(source, /No Supabase session, live records, or backend changes/);
-    const demoCheck = source.indexOf("if (sessionStorage.getItem(DEMO_KEY) === '1')");
-    const configFetch = source.indexOf("await fetch('/api/config'");
-    assert.ok(demoCheck >= 0 && configFetch > demoCheck, 'demo session check must happen before Supabase runtime config is fetched');
+    assert.match(source, /if \(sessionStorage\.getItem\(DEMO_KEY\) === '1'\) \{ enterDemo\(\); return \}/);
+    assert.match(source, /if \(LOCAL_DEV_BYPASS && new URLSearchParams\(location\.search\)\.get\('demo'\) === '1'\) \{ enterDemo\(\); return \}/);
   });
 }
 
-test('both Vite runtime config endpoints expose only the URL and publishable key', () => {
+test('both Vite runtime config endpoints expose only Clerk and Supabase publishable values', () => {
   for (const source of [facultyVite, adminVite]) {
+    assert.match(source, /CLERK_PUBLISHABLE_KEY/);
     assert.match(source, /SUPABASE_URL/);
     assert.match(source, /SUPABASE_PUBLISHABLE_KEY/);
     assert.match(source, /Cache-Control.*no-store/);
@@ -66,7 +67,7 @@ test('faculty and admin local Vite development remains available with existing r
 });
 
 test('student login routes only from the verified profiles.role to same-origin portal routes', () => {
-  assert.match(studentLogin, /const profile = await api\.profile\(user\.id\)/);
+  assert.match(studentLogin, /const profile = await api\.currentUser\(\)/);
   assert.match(studentLogin, /const destinations = \{ student: "\/feed", faculty: "\/faculty\/", admin: "\/admin\/" \}/);
   assert.match(studentLogin, /location\.replace\(destinations\[role\]\)/);
   assert.doesNotMatch(studentLogin, /user_metadata\??\.role|user\.email.*(?:faculty|admin)|portalUrls/);

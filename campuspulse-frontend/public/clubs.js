@@ -4,7 +4,7 @@
 // "event registration is not connected". public.events and public.event_rsvps
 // already exist, so this replaces the sample cards with the college's real
 // events and persists each RSVP under the student's own JWT.
-import { api, supabase, configured } from "/api.js";
+import { api, configured } from "/api.js";
 
 const dark = location.pathname.startsWith("/dark/");
 const routePath = location.pathname.replace(/\/$/, "") || "/";
@@ -211,7 +211,7 @@ function wireEvents() {
 async function initClubs() {
   let signedIn = false;
   try {
-    const { data } = await supabase.auth.getUser();
+    const { data } = await api.session();
     signedIn = Boolean(data?.user);
     if (data?.user) me = await api.myProfile();
   } catch { /* the API call below reports the real problem */ }

@@ -3,7 +3,7 @@
 // Loaded by /app.js on every student screen; it only runs on /study (both
 // themes). Everything it renders comes from Supabase under Row Level Security,
 // so the sample cards on the screen are replaced with real, actionable rows.
-import { api, supabase, configured } from "/api.js";
+import { api, configured } from "/api.js";
 
 const dark = location.pathname.startsWith("/dark/");
 const routePath = location.pathname.replace(/\/$/, "") || "/";
@@ -435,7 +435,7 @@ async function loadResources() {
 async function initStudy() {
   let signedIn = false;
   try {
-    const { data } = await supabase.auth.getUser();
+    const { data: user } = await api.currentUser();
     signedIn = Boolean(data?.user);
     if (data?.user) {
       me = await api.myProfile();

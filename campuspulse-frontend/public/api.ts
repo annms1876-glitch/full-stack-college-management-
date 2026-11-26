@@ -1,6 +1,6 @@
 import type { SupabaseClient, User } from '@supabase/supabase-js';
 
-/** Schema-backed browser API. Pass an authenticated Supabase JS v2 client; RLS remains authoritative. */
+/** Schema-backed browser API. Pass a Clerk-authorized Supabase JS v2 data client; RLS remains authoritative. */
 export type UUID = string;
 export type Role = 'student' | 'faculty' | 'admin';
 export type Cursor = { created_at: string; id: UUID };
@@ -25,7 +25,7 @@ const safeFilename = (name: string) => name.replace(/[^A-Za-z0-9._-]/g, '_').rep
 const ALLOWED_MIME = new Set(['application/pdf','application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document','image/png','image/jpeg','application/zip','application/x-zip-compressed']);
 
 export function createCampusPulseApi(client: SupabaseClient) {
-  const authUser = async (): Promise<ApiResult<User>> => { const r=await client.auth.getUser(); return r.error ? fail(r.error) : r.data.user ? ok(r.data.user) : fail({message:'Authentication required'}); };
+  const authUser = async (): Promise<ApiResult<User>> => fail({message:'Use the Clerk current-user adapter.'});
   const profile = async (): Promise<ApiResult<Profile>> => { const u=await authUser(); if(u.error)return u; return result(await client.from('profiles').select('*').eq('id',u.data.id).single()); };
   const feed = async (opts: {limit?:number;after?:Cursor;author_id?:UUID;visibility?:Post['visibility']} = {}): Promise<ApiResult<Page<Post>>> => {
     const limit=Math.min(100,Math.max(1,opts.limit??20)); let q=client.from('posts').select('*,author:profiles!posts_author_id_fkey(*)').order('created_at',{ascending:false}).order('id',{ascending:false}).limit(limit+1);

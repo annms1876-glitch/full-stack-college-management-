@@ -278,7 +278,7 @@ function bindEvents() {
   document.querySelectorAll('[data-action="profile"]').forEach(el => el.onclick = () => navigate('profile'))
   document.querySelectorAll('[data-action="logout"]').forEach(el => el.onclick = async () => {
     if (portalAuth?.demo) { sessionStorage.removeItem('campuspulse:faculty-demo'); location.replace('/'); return }
-    try { const { error } = await portalAuth?.client.auth.signOut(); if (error) throw error; location.replace('/') } catch (error) { toast(error.message || 'Could not sign out.') }
+    try { await portalAuth?.clerk?.signOut(); location.replace('/') } catch (error) { toast(error.message || 'Could not sign out.') }
   })
   document.querySelectorAll('[data-action="notify"]').forEach(el => el.onclick = () => toast(`${state.snapshot.notices.length} notice(s) visible to your account.`))
   document.querySelectorAll('[data-action="link-assignments"]').forEach(el => el.onclick = () => navigate('assignments'))

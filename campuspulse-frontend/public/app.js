@@ -1,4 +1,4 @@
-const {api,supabase}=await import("/api.js");
+const {api}=await import("/api.js");
 const screens=["feed","login","faculty","profile","study","clubs"], path=location.pathname.replace(/\/$/,"")||"/", dark=path.startsWith("/dark/"), prefix=dark?"/dark":"";
 const route=s=>`${prefix}/${s==="faculty"?"directory/faculty":s}`;
 if(dark)localStorage.setItem("campuspulse-theme","dark");else if(path!=="/")localStorage.setItem("campuspulse-theme","light");
@@ -24,7 +24,7 @@ if(path.endsWith("/clubs")){
   joinButtons.forEach(b=>b.addEventListener("click",unavailable));
   api.clubs().then(async rows=>{
     statusBox(rows.length?`${rows.length} clubs loaded from CampusPulse.`:"No clubs available yet.");
-    const {data:{user},error:userError}=await supabase.auth.getUser();
+    const {data:{user},error:userError}=await api.currentUser();
     if(userError)throw userError;
     const byName=new Map(rows.map(x=>[x.name.toLowerCase(),x]));
     joinButtons.forEach(b=>{
@@ -34,7 +34,7 @@ if(path.endsWith("/clubs")){
       replacement.textContent=initiallyMember?"Leave Club":"Join Club";
       b.replaceWith(replacement);
       withBusy(replacement,async()=>{
-        const {data:{user:currentUser},error}=await supabase.auth.getUser();
+        const {data:{user:currentUser},error}=await api.currentUser();
         if(error)throw error;
         if(!currentUser)throw Error("Sign in to join clubs.");
         const members=club.club_members||[],member=members.some(m=>m.user_id===currentUser.id),joining=!member;

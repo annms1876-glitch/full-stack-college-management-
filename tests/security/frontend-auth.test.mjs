@@ -18,9 +18,9 @@ test('landing page and student feed use separate routes', () => {
   assert.match(server, /"\/feed": "\/screens\/light\/feed\.html"/);
 });
 
-test('login uses password auth and looks up a trusted profile role', () => {
+test('login uses Clerk password auth and looks up a trusted profile role', () => {
   assert.match(loginApp, /api\.signIn\(/);
-  assert.match(loginApp, /api\.profile\(user\.id\)/);
+  assert.match(loginApp, /api\.currentUser\(\)/);
   assert.match(loginApp, /roleAfterAuth/);
   assert.match(loginApp, /student: "\/feed", faculty: "\/faculty\/", admin: "\/admin\/"/);
   assert.match(loginApp, /location\.replace\(destinations\[role\]\)/);
@@ -31,14 +31,14 @@ test('login uses password auth and looks up a trusted profile role', () => {
 test('signup never sends a client-selected faculty/admin role', () => {
   assert.match(loginApp, /api\.signUp\(\{ email:.*fullName:/);
   assert.doesNotMatch(loginApp, /role\s*:/);
-  assert.match(api, /auth\.signUp\(/);
+  assert.match(api, /signUp/);
   assert.doesNotMatch(api.match(/signUp:.*\n/)?.[0] || '', /role/);
 });
 
-test('password recovery invokes Supabase reset email and update endpoints', () => {
-  assert.match(api, /resetPasswordForEmail/);
-  assert.match(api, /auth\.updateUser\(\{ password \}\)/);
-  assert.match(loginApp, /PASSWORD_RECOVERY/);
+test('password recovery invokes Clerk reset email and update flows', () => {
+  assert.match(api, /resetPassword/);
+  assert.match(api, /updatePassword/);
+  assert.match(loginApp, /resetPassword|updatePassword/);
 });
 
 test('demo credentials are served and seeded only behind loopback development guards', () => {
@@ -53,13 +53,15 @@ test('demo credentials are served and seeded only behind loopback development gu
   assert.match(seed, /SUPABASE_SERVICE_ROLE_KEY/);
 });
 
-test('student login has no anonymous option and the student app always initializes Supabase auth', () => {
+test('student login has no anonymous option and the student app initializes Clerk-backed data access', () => {
   assert.doesNotMatch(login, /student-anonymous-demo|Continue as anonymous demo/i);
   assert.doesNotMatch(darkLogin, /anonymous demo|OTP Verification|btn-login-submit|btn-signup-submit/i);
   assert.doesNotMatch(loginApp, /student-anonymous-demo|campuspulse:student-demo/);
   assert.doesNotMatch(studentApp, /isStudentDemo|STUDENT_DEMO_KEY|campuspulse:student-demo|ANONYMOUS DEMO/);
-  assert.match(studentApp, /const \{api,supabase\}=await import\("\/api\.js"\)/);
+  assert.match(studentApp, /const \{api\}=await import\("\/api\.js"\)/);
   assert.match(studentApp, /api\.onAuth\(/);
+  assert.match(api, /getClerkUser/);
+  assert.match(api, /getSupabase/);
   assert.match(studentApp, /if\(path\.endsWith\("\/faculty"\)\)/);
   assert.match(studentApp, /if\(path\.endsWith\("\/clubs"\)\)/);
   assert.match(studentApp, /if\(\["\/profile","\/study"\]/);

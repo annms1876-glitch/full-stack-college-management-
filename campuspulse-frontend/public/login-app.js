@@ -29,10 +29,10 @@ function setBusy(button, busy, originalText) {
   button.textContent = busy ? "Please wait…" : originalText;
 }
 async function roleAfterAuth(user) {
-  const profile = await api.profile(user.id);
+  const profile = await api.currentUser();
   const role = profile?.role;
   if (!["student", "faculty", "admin"].includes(role)) throw new Error("Your account profile has no valid CampusPulse role. Ask an administrator to check the profile setup.");
-  return { role, name: profile.full_name || user.user_metadata?.full_name || "there" };
+  return { role, name: profile.full_name || user?.firstName || "there" };
 }
 async function finishSignIn(user) {
   try {
@@ -88,14 +88,14 @@ $("#login-forgot").addEventListener("click", async () => {
   try {
     const { error } = await api.resetPassword(email);
     if (error) throw error;
-    announce("If this email belongs to an account, Supabase will send a password-reset link. Check your inbox.");
+    announce("If this email belongs to an account, Clerk will send a password-reset code. Check your inbox.");
   } catch (error) { announce(error.message || "Could not request a password-reset email.", true); }
 });
 $("#reset-form").addEventListener("submit", async (event) => {
   event.preventDefault();
   if (!event.currentTarget.reportValidity()) return;
   try {
-    const { error } = await api.updatePassword($("#reset-password").value);
+    const { error } = await api.updatePassword($("#reset-password").value, $("#reset-code").value);
     if (error) throw error;
     announce("Password updated. You can now sign in with your new password.");
     $("#panel-reset").classList.add("is-hidden");

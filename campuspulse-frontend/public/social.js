@@ -5,7 +5,7 @@
 // attachments, likes, saves, comments, 24-hour stories, and the self-service
 // profile editor. Every network call goes through /api.js, so Row Level
 // Security — not this file — decides what a student may read or write.
-import { api, supabase, configured } from "/api.js";
+import { api, configured } from "/api.js";
 
 const dark = location.pathname.startsWith("/dark/");
 const routePath = location.pathname.replace(/\/$/, "") || "/";
@@ -622,7 +622,7 @@ function wireFeedEvents() {
 }
 
 async function initFeed() {
-  const { data, error } = await supabase.auth.getSession();
+  const { data, error } = await api.session();
   if (error) { toast(friendly(error)); return; }
   if (!data?.session) return;
   let profile = null;
@@ -637,7 +637,7 @@ async function initFeed() {
 async function initProfile() {
   let profile = null, email = "";
   try {
-    const { data } = await supabase.auth.getUser();
+    const { data: user } = await api.currentUser();
     email = data?.user?.email || "";
     profile = await api.myProfile();
     applyProfileToPage(profile, email);

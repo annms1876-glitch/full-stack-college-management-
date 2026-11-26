@@ -64,13 +64,13 @@ test('portals obtain private files only through storage-issued signed links', ()
   }
 });
 
-test('local demo bypass still requires an explicit opt-in so real logins work', () => {
+test('local demo bypass still requires an explicit opt-in so real Clerk logins work', () => {
   for (const auth of [facultyAuth, adminAuth]) {
     assert.match(auth, /LOCAL_DEV_BYPASS && new URLSearchParams\(location\.search\)\.get\('demo'\) === '1'/);
-    assert.match(auth, /if \(client\) await client\.auth\.signOut\(\)/);
+    assert.doesNotMatch(auth, /client\.auth\.(signIn|signOut|getSession|getUser)/);
+    assert.match(auth, /activeClerk\.client\.signIn\.create\(/);
     assert.match(auth, /sessionStorage\.getItem\(DEMO_KEY\) === '1'/);
-    const demoCheck = auth.indexOf("sessionStorage.getItem(DEMO_KEY) === '1'");
-    const configFetch = auth.indexOf("await fetch('/api/config'");
-    assert.ok(demoCheck >= 0 && configFetch > demoCheck);
+    assert.match(auth, /if \(sessionStorage\.getItem\(DEMO_KEY\) === '1'\) \{ enterDemo\(\); return \}/);
+    assert.match(auth, /if \(LOCAL_DEV_BYPASS && new URLSearchParams\(location\.search\)\.get\('demo'\) === '1'\) \{ enterDemo\(\); return \}/);
   }
 });

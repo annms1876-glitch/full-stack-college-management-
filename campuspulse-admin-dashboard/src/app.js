@@ -161,7 +161,7 @@ function bindShell() {
   document.getElementById('open-search')?.addEventListener('click', openSearch);
   document.getElementById('new-action')?.addEventListener('click', () => state.activeModule === 'faculty-management' ? openInviteModal() : openCreateModal(state.activeModule));
   document.getElementById('profile-button')?.addEventListener('click', () => { state.profileOpen = !state.profileOpen; document.getElementById('profile-popover')?.classList.toggle('open', state.profileOpen); });
-  document.getElementById('lock-session')?.addEventListener('click', async () => { if (portalAuth?.demo) { sessionStorage.removeItem('campuspulse:admin-demo'); location.replace('/'); return; } try { const { error } = await portalAuth.client.auth.signOut(); if (error) throw error; location.replace('/'); } catch (error) { showToast(error.message || 'Unable to sign out.'); } });
+  document.getElementById('lock-session')?.addEventListener('click', async () => { if (portalAuth?.demo) { sessionStorage.removeItem('campuspulse:admin-demo'); location.replace('/'); return; } try { await portalAuth?.clerk?.signOut(); location.replace('/'); } catch (error) { showToast(error.message || 'Unable to sign out.'); } });
   document.getElementById('modal-backdrop')?.addEventListener('click', e => { if (e.target.id === 'modal-backdrop') closeModal(); });
 }
 
@@ -387,7 +387,7 @@ function renderSettings() {
         <div class="modal-footer" style="grid-column:1/-1"><button class="primary" type="submit">${icon('save', 14)}Save changes</button></div>
       </form></article>
       <article class="card"><div class="card-header"><h3 class="card-title">Session</h3>${icon('shield-check', 16)}</div>
-        <p class="subhead">Signed in with Supabase Auth as ${esc(portalAuth?.user?.email || 'an administrator')}. The session token lives in this browser; signing out clears it.</p>
+        <p class="subhead">Signed in with Clerk as ${esc(portalAuth?.user?.email || 'an administrator')}. Supabase is used only for live data through a short-lived Clerk JWT.</p>
         <button class="secondary" id="settings-sign-out">Sign out</button></article></section>
   </main>`;
   renderShell(content, 'Admin Settings');
@@ -408,8 +408,7 @@ function renderSettings() {
   });
   document.getElementById('settings-sign-out')?.addEventListener('click', async () => {
     try {
-      const { error } = await portalAuth.client.auth.signOut();
-      if (error) throw error;
+      await portalAuth?.clerk?.signOut();
       location.replace('/');
     } catch (error) { showToast(error.message || 'Unable to sign out.'); }
   });
