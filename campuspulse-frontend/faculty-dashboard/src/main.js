@@ -420,4 +420,10 @@ document.addEventListener('click', e => {
   navigate(routeFromPath(pathname))
 })
 window.addEventListener('popstate', () => { activeRoute = routeFromPath(); render() })
-startPortalAuth({ onAuthorized: (session) => { portalAuth = session; refresh() } })
+function showWorkspaceLoading() {
+  const root = document.querySelector('#app');
+  if (!root) return;
+  root.innerHTML = `<main class="portal-auth"><section class="portal-auth-card"><p class="portal-auth-kicker">Faculty Workspace</p><h1 class="portal-auth-title">Loading your workspace…</h1><p class="portal-auth-copy" role="status">Reading live records for your courses.</p><p class="portal-auth-footnote">Your sign-in is already complete; the live college data is loading.</p></section></main>`;
+}
+
+startPortalAuth({ onAuthorized: (session) => { portalAuth = session; showWorkspaceLoading(); refresh() } })
