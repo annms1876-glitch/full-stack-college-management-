@@ -1,3 +1,6 @@
+import { createClient } from '@supabase/supabase-js';
+
+const CONFIG_KEY = 'campuspulse:portal-config';
 const DEMO_KEY = 'campuspulse:admin-demo';
 const AUTH_TIMEOUT_MS = 8000;
 const LOCAL_DEV_BYPASS = import.meta.env.DEV;
@@ -45,54 +48,71 @@ export async function startPortalAuth({ onAuthorized }) {
     return;
   }
 
-  let client;
-  try {
-    const response = await fetch('/api/config', { cache: 'no-store', signal: AbortSignal.timeout(AUTH_TIMEOUT_MS) });
-    if (!response.ok) throw new Error('Runtime Supabase configuration endpoint is unavailable.');
-    const { supabaseUrl, publishableKey } = await response.json();
-    if (!supabaseUrl || !publishableKey) throw new Error('Set SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY in this portal process, then restart Vite.');
-    const { createClient } = await import('@supabase/supabase-js');
-    client = createClient(supabaseUrl, publishableKey);
+  // The login form is usable straight away: the runtime config, the Supabase
+  // client and the session check load alongside it instead of blocking first paint.
+  let activeClient = null;
+  const clientPromise = (async () => {
+    let config;
+    try {
+      const cached = JSON.parse(sessionStorage.getItem(CONFIG_KEY) || 'null');
+      if (cached && cached.supabaseUrl && cached.publishableKey) config = cached;
+    } catch { config = null; }
+    if (!config) {
+      const response = await fetch('/api/config', { cache: 'no-store', signal: AbortSignal.timeout(AUTH_TIMEOUT_MS) });
+      if (!response.ok) throw new Error('Runtime Supabase configuration endpoint is unavailable.');
+      const payload = await response.json();
+      if (!payload.supabaseUrl || !payload.publishableKey) throw new Error('Set SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY in this portal process, then restart Vite.');
+      config = { supabaseUrl: payload.supabaseUrl, publishableKey: payload.publishableKey };
+      try { sessionStorage.setItem(CONFIG_KEY, JSON.stringify(config)); } catch { /* private mode */ }
+    }
+    const client = createClient(config.supabaseUrl, config.publishableKey);
+    activeClient = client;
     const { data: { session }, error } = await withTimeout(client.auth.getSession(), 'Secure session restore timed out. Please retry sign-in.');
     if (error) throw error;
-    if (session?.user) {
+    if (session && session.user) {
       const profile = await verifyRole(client, session.user);
       onAuthorized({ user: session.user, profile, client });
-      return;
     }
-  } catch (error) {
-    if (client) await client.auth.signOut().catch(() => {});
-    // A local checkout without Supabase env still opens the clearly marked demo.
-    if (LOCAL_DEV_BYPASS && (!client || /configuration|SUPABASE_URL/i.test(error.message || ''))) {
+    return client;
+  })();
+  clientPromise.catch((error) => {
+    if (LOCAL_DEV_BYPASS && (!activeClient || /configuration|SUPABASE_URL/i.test(error.message || ''))) {
       enterDemo();
       return;
     }
     authView(error.message || 'Authentication setup failed.');
     setMessage(error.message || 'Authentication setup failed.', true);
     document.querySelector('#portal-anonymous-demo')?.addEventListener('click', enterDemo);
-  }
-  const form = document.querySelector('#portal-login-form');
-  if (!form || !client) return;
-  form.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    if (!form.reportValidity()) return;
-    const button = form.querySelector('button[type="submit"]');
-    button.disabled = true;
-    button.textContent = 'Checking…';
-    setMessage('');
-    try {
-      const formData = new FormData(form);
-      const { data, error } = await client.auth.signInWithPassword({ email: String(formData.get('email')).trim().toLowerCase(), password: String(formData.get('password')) });
-      if (error) throw error;
-      if (!data.user) throw new Error('Supabase did not return an authenticated user.');
-      const profile = await verifyRole(client, data.user);
-      onAuthorized({ user: data.user, profile, client });
-    } catch (error) {
-      await client.auth.signOut().catch(() => {});
-      setMessage(error.message || 'Unable to sign in. Check the account and try again.', true);
-    } finally {
-      button.disabled = false;
-      button.textContent = 'Sign in';
-    }
+    wireForm();
   });
+
+  function wireForm() {
+    const form = document.querySelector('#portal-login-form');
+    if (!form) return;
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!form.reportValidity()) return;
+      const button = form.querySelector('button[type="submit"]');
+      button.disabled = true;
+      button.textContent = 'Checking…';
+      setMessage('');
+      let client = null;
+      try {
+        client = await clientPromise;
+        const formData = new FormData(form);
+        const { data, error } = await client.auth.signInWithPassword({ email: String(formData.get('email')).trim().toLowerCase(), password: String(formData.get('password')) });
+        if (error) throw error;
+        if (!data.user) throw new Error('Supabase did not return an authenticated user.');
+        const profile = await verifyRole(client, data.user);
+        onAuthorized({ user: data.user, profile, client });
+      } catch (error) {
+        if (client) await client.auth.signOut().catch(() => {});
+        setMessage(error.message || 'Unable to sign in. Check the account and try again.', true);
+      } finally {
+        button.disabled = false;
+        button.textContent = 'Sign in';
+      }
+    });
+  }
+  wireForm();
 }
