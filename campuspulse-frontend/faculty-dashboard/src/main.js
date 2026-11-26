@@ -2,10 +2,12 @@ import './styles.css'
 import { startPortalAuth } from './portal-auth.js'
 import { initializeTheme } from './theme.js'
 import {
+  ATTENDANCE_STATUSES,
   askAssistant,
   demoSnapshot,
   enrolStudent,
   gradeSubmission,
+  loadCourseAttendance,
   loadFacultySnapshot,
   loadTimetable,
   updateOwnProfile,
@@ -13,6 +15,7 @@ import {
   publishAssignment,
   publishNotice,
   requestSignedUrl,
+  saveCourseAttendance,
 } from './data.js'
 
 initializeTheme()
@@ -24,18 +27,19 @@ const displayName = () => portalAuth?.profile?.full_name || 'Faculty account'
 const initialsFor = (name) => name.split(/\s+/).filter(Boolean).map(part => part[0]).slice(0, 2).join('').toUpperCase() || 'F'
 const shortDate = (value) => { const d = new Date(value); return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' }) }
 const shortDateTime = (value) => { const d = new Date(value); return Number.isNaN(d.getTime()) ? '—' : d.toLocaleString(undefined, { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) }
+const localDateInput = () => { const now = new Date(); now.setMinutes(now.getMinutes() - now.getTimezoneOffset()); return now.toISOString().slice(0, 10) }
 const escape = safeHtml
 
 const nav = [
   ['dashboard', 'Dashboard', '⌂'],
-  ['attendance', 'Student Cohort', '✓'],
+  ['attendance', 'Attendance & Cohort', '✓'],
   ['assignments', 'Assignments & Notices', '▤'],
   ['timetable', 'Timetable', '◷'],
   ['courses', 'Courses & Enrolment', '▣'],
 ]
 const routeNames = {
   dashboard: 'Dashboard',
-  attendance: 'Student Cohort',
+  attendance: 'Student Cohort & Attendance',
   assignments: 'Assignments, Notices & Submissions',
   timetable: 'Timetable & Hybrid',
   courses: 'Courses, Enrolment & Notices',
@@ -62,6 +66,12 @@ const state = {
   loading: false,
   error: '',
   noticeMessage: '',
+  attendanceCourseId: '',
+  attendanceDate: '',
+  attendanceRows: [],
+  attendanceLoading: false,
+  attendanceError: '',
+  attendanceRequestId: 0,
   assignmentMessage: '',
   workflowAnswer: '',
   workflowError: '',
@@ -150,7 +160,7 @@ function courses() {
     : emptyState('No notices published for your audience yet.')
   return pageHeader('Academic records', 'Courses, Enrolment & Notices', 'Your live teaching portfolio. Enrolments and notices are written to Supabase under your own JWT.', btn('Ask AI workflow', 'secondary', 'link-workflow')) + `
     <div class="course-grid">${cards || '<p class="muted">No courses assigned yet.</p>'}</div>
-    <div class="two-col"><div class="span-8">${card('Enrol students into your courses', state.snapshot.courses.length ? enrolForms : emptyState('Create or receive a course assignment first. Student self-enrolment is disabled by policy.'))}</div><div class="span-4">${card('Attendance tracking', emptyState('Attendance is not part of the current schema, so this portal does not display attendance figures. The Student Cohort page lists the enrolled students you can act on today.'))}</div></div>
+    <div class="two-col"><div class="span-8">${card('Enrol students into your courses', state.snapshot.courses.length ? enrolForms : emptyState('Create or receive a course assignment first. Student self-enrolment is disabled by policy.'))}</div><div class="span-4">${card('Attendance tracking', `${emptyState('Faculty can record and update attendance for actively enrolled students by course and class date.')}${btn('Open attendance register', 'secondary', 'link-attendance')}`)}</div></div>
     <div class="two-col"><div class="span-5">${card('Publish a notice', noticeForm)}</div><div class="span-7">${card('Live notices', noticeList)}</div></div>`
 }
 
@@ -177,11 +187,30 @@ function timetable() {
     card('Published sessions', rows || emptyState('No timetable entries published for your college yet. An administrator can add them under Timetable Management.'))
 }
 function attendance() {
-  const cohort = state.snapshot.courses.map(c => {
-    const rows = (c.course_enrollments || []).filter(r => r.status === 'active')
-    return `<div class="assignment-block"><div class="assignment-head"><div><strong>${escape(c.code)}</strong> · ${escape(c.title)}<div class="muted" style="font-size:12px">${rows.length} active enrolment(s)</div></div>${pill(c.term, 'neutral')}</div>${rows.length ? `<div class="table-wrap"><table><thead><tr><th>Student</th><th>Status</th></tr></thead><tbody>${rows.map(r => `<tr><td>${escape(state.students.find(s => s.id === r.student_id)?.full_name || `Student ${String(r.student_id).slice(0, 8)}`)}</td><td>${pill(r.status, 'success')}</td></tr>`).join('')}</tbody></table></div>` : emptyState('No students enrolled yet.')}</div>`
+  const courses = state.snapshot.courses
+  if (!state.attendanceCourseId && courses[0]) state.attendanceCourseId = courses[0].id
+  if (!state.attendanceDate) state.attendanceDate = localDateInput()
+  const selectedCourse = courses.find(course => course.id === state.attendanceCourseId)
+  const enrolments = (selectedCourse?.course_enrollments || []).filter(row => row.status === 'active')
+  const records = state.attendanceRows
+  const recordByStudent = new Map(records.map(row => [row.student_id, row]))
+  const courseOptions = courses.map(course => `<option value="${escape(course.id)}" ${course.id === state.attendanceCourseId ? 'selected' : ''}>${escape(course.code)} · ${escape(course.title)}</option>`).join('')
+  const tableRows = enrolments.map(enrolment => {
+    const student = state.students.find(person => person.id === enrolment.student_id)
+    const existing = recordByStudent.get(enrolment.student_id)
+    const name = student?.full_name || `Student ${String(enrolment.student_id).slice(0, 8)}`
+    const options = ATTENDANCE_STATUSES.map(status => `<option value="${status}">${status[0].toUpperCase()}${status.slice(1)}</option>`).join('')
+    return `<tr><td><strong>${escape(name)}</strong></td><td><select class="input attendance-status" data-student-id="${escape(enrolment.student_id)}" aria-label="Attendance for ${escape(name)}"><option value="" selected>${existing ? 'Keep current status' : 'Choose status'}</option>${options}</select></td><td>${existing ? `${pill(existing.status, existing.status === 'present' ? 'success' : 'neutral')} · ${escape(shortDateTime(existing.updated_at))}` : 'Not recorded'}</td></tr>`
   }).join('')
-  return pageHeader('Faculty operations', 'Student Cohort', 'The enrolled students you can act on today, read live from public.course_enrollments.', btn('Enrol a student', 'primary', 'link-courses')) + `${card('Cohort by course', cohort || emptyState('No courses assigned yet.'))}${card('Attendance capture', emptyState('Attendance registers are not modelled in the current schema. This portal intentionally shows no attendance figures rather than sample numbers. Adding an attendance table with faculty-scoped RLS is the next incremental step.'))}`
+  const explanatoryNote = portalAuth?.demo
+    ? '<p class="muted" role="note">Demo mode shows no attendance records and cannot save. Sign in to a configured faculty account to use the live register.</p>'
+    : '<p class="muted" role="note">Choose a status only for students you want to record or update. Blank selections leave existing rows unchanged. Row-Level Security limits writes to your college and assigned courses.</p>'
+  const cohort = courses.map(course => {
+    const rows = (course.course_enrollments || []).filter(row => row.status === 'active')
+    return `<div class="assignment-block"><div class="assignment-head"><div><strong>${escape(course.code)}</strong> · ${escape(course.title)}<div class="muted" style="font-size:12px">${rows.length} active enrolment(s)</div></div>${pill(course.term, 'neutral')}</div>${rows.length ? `<div class="table-wrap"><table><thead><tr><th>Student</th><th>Enrolment</th></tr></thead><tbody>${rows.map(row => `<tr><td>${escape(state.students.find(student => student.id === row.student_id)?.full_name || `Student ${String(row.student_id).slice(0, 8)}`)}</td><td>${pill(row.status, 'success')}</td></tr>`).join('')}</tbody></table></div>` : emptyState('No students enrolled yet.')}</div>`
+  }).join('')
+  const register = `<form id="attendance-filter" class="form-row"><div><label class="field-label" for="attendance-course">Course</label><select class="input" id="attendance-course" name="course_id" required ${courseOptions ? '' : 'disabled'}>${courseOptions || '<option value="">No assigned courses</option>'}</select></div><div><label class="field-label" for="attendance-date">Class date</label><input class="input" id="attendance-date" name="class_date" type="date" value="${escape(state.attendanceDate)}" required /></div></form>${explanatoryNote}${state.attendanceError ? formStatus(state.attendanceError) : ''}${state.attendanceLoading ? '<p class="muted" role="status">Loading this class register…</p>' : ''}${enrolments.length ? `<form id="attendance-form"><div class="table-wrap"><table><thead><tr><th>Enrolled student</th><th>Attendance</th><th>Last recorded</th></tr></thead><tbody>${tableRows}</tbody></table></div><div style="margin-top:14px"><button class="btn primary" type="submit" ${live() && !state.attendanceLoading && !state.attendanceError ? '' : 'disabled'}>Save attendance</button></div></form>` : emptyState(selectedCourse ? 'No active students are enrolled in this course.' : 'Assign a course to your faculty profile to start an attendance register.')}`
+  return pageHeader('Faculty operations', 'Student Cohort & Attendance', 'View active course enrolments and record attendance by course and class date.', btn('Enrol a student', 'primary', 'link-courses')) + `${card('Attendance register', register)}${card('Cohort by course', cohort || emptyState('No courses assigned yet.'))}`
 }
 
 function workflow() {
@@ -240,6 +269,11 @@ async function refresh() {
     state.snapshot = snapshot
     state.students = students
     state.records = records
+    state.attendanceCourseId ||= snapshot.courses[0]?.id || ''
+    state.attendanceDate ||= localDateInput()
+    if (activeRoute === 'attendance' && state.attendanceCourseId) {
+      await refreshAttendance({ courseId: state.attendanceCourseId, classDate: state.attendanceDate, redraw: false })
+    }
     state.error = ''
   } catch (error) {
     state.error = error.message || 'Live data could not load.'
@@ -247,6 +281,36 @@ async function refresh() {
   } finally {
     state.loading = false
     render()
+  }
+}
+
+async function refreshAttendance({ courseId = state.attendanceCourseId, classDate = state.attendanceDate, redraw = true } = {}) {
+  const requestId = ++state.attendanceRequestId
+  state.attendanceCourseId = courseId || ''
+  state.attendanceDate = classDate || localDateInput()
+  state.attendanceError = ''
+  state.attendanceRows = []
+  if (!live() || !state.attendanceCourseId) {
+    state.attendanceRows = []
+    state.attendanceLoading = false
+    if (redraw) render()
+    return
+  }
+  state.attendanceLoading = true
+  if (redraw) render()
+  try {
+    const rows = await loadCourseAttendance(portalAuth.client, state.attendanceCourseId, state.attendanceDate)
+    if (requestId === state.attendanceRequestId) state.attendanceRows = rows
+  } catch (error) {
+    if (requestId === state.attendanceRequestId) {
+      state.attendanceRows = []
+      state.attendanceError = error.message || 'The attendance register could not load.'
+    }
+  } finally {
+    if (requestId === state.attendanceRequestId) {
+      state.attendanceLoading = false
+      if (redraw) render()
+    }
   }
 }
 
@@ -284,7 +348,54 @@ function bindEvents() {
   document.querySelectorAll('[data-action="link-assignments"]').forEach(el => el.onclick = () => navigate('assignments'))
   document.querySelectorAll('[data-action="link-courses"]').forEach(el => el.onclick = () => navigate('courses'))
   document.querySelectorAll('[data-action="link-workflow"]').forEach(el => el.onclick = () => navigate('workflow'))
+  document.querySelectorAll('[data-action="link-attendance"]').forEach(el => el.onclick = () => navigate('attendance'))
   document.querySelectorAll('[data-action="new"]').forEach(el => el.onclick = () => navigate('assignments'))
+
+  document.querySelector('#attendance-filter')?.addEventListener('change', (event) => {
+    const courseId = document.querySelector('#attendance-course')?.value || ''
+    const classDate = document.querySelector('#attendance-date')?.value || ''
+    if (courseId && classDate) void refreshAttendance({ courseId, classDate })
+    else {
+      state.attendanceRequestId += 1
+      state.attendanceCourseId = courseId
+      state.attendanceDate = classDate
+      state.attendanceRows = []
+      state.attendanceLoading = false
+      state.attendanceError = 'Choose a course and class date before recording attendance.'
+      render()
+    }
+  })
+
+  document.querySelector('#attendance-form')?.addEventListener('submit', async (event) => {
+    event.preventDefault()
+    if (!requireLive()) return
+    const form = event.currentTarget
+    const visibleCourseId = document.querySelector('#attendance-course')?.value || ''
+    const visibleDate = document.querySelector('#attendance-date')?.value || ''
+    if (state.attendanceLoading || !visibleCourseId || !visibleDate || visibleCourseId !== state.attendanceCourseId || visibleDate !== state.attendanceDate) {
+      toast('Choose a course and date, then wait for that register to load before saving.')
+      return
+    }
+    const entries = [...form.querySelectorAll('.attendance-status')]
+      .map(select => ({ studentId: select.dataset.studentId, status: select.value }))
+      .filter(entry => entry.status)
+    if (!entries.length) { toast('Choose an attendance status for at least one student.'); return }
+    const button = form.querySelector('button[type="submit"]')
+    button.disabled = true
+    try {
+      const saved = await saveCourseAttendance(portalAuth.client, portalAuth.profile, {
+        courseId: state.attendanceCourseId,
+        classDate: state.attendanceDate,
+        entries,
+      })
+      await refreshAttendance({ redraw: false })
+      toast(`${saved.length} attendance record(s) saved.`)
+      render()
+    } catch (error) {
+      toast(error.message || 'Attendance could not be saved.')
+      button.disabled = false
+    }
+  })
 
   // Assignment creation
   document.querySelector('#assignment-form')?.addEventListener('submit', async (event) => {
@@ -409,6 +520,7 @@ function navigate(route) {
   history.pushState({}, '', target === 'dashboard' ? portalHref('') : portalHref(target))
   activeRoute = routeNames[target] ? target : 'dashboard'
   render()
+  if (activeRoute === 'attendance') void refreshAttendance()
 }
 document.addEventListener('click', e => {
   const a = e.target.closest('a[href]')
@@ -419,7 +531,7 @@ document.addEventListener('click', e => {
   e.preventDefault()
   navigate(routeFromPath(pathname))
 })
-window.addEventListener('popstate', () => { activeRoute = routeFromPath(); render() })
+window.addEventListener('popstate', () => { activeRoute = routeFromPath(); render(); if (activeRoute === 'attendance') void refreshAttendance() })
 function showWorkspaceLoading() {
   const root = document.querySelector('#app');
   if (!root) return;

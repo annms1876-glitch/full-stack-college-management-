@@ -55,6 +55,9 @@ erDiagram
   PROFILES ||--o{ COURSES : teaches
   COURSES ||--o{ COURSE_ENROLLMENTS : has
   PROFILES ||--o{ COURSE_ENROLLMENTS : enrols
+  COURSES ||--o{ ATTENDANCE_RECORDS : records
+  PROFILES ||--o{ ATTENDANCE_RECORDS : attends
+  PROFILES ||--o{ ATTENDANCE_RECORDS : marks
   COURSES ||--o{ ASSIGNMENTS : contains
   PROFILES ||--o{ ASSIGNMENTS : creates
   ASSIGNMENTS ||--o{ ASSIGNMENT_SUBMISSIONS : receives
@@ -103,9 +106,10 @@ Other migration-defined tables include `attendance_records`, `grievances`, `scho
 
 - A college groups its profiles, courses, notices, and campus content.
 - A course belongs to one college and is taught by one faculty profile. Students join courses through `course_enrollments`, a many-to-many link.
+- Attendance rows belong to a course and an enrolled student, and record the staff profile who marked the status. The unique course/student/date key allows one register row per class date. Migration `202611260017_attendance_enrolment_scope.sql` scopes reads/writes to the profile's college and requires active enrolment plus course-staff/admin authority for writes.
 - Assignments belong to courses. A student submits at most one submission row per assignment; the row can carry a file reference, status, grade, and feedback.
 - Posts, clubs, events, study resources, and questions connect to a college and/or profile. Join tables such as `likes`, `club_members`, and `event_rsvps` represent many-to-many relationships.
-- Academic/admin tables such as attendance, grievances, fees, timetable, and support are present in SQL. Their existence does not mean the corresponding portal workflow is complete.
+- The Faculty portal now has a live attendance register. Other academic/admin tables such as grievances, fees, timetable, scholarships, exams, support, and library are present in SQL, but their Admin menu pages currently save generic `module_records` notes rather than full domain workflows.
 - Composite keys, unique constraints, checks, and foreign keys are omitted from the drawing for readability. They remain defined in the migrations.
 
 ## Main code paths
@@ -120,4 +124,4 @@ Other migration-defined tables include `attendance_records`, `grievances`, `scho
 | Server-side endpoints | `supabase/functions/` |
 | Node regression tests | `tests/` |
 
-For the simplest local preview steps, see the [root README](../README.md#quick-local-preview). For Clerk/Supabase configuration, see [Clerk and Supabase setup](backend/clerk-supabase-auth.md).
+For the simplest local preview steps, see the [root README](../README.md#run-a-local-preview). For Clerk/Supabase configuration, see [Clerk and Supabase setup](backend/clerk-supabase-auth.md).

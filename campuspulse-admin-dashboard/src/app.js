@@ -38,75 +38,18 @@ const modules = [
   { id: 'examination-management', path: '/examination-management', label: 'Examination Management', icon: 'file-check-2' },
   { id: 'notices-announcements', path: '/notices-announcements', label: 'Notices & Announcements', icon: 'megaphone' },
   { id: 'course-information', path: '/course-information', label: 'Course Information', icon: 'layers' },
-  { id: 'agentic-workflow', path: '/agentic-workflow', label: 'Agentic Workflow', icon: 'workflow', ai: true },
+  { id: 'agentic-workflow', path: '/agentic-workflow', label: 'AI Assistant', icon: 'workflow', ai: true },
   { id: 'admin-settings', path: '/admin-settings', label: 'Admin Settings', icon: 'settings' },
 ];
 
 const datasets = {
-  'timetable-management': {
-    title: 'Timetable Management', subtitle: 'Publish clash-free schedules for departments and classrooms.', action: 'Create Timetable', icon: 'calendar-plus', columns: ['Weekday', 'Time', 'Course', 'Faculty', 'Room', 'Status'], rows: [
-      ['Monday', '09:00 – 10:00', 'Data Structures · CS301', 'Dr. Meera Deshpande', 'Lab 204', ['Published', 'success']],
-      ['Monday', '11:00 – 12:00', 'Signals & Systems · EC203', 'Prof. Aditya Menon', 'Room 12', ['Published', 'success']],
-      ['Tuesday', '10:00 – 11:00', 'Machine Learning · AI402', 'Dr. Kavya Iyer', 'Lab 410', ['Draft', 'warning']],
-      ['Wednesday', '14:00 – 15:00', 'Thermodynamics · ME305', 'Dr. Nikhil Bhandari', 'Workshop 2', ['Review', 'info']],
-    ]
-  },
-  'assignment-management': {
-    title: 'Assignment Management', subtitle: 'Track submissions, deadlines, and faculty review queues.', action: 'Create Assignment', icon: 'clipboard-plus', columns: ['Assignment', 'Course', 'Due Date', 'Submissions', 'Owner', 'Status'], rows: [
-      ['DBMS Normalization', 'CS302', '28 Nov 2026', '86 / 120', 'Dr. Meera Deshpande', ['Due Soon', 'warning']],
-      ['Neural Networks Lab', 'AI402', '30 Nov 2026', '54 / 80', 'Dr. Kavya Iyer', ['Open', 'info']],
-      ['Microprocessors Case Study', 'EC304', '01 Dec 2026', '64 / 74', 'Prof. Aditya Menon', ['Open', 'success']],
-      ['CAD Portfolio', 'ME403', '04 Dec 2026', '18 / 68', 'Prof. Ritesh Sane', ['Needs Attention', 'danger']],
-    ]
-  },
-  'scholarship-tracker': {
-    title: 'Scholarship Tracker', subtitle: 'Monitor eligibility, verification, and disbursement across schemes.', action: 'Add Application', icon: 'award', columns: ['Student', 'Scheme', 'Amount', 'Submitted', 'Verification', 'Status'], rows: [
-      ['Siddharth Nair · AI25B008', 'Merit Institutional', '₹75,000', '20 Nov 2026', 'Complete', ['Approved', 'success']],
-      ['Sneha Patil · EC24B044', 'MahaDBT EBC', '₹42,500', '18 Nov 2026', 'Income certificate', ['Pending Docs', 'warning']],
-      ['Vikram Joshi · ME22B087', 'NSP Renewal', '₹28,000', '14 Nov 2026', 'Complete', ['Under Review', 'info']],
-      ['Ananya Rao · CS24B031', 'AICTE Pragati', '₹50,000', '09 Nov 2026', 'Complete', ['Approved', 'success']],
-    ]
-  },
-  'fees-submissions': {
-    title: 'Fees & Submissions', subtitle: 'Review fee collections, pending invoices, and payment evidence.', action: 'Record Payment', icon: 'receipt-indian-rupee', columns: ['Receipt', 'Student', 'Term', 'Amount', 'Payment Date', 'Status'], rows: [
-      ['RCPT-2026-1142', 'Aarav Sharma · CS23B001', 'Odd Sem 2026-27', '₹68,500', '24 Nov 2026', ['Paid', 'success']],
-      ['INV-2026-2087', 'Sneha Patil · EC24B044', 'Odd Sem 2026-27', '₹18,500', '—', ['Pending', 'warning']],
-      ['RCPT-2026-1098', 'Siddharth Nair · AI25B008', 'Odd Sem 2026-27', '₹72,000', '22 Nov 2026', ['Paid', 'success']],
-      ['RCPT-2026-1022', 'Rohan Kulkarni · CS23B019', 'Odd Sem 2026-27', '₹68,500', '17 Nov 2026', ['Paid', 'success']],
-    ]
-  },
-  'grievance-management': {
-    title: 'Grievance Management', subtitle: 'Resolve student concerns with clear ownership and SLA visibility.', action: 'Log Grievance', icon: 'shield-plus', columns: ['Ticket', 'Category', 'Student', 'Age', 'Owner', 'Priority'], rows: [
-      ['GRV-2026-031', 'Hostel & Facilities', 'Maya Kulkarni · CS24B044', '9 days', 'Student Affairs', ['Escalated', 'danger']],
-      ['GRV-2026-029', 'Examination', 'Rohan Kulkarni · CS23B019', '5 days', 'Exam Cell', ['In Progress', 'info']],
-      ['GRV-2026-027', 'Finance', 'Sneha Patil · EC24B044', '3 days', 'Accounts Office', ['Open', 'warning']],
-      ['GRV-2026-021', 'Library', 'Aarav Sharma · CS23B001', '1 day', 'Library Desk', ['Resolved', 'success']],
-    ]
-  },
-  'student-support': {
-    title: 'Student Support', subtitle: 'Central queue for counselling, support requests, and case notes.', action: 'New Support Case', icon: 'life-buoy', columns: ['Case', 'Student', 'Support Type', 'Assigned To', 'Updated', 'Status'], rows: [
-      ['SUP-489', 'Riya Shah · AI24B021', 'Academic Counselling', 'Ms. Pooja Nair', 'Today, 10:42 AM', ['Open', 'info']],
-      ['SUP-486', 'Vivek Rao · ME23B045', 'Financial Aid', 'Student Support Desk', 'Yesterday', ['Awaiting Student', 'warning']],
-      ['SUP-479', 'Tanvi Deshpande · EC25B099', 'Accessibility', 'Dr. Nandita Rao', '22 Nov 2026', ['In Progress', 'info']],
-      ['SUP-471', 'Dev Malhotra · CS22B012', 'Wellness Check-in', 'Counselling Cell', '19 Nov 2026', ['Closed', 'success']],
-    ]
-  },
-  'e-library': {
-    title: 'E-Library', subtitle: 'Manage digital resources, collections, and access permissions.', action: 'Add Resource', icon: 'book-plus', columns: ['Resource', 'Type', 'Collection', 'Access', 'Updated', 'Status'], rows: [
-      ['Operating Systems · 4th Ed.', 'E-Book', 'Computer Science', 'All Students', '24 Nov 2026', ['Published', 'success']],
-      ['NEP 2020 Implementation Guide', 'Document', 'Academic Office', 'Administrators', '21 Nov 2026', ['Restricted', 'warning']],
-      ['Digital Signal Processing Lectures', 'Video Series', 'Electronics', 'EC Department', '18 Nov 2026', ['Published', 'success']],
-      ['Engineering Research Journals 2026', 'Journal Pack', 'Research', 'Faculty & PhD', '12 Nov 2026', ['Review', 'info']],
-    ]
-  },
-  'examination-management': {
-    title: 'Examination Management', subtitle: 'Coordinate schedules, hall allocation, and result workflows.', action: 'Schedule Exam', icon: 'file-plus-2', columns: ['Examination', 'Date', 'Sessions', 'Halls', 'Coordinator', 'Status'], rows: [
-      ['End-Semester Theory Exams', '02 Dec – 14 Dec 2026', '28', '14 / 14', 'Examination Cell', ['Scheduled', 'success']],
-      ['Practical Viva · CSE', '16 Dec 2026', '12', '6 / 8', 'Dr. Meera Deshpande', ['Allocation Pending', 'warning']],
-      ['Backlog Examination', '19 Dec 2026', '8', '4 / 4', 'Examination Cell', ['Draft', 'info']],
-      ['Internal Assessment 2', 'Completed', '142', '—', 'Department Offices', ['Results Due', 'danger']],
-    ]
-  },
+  'timetable-management': { title: 'Timetable Management', subtitle: 'Generic admin records only; schedule rows are not connected to timetable_entries.', action: 'Add Note', icon: 'calendar-plus' },
+  'scholarship-tracker': { title: 'Scholarship Tracker', subtitle: 'Generic admin records only; applications are not connected to scholarships.', action: 'Add Note', icon: 'award' },
+  'fees-submissions': { title: 'Fees & Submissions', subtitle: 'Generic admin records only; invoices and payments are not connected to fee_invoices.', action: 'Add Note', icon: 'receipt-indian-rupee' },
+  'grievance-management': { title: 'Grievance Management', subtitle: 'Generic admin records only; cases are not connected to grievances.', action: 'Add Note', icon: 'shield-plus' },
+  'student-support': { title: 'Student Support', subtitle: 'Generic admin records only; cases are not connected to support_tickets.', action: 'Add Note', icon: 'life-buoy' },
+  'e-library': { title: 'E-Library', subtitle: 'Generic admin records only; resources are not connected to library_books.', action: 'Add Note', icon: 'book-plus' },
+  'examination-management': { title: 'Examination Management', subtitle: 'Generic admin records only; schedules are not connected to examinations.', action: 'Add Note', icon: 'file-plus-2' },
 };
 
 const state = { sidebarCollapsed: false, searchOpen: false, theme: window.CampusPulseTheme.getTheme(), profileOpen: false, activeModule: 'dashboard', query: '', tableQuery: '', modal: null, snapshot: null, records: [], statusFilter: '', message: '', busy: false };
@@ -138,7 +81,7 @@ function renderShell(content, title, actions = '') {
         <nav class="nav" aria-label="Primary Navigation">
           ${modules.slice(0, 13).map(m => `<a class="nav-item ${active === m.id ? 'active' : ''}" href="${portalPath(m.path)}">${icon(m.icon)}<span class="sidebar-label">${m.label}</span></a>`).join('')}
           <div class="nav-separator"></div>
-          <a class="nav-item ai ${active === 'agentic-workflow' ? 'active' : ''}" href="${portalPath('/agentic-workflow')}"><span class="nav-leading">${icon('workflow')}<span class="sidebar-label">Agentic Workflow</span></span><span class="ai-chip sidebar-label">AI</span></a>
+          <a class="nav-item ai ${active === 'agentic-workflow' ? 'active' : ''}" href="${portalPath('/agentic-workflow')}"><span class="nav-leading">${icon('workflow')}<span class="sidebar-label">AI Assistant</span></span><span class="ai-chip sidebar-label">AI</span></a>
         </nav>
       </div>
       <div class="sidebar-bottom">
@@ -148,7 +91,7 @@ function renderShell(content, title, actions = '') {
     </aside>
     <div class="workspace">
       ${portalAuth?.demo ? '<aside class="demo-access-banner" role="status">ANONYMOUS DEMO · Sample data only; no Supabase session, live records, or backend changes.</aside>' : ''}
-      <header class="topbar"><div class="topbar-left"><button class="icon-button mobile-menu" id="mobile-menu" aria-label="Open navigation">${icon('menu')}</button><h1 class="page-title">${esc(title)}</h1>${title === 'Admin Dashboard' ? '<span class="context-chip">AY 2026-27 · Odd Sem</span>' : ''}</div><div class="topbar-actions">${actions}<button class="icon-button" id="theme-toggle" data-theme-toggle aria-label="Switch to dark mode" aria-pressed="false"><span data-theme-icon aria-hidden="true">${state.theme === 'dark' ? '☀' : '☾'}</span></button></div></header>
+      <header class="topbar"><div class="topbar-left"><button class="icon-button mobile-menu" id="mobile-menu" aria-label="Open navigation">${icon('menu')}</button><h1 class="page-title">${esc(title)}</h1></div><div class="topbar-actions">${actions}<button class="icon-button" id="theme-toggle" data-theme-toggle aria-label="Switch to dark mode" aria-pressed="false"><span data-theme-icon aria-hidden="true">${state.theme === 'dark' ? '☀' : '☾'}</span></button></div></header>
       ${content}
     </div>
   </div><div class="modal-backdrop" id="modal-backdrop"></div><div class="toast-stack" id="toast-stack"></div>`;
@@ -216,7 +159,7 @@ function renderDashboard() {
     ${state.message ? `<p class="card-note" role="status">${esc(state.message)}</p>` : ''}
     <section class="kpi-grid">${kpis.map(([label, value, caption, ico, tone]) => `<article class="card low kpi-card"><div class="kpi-top"><span>${esc(label)}</span>${icon(ico, 16)}</div><p class="kpi-value">${esc(value)}</p><p class="kpi-caption ${tone}">${esc(caption)}</p></article>`).join('')}</section>
     <section class="detail-grid"><article class="card"><div class="card-header"><h3 class="card-title">Recent notices</h3><a class="info" href="${portalPath('/notices-announcements')}">Manage →</a></div>${noticeRows.length ? `<div class="table-scroll"><table><thead><tr><th>Notice</th><th>Audience</th><th>Author</th><th>Published</th></tr></thead><tbody>${noticeRows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>` : '<p class="subhead">No notices yet.</p>'}</article><article class="card"><div class="card-header"><h3 class="card-title">Assignments</h3><a class="info" href="${portalPath('/assignment-management')}">Overview →</a></div>${assignmentRows.length ? `<div class="table-scroll"><table><thead><tr><th>Assignment</th><th>Course</th><th>Due</th><th>Status</th></tr></thead><tbody>${assignmentRows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>` : '<p class="subhead">No assignments yet.</p>'}</article></section>
-    <section class="card"><div class="card-header"><h3 class="card-title">Not modelled yet</h3><span class="card-note">No fabricated figures</span></div><p class="subhead">Fees, scholarships, grievances, examinations, e-library and timetable modules have no schema tables in this build, so this dashboard shows no numbers for them instead of sample data. Those pages remain clearly labelled sample views.</p></section>
+    <section class="card"><div class="card-header"><h3 class="card-title">Dedicated workflows still to build</h3><span class="card-note">No fabricated figures</span></div><p class="subhead">The database contains schemas for attendance, fees, scholarships, grievances, examinations, timetable, library and support. Outside the faculty attendance register, these areas are not connected to full domain workflows in this portal. Their menu pages currently store generic admin notes in public.module_records; do not treat those as working fee, scholarship, exam, timetable, library, grievance or support systems.</p></section>
   </main>`, 'Admin Dashboard', `<a class="primary" href="${portalPath('/agentic-workflow')}">${icon('sparkles', 14)}<span>Ask AI Agent</span></a>`);
   document.querySelectorAll('[data-toast]').forEach(el => el.addEventListener('click', () => showToast(el.dataset.toast)));
 }
@@ -328,17 +271,21 @@ function renderDataset(id) {
     ? `<section class="card table-card"><div class="table-scroll"><table><thead><tr><th>Record</th><th>Status</th><th>Details</th><th>Created</th><th class="actions-cell">Actions</th></tr></thead><tbody>${filtered.map(record => `<tr><td><strong>${esc(record.title)}</strong></td><td>${badge(record.status, statusTone(record.status))}</td><td>${esc(record.details || '—')}</td><td>${esc(new Date(record.created_at).toLocaleDateString())}</td><td class="actions-cell"><button class="icon-small" data-delete="${esc(record.id)}" aria-label="Delete ${esc(record.title)}">${icon('trash-2', 14)}</button></td></tr>`).join('')}</tbody></table></div><div class="table-footer"><span>Showing ${filtered.length} of ${records.length} records</span></div></section>`
     : `<section class="card table-card"><p class="subhead">${records.length ? 'No records match your search.' : `No ${esc(config.title.toLowerCase())} records in your college yet. Use “${esc(config.action)}” to add the first one.`}</p></section>`;
 
-  const content = `<main class="main"><section class="page-intro"><div><p class="eyebrow">CAMPUSPULSE OPERATIONS</p><h2 class="headline">${esc(config.title)}</h2><p class="subhead">${esc(config.subtitle)}</p></div><div class="inline-actions"><button class="secondary" id="export-csv">${icon('download', 14)}Export CSV</button><button class="primary" id="record-create">${icon(config.icon, 14)}${esc(config.action)}</button></div></section>
-    <p class="card-note" role="status">Live Supabase data · public.module_records, scoped to your college by row level security.</p>
+  const moduleNotice = live()
+    ? '<p class="card-note" role="status">Generic admin notes saved in public.module_records, scoped to your college by row-level security. This is not a dedicated workflow for the module named above.</p>'
+    : '<p class="card-note" role="status">Anonymous demo · no Supabase data is read or written. This page is a generic-record placeholder, not a working module workflow.</p>';
+  const content = `<main class="main"><section class="page-intro"><div><p class="eyebrow">CAMPUSPULSE OPERATIONS</p><h2 class="headline">${esc(config.title)}</h2><p class="subhead">${esc(config.subtitle)}</p></div><div class="inline-actions"><button class="secondary" id="export-csv">${icon('download', 14)}Export CSV</button><button class="primary" id="record-create" ${live() ? '' : 'disabled'}>${icon(config.icon, 14)}${esc(config.action)}</button></div></section>
+    ${moduleNotice}
     <section class="toolbar"><div class="search-box">${icon('search', 16)}<input class="field" id="table-search" value="${esc(state.tableQuery || '')}" placeholder="Search ${esc(config.title.toLowerCase())}..." /></div><select class="select" id="status-filter" aria-label="Filter by status"><option value="">All statuses</option>${statuses.map(status => `<option value="${esc(status)}"${status === statusFilter ? ' selected' : ''}>${esc(status)}</option>`).join('')}</select></section>
     ${table}</main>`;
 
   renderShell(content, config.title);
   document.getElementById('table-search')?.addEventListener('input', event => { state.tableQuery = event.target.value; renderDataset(id); });
   document.getElementById('status-filter')?.addEventListener('change', event => { state.statusFilter = event.target.value; renderDataset(id); });
-  document.getElementById('record-create')?.addEventListener('click', () => openRecordModal(id));
+  document.getElementById('record-create')?.addEventListener('click', () => { if (!live()) { showToast('Sign in to use live generic records.'); return; } openRecordModal(id); });
   document.getElementById('export-csv')?.addEventListener('click', () => exportCsv(`${id}.csv`, [['Title', 'Status', 'Details', 'Created'], ...filtered.map(record => [record.title, record.status, record.details || '', new Date(record.created_at).toISOString()])]));
   document.querySelectorAll('[data-delete]').forEach(button => button.addEventListener('click', async () => {
+    if (!live()) { showToast('Sign in to use live generic records.'); return; }
     button.disabled = true;
     try {
       await deleteModuleRecord(portalAuth.client, button.dataset.delete);
@@ -352,8 +299,8 @@ function renderDataset(id) {
 }
 
 function renderWorkflow() {
-  const content = `<div class="workflow-layout"><section class="workflow-main"><div class="agent-strip"><span class="agent-label">Active Agents:</span>${['Student Data','Academic','Scholarship','Grievance','Examination','Notice'].map(a => `<span class="agent-chip">${a}</span>`).join('')}</div><div class="workflow-center"><div class="workflow-welcome"><span class="workflow-icon">${icon('workflow', 24)}</span><h2>What administrative workflow should we run?</h2><p>Instructions are decomposed across specialized agents. Consequential actions always pause for your approval.</p></div><div id="workflow-feed"><div class="prompt-grid">${[['Attendance < 75% Audit','Student Data + Notice Agents','Find all students with attendance below 75% and prepare notification drafts.'],['Scholarship Eligibility Match','Scholarship + Student Data Agents','Identify students who may qualify for available NSP and state scholarships.'],['Grievance Escalation Report','Grievance Agent · SLA > 7 days','Find grievances unresolved for more than seven days and prepare an escalation report.'],['Clash-Free CSE Timetable','Academic + Examination Agents','Generate a clash-free timetable for the Computer Science department.']].map(([t, s, p]) => `<button class="prompt-card workflow-prompt" data-prompt="${p}"><strong>${t}</strong><span>${s}</span></button>`).join('')}</div></div></div><form class="workflow-input" id="workflow-form"><textarea id="ai-prompt" placeholder="Instruct CampusPulse AI (e.g., 'Draft an official notice for the upcoming semester examinations' or 'Show students who have not submitted assignments')..."></textarea><div class="workflow-input-bottom"><span class="safety-note">${icon('shield-check', 14)}AI never deletes records or publishes notices without approval</span><button class="primary" type="submit">Run Workflow ${icon('arrow-up', 14)}</button></div></form></section><aside class="workflow-history"><div class="card-header"><h3 class="card-title">Workflow History & Audit</h3><span class="card-note">Sample history · not live</span></div><div class="history-list"><div class="history-item"><div class="history-head"><p class="history-title">Department Performance Summary</p>${badge('Completed','success')}</div><p class="history-meta">Student Data Agent · Approved by Dr. Rao</p><p class="card-note" style="margin-top:6px">24 Nov 2026 · 09:42 AM</p></div><div class="history-item"><div class="history-head"><p class="history-title">Exam Hall Availability Check</p>${badge('Completed','success')}</div><p class="history-meta">Examination Agent · 14 halls verified</p><p class="card-note" style="margin-top:6px">23 Nov 2026 · 04:15 PM</p></div><div class="history-item"><div class="history-head"><p class="history-title">MahaDBT Batch 08 Verification</p>${badge('Awaiting Approval','warning')}</div><p class="history-meta">Scholarship Agent · 18 applications matched</p><p class="card-note" style="margin-top:6px">22 Nov 2026 · 02:08 PM</p></div></div></aside></div>`;
-  renderShell(content, 'Agentic Workflow Orchestrator', `<span class="context-chip">Local demo · no backend or workflow execution</span>`);
+  const content = `<div class="workflow-layout"><section class="workflow-main"><div class="agent-strip"><span class="agent-label">Prompt examples:</span>${['Student Data','Academic','Scholarship','Grievance','Examination','Notice'].map(a => `<span class="agent-chip">${a}</span>`).join('')}</div><div class="workflow-center"><div class="workflow-welcome"><span class="workflow-icon">${icon('workflow', 24)}</span><h2>What administrative question can the AI assistant help with?</h2><p>Send one prompt for advisory text. The assistant does not run a multi-agent workflow or change records.</p></div><div id="workflow-feed"><div class="prompt-grid">${[['Draft an attendance reminder','Writing prompt','Draft a neutral attendance reminder. Do not claim to inspect student records.'],['Draft a scholarship notice','Writing prompt','Draft a general announcement about where students can find scholarship information.'],['Draft a grievance response','Writing prompt','Draft a respectful acknowledgement of a student grievance without inventing case details.'],['Timetable planning checklist','Writing prompt','Create a checklist for staff who are preparing a course timetable.']].map(([t, s, p]) => `<button class="prompt-card workflow-prompt" data-prompt="${p}"><strong>${t}</strong><span>${s}</span></button>`).join('')}</div></div></div><form class="workflow-input" id="workflow-form"><textarea id="ai-prompt" placeholder="Instruct CampusPulse AI (e.g., 'Draft an official notice for the upcoming semester examinations' or 'Show students who have not submitted assignments')..."></textarea><div class="workflow-input-bottom"><span class="safety-note">${icon('shield-check', 14)}AI never deletes records or publishes notices without approval</span><button class="primary" type="submit">Run Workflow ${icon('arrow-up', 14)}</button></div></form></section><aside class="workflow-history"><div class="card-header"><h3 class="card-title">Workflow History & Audit</h3><span class="card-note">Sample history · not live</span></div><div class="history-list"><div class="history-item"><div class="history-head"><p class="history-title">Department Performance Summary</p>${badge('Completed','success')}</div><p class="history-meta">Student Data Agent · Approved by Dr. Rao</p><p class="card-note" style="margin-top:6px">24 Nov 2026 · 09:42 AM</p></div><div class="history-item"><div class="history-head"><p class="history-title">Exam Hall Availability Check</p>${badge('Completed','success')}</div><p class="history-meta">Examination Agent · 14 halls verified</p><p class="card-note" style="margin-top:6px">23 Nov 2026 · 04:15 PM</p></div><div class="history-item"><div class="history-head"><p class="history-title">MahaDBT Batch 08 Verification</p>${badge('Awaiting Approval','warning')}</div><p class="history-meta">Scholarship Agent · 18 applications matched</p><p class="card-note" style="margin-top:6px">22 Nov 2026 · 02:08 PM</p></div></div></aside></div>`;
+  renderShell(content, 'AI Assistant', `<span class="context-chip">AI text advice only · no automated actions</span>`);
   document.querySelectorAll('.workflow-prompt').forEach(button => button.addEventListener('click', () => runWorkflow(button.dataset.prompt)));
   document.getElementById('workflow-form')?.addEventListener('submit', e => { e.preventDefault(); const prompt = document.getElementById('ai-prompt').value.trim(); if (prompt) runWorkflow(prompt); else showToast('Describe the workflow you want CampusPulse AI to run.'); });
 }
@@ -419,8 +366,13 @@ function openStudent(person) {
 
 function openCreateModal(moduleId) {
   if (moduleId === 'faculty-management') return openInviteModal();
+  if (moduleId === 'assignment-management') return openInfoModal('Assignment management · view only', 'This Admin page displays assignments and submissions but does not create them. Create and publish assignments from the Faculty portal.');
+  if (datasets[moduleId]) {
+    if (!live()) { showToast('Sign in to create a generic module note.'); return; }
+    return openRecordModal(moduleId);
+  }
   const subject = modules.find(m => m.id === moduleId)?.label || 'This module';
-  openInfoModal(`${subject} · no live form`, 'Notices, courses, enrolment, invitations and role changes are schema-backed and live. This module has no table in the current schema, so no form is offered rather than a form that cannot save.');
+  openInfoModal(`${subject} · no create action`, 'Use this section to review the live records shown here. Dedicated create actions are available only for workflows connected to their domain tables.');
 }
 async function openInviteModal() {
   if (!portalAuth?.client || portalAuth?.demo) {
@@ -450,7 +402,7 @@ async function openInviteModal() {
   });
 }
 
-function openInfoModal(title, text) { openModal(`<div class="modal-header"><h3 class="modal-title">${title}</h3><button class="icon-button" data-close-modal>${icon('x')}</button></div><div class="modal-body"><p class="subhead">${text}</p><div class="approval"><p class="approval-title">Dashboard widgets</p><p class="approval-meta">KPIs · Analytics · Activity · Approvals · System Health</p></div><div class="modal-footer"><button class="primary" data-close-modal>Done</button></div></div>`); }
+function openInfoModal(title, text) { openModal(`<div class="modal-header"><h3 class="modal-title">${title}</h3><button class="icon-button" data-close-modal>${icon('x')}</button></div><div class="modal-body"><p class="subhead">${text}</p><div class="modal-footer"><button class="primary" data-close-modal>Done</button></div></div>`); }
 function openModal(inner) { const backdrop = document.getElementById('modal-backdrop'); if (!backdrop) return; backdrop.innerHTML = `<div class="modal">${inner}</div>`; backdrop.classList.add('open'); backdrop.querySelectorAll('[data-close-modal]').forEach(el => el.addEventListener('click', closeModal)); backdrop.querySelector('[data-save-modal]')?.addEventListener('click', () => { closeModal(); showToast('Local demo form closed. No record was saved or changed.'); }); setIcons(); }
 function closeModal() { document.getElementById('modal-backdrop')?.classList.remove('open'); }
 function openSearch() { openModal(`<div class="modal-header"><input class="field" id="global-search-input" placeholder="Jump to any module or record..." autofocus /><button class="secondary" data-close-modal>ESC</button></div><div class="search-results">${modules.map(m => `<a href="${portalPath(m.path)}" class="search-result">${icon(m.icon)}<span><strong>${m.label}</strong><small class="muted" style="display:block">Open module</small></span></a>`).join('')}</div>`); }

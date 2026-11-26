@@ -26,11 +26,21 @@ test('faculty portal reads and writes live coursework instead of mock arrays', (
   assert.match(facultyMain, /publishNotice\(portalAuth\.client/);
   assert.match(facultyMain, /gradeSubmission\(portalAuth\.client/);
   assert.match(facultyMain, /requestSignedUrl\(portalAuth\.client, 'assignments'/);
+  assert.match(facultyData, /from\('attendance_records'\)/);
+  assert.match(facultyData, /onConflict: 'course_id,student_id,class_date'/);
+  assert.match(facultyMain, /saveCourseAttendance\(portalAuth\.client, portalAuth\.profile/);
+  assert.match(facultyMain, /loadCourseAttendance\(portalAuth\.client/);
+  assert.match(facultyMain, /id="attendance-form"/);
+  assert.match(facultyMain, /Save attendance/);
+  assert.match(facultyMain, /Demo mode shows no attendance records and cannot save/);
+  assert.match(facultyMain, /Keep current status/);
+  assert.match(facultyMain, /attendanceRequestId/);
+  assert.match(facultyMain, /visibleCourseId !== state\.attendanceCourseId/);
   // The mock KPI/metric arrays that previously defined the dashboard are gone.
   assert.doesNotMatch(facultyMain, /value: '84\.6%'/);
   assert.doesNotMatch(facultyMain, /'Pending assignments', value: '08'/);
   assert.match(facultyMain, /const requireLive = \(\) =>/);
-  assert.match(facultyMain, /Attendance is not part of the current schema/);
+  assert.doesNotMatch(facultyMain, /Attendance is not part of the current schema/);
 });
 
 test('student portal loads enrolled courses, assignments and submissions from Supabase', () => {
@@ -82,6 +92,8 @@ test('admin portal manages notices, courses, enrolment and roles live', () => {
   assert.match(adminApp, /renderNotices\(\)/);
   assert.match(adminApp, /renderCourses\(\)/);
   assert.match(adminApp, /renderAssignments\(\)/);
+  assert.doesNotMatch(adminApp, /'assignment-management': \{ title: 'Assignment Management'/);
+  assert.match(adminApp, /Assignment management · view only/);
   assert.match(adminApp, /askAssistant\(portalAuth\.client, prompt\)/);
   // Sample datasets for the wired modules must no longer exist.
   assert.doesNotMatch(adminApp, /'notices-announcements': \{\s*\n\s*title: 'Notices & Announcements'/);

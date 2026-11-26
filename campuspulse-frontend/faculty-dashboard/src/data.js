@@ -79,6 +79,48 @@ export async function loadStudents(client) {
   ) || [];
 }
 
+export const ATTENDANCE_STATUSES = ['present', 'absent', 'late', 'excused'];
+
+/** Read the attendance register for one course meeting. */
+export async function loadCourseAttendance(client, courseId, classDate) {
+  return await unwrap(
+    client.from('attendance_records')
+      .select('id,course_id,student_id,class_date,status,note,marked_by,updated_at')
+      .eq('course_id', courseId)
+      .eq('class_date', classDate)
+      .order('student_id', { ascending: true }),
+    'Attendance could not load',
+  ) || [];
+}
+
+/** Save only the statuses a faculty member explicitly selected. */
+export async function saveCourseAttendance(client, profile, { courseId, classDate, entries }) {
+  if (!courseId || !/^\d{4}-\d{2}-\d{2}$/.test(classDate || '')) {
+    throw new Error('Choose a course and a valid class date.');
+  }
+  if (!Array.isArray(entries) || entries.length === 0) {
+    throw new Error('Select an attendance status for at least one student.');
+  }
+  if (entries.some(({ status }) => !ATTENDANCE_STATUSES.includes(status))) {
+    throw new Error('Choose a valid attendance status for each selected student.');
+  }
+  const rows = entries.map(({ studentId, status }) => ({
+    college_id: profile.college_id,
+    course_id: courseId,
+    student_id: studentId,
+    class_date: classDate,
+    status,
+    marked_by: profile.id,
+    note: '',
+  }));
+  return await unwrap(
+    client.from('attendance_records')
+      .upsert(rows, { onConflict: 'course_id,student_id,class_date' })
+      .select('id,course_id,student_id,class_date,status,note,marked_by,updated_at'),
+    'Attendance could not be saved',
+  ) || [];
+}
+
 export async function publishNotice(client, profile, { title, body, audience }) {
   return await unwrap(
     client.from('notices')
