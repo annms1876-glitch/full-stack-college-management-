@@ -73,3 +73,10 @@ test('all student sign-in paths use the trusted profile-role flow without legacy
   assert.doesNotMatch(studentApp, /api\.signIn\(|api\.signUp\(|btn-login-submit|btn-signup-submit/);
   assert.ok(server.includes('if (!/^\\/screens\\/(?:light|dark)\\/login\\.html$/.test(mappedPath))'));
 });
+
+test('local runtime config provides Clerk and Supabase publishable settings only', () => {
+  assert.match(server, /clerkPublishableKey: process\.env\.CLERK_PUBLISHABLE_KEY/);
+  assert.match(server, /supabaseUrl: process\.env\.SUPABASE_URL/);
+  assert.match(server, /publishableKey: process\.env\.SUPABASE_PUBLISHABLE_KEY/);
+  assert.doesNotMatch(server, /SUPABASE_SERVICE_ROLE_KEY|CLERK_SECRET_KEY/);
+});

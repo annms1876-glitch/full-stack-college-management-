@@ -1,50 +1,32 @@
-# Clerk + Supabase authentication setup
+# Clerk and Supabase authentication
 
-CampusPulse uses Clerk for the user-facing browser session and keeps Supabase Postgres, Storage, and Edge Functions as the data plane. The browser adapter in `shared/auth/clerk-supabase.js` asks the active Clerk session for a JWT from the `supabase` template and passes it to Supabase JS through `accessToken`. It does not call or persist `supabase.auth` sessions.
+CampusPulse uses Clerk for browser sign-in and Supabase for database, Storage, and Edge Function access. The browser adapter is `shared/auth/clerk-supabase.js`. It requests a Clerk JWT using a template named exactly `supabase` and supplies that short-lived token to the Supabase client; it does not create a Supabase Auth browser session.
 
-## Required Clerk configuration
+## Required project configuration
 
-Create a Clerk JWT template named exactly `supabase`. Configure its signing algorithm and claims according to the Supabase JWT verification configuration for the project. The template's `sub` claim must remain the stable Clerk user ID. Do not paste a secret, private signing key, service-role key, or any credential into this repository or browser runtime configuration.
+1. Configure a Clerk JWT template named `supabase`. Its `sub` claim must be the stable Clerk user ID.
+2. Configure the Supabase project to verify the JWT issued by that Clerk template. Use the verification settings supported by the selected Clerk/Supabase integration.
+3. Set these browser-safe runtime values for each app/server:
+   - `CLERK_PUBLISHABLE_KEY`
+   - `SUPABASE_URL`
+   - `SUPABASE_PUBLISHABLE_KEY`
+4. Apply the repository's migrations to a disposable/test project before relying on the schema and RLS rules.
+5. Provision a trusted `public.profiles` row for each Clerk user. The row must have `clerk_user_id` equal to the Clerk ID and have an approved role and college where required.
 
-The template name is part of the client contract:
+The current login code obtains a Clerk session and checks `profiles.clerk_user_id` plus the expected role before allowing portal data access. However, this repository does **not** include a Clerk webhook or an automatic profile-provisioning endpoint. A user without a provisioned profile will not receive application access. Provisioning must be performed by a trusted server-side process; never let the browser choose its own role or college.
 
-```js
-const token = await clerk.session.getToken({ template: "supabase" });
-```
+## Identity mapping in the database
 
-The Supabase project must be configured to verify that Clerk-issued JWT (for example, through the project's JWT secret/JWKS configuration as supported by the selected Clerk/Supabase integration). This repository does not invent or store those provider-side values.
+Migration `202611260016_clerk_identity_compatibility.sql` adds nullable, unique `public.profiles.clerk_user_id` and the `public.current_profile_id()` helper. The helper resolves the JWT `sub` to the internal profile UUID. Existing UUID-sub sessions have a compatibility fallback. The profile primary key continues to reference `auth.users(id)`; a Clerk ID is not treated as a UUID.
 
-## Profile identity mapping
+A safe provisioning design should verify Clerk webhooks, be idempotent, and write role/college only from trusted data. The exact webhook implementation and operational identity-linking flow remain outside this repository.
 
-Apply migration `202611260016_clerk_identity_compatibility.sql` after the existing migrations. It adds nullable, unique `public.profiles.clerk_user_id` and the SECURITY DEFINER function `public.current_profile_id()`. The function resolves `auth.jwt()->>'sub'` to the internal `profiles.id`; UUID subjects still fall back to the existing UUID identity for staged rollout. All rebuilt table, Storage, and admin-RPC predicates use this helper, preserving existing UUID foreign keys and authorization boundaries.
+## Runtime values and secrets
 
-Provision the mapping before granting a user application access. The recommended server-side flow is:
+Only the three publishable values listed above may be returned by `/api/config`. A publishable key is intended for browser use, but it is not an authorization mechanism; RLS and a verified user token provide access control.
 
-1. Receive a verified Clerk webhook for user creation and updates.
-2. Upsert the matching `public.profiles` row by `clerk_user_id = event.data.id` using a server-side Supabase client or a protected Edge Function.
-3. Set only trusted fields such as the approved college and role through the existing administrative workflow. Never accept role or college authority from browser metadata.
-4. Handle webhook retries idempotently and reconcile deleted/disabled Clerk users according to the product retention policy.
+Keep all of the following server-side: Clerk secret keys, webhook signing secrets, Supabase service-role keys, database passwords, JWT signing secrets, and AI-provider keys. Never commit them or expose them through browser runtime configuration.
 
-Before applying the migration, check for duplicate/nonblank values if a deployment
-has already added this column manually; the partial unique index will fail rather
-than silently choosing an identity. `profiles.id` remains a UUID foreign key to
-`auth.users.id` by design. A Clerk webhook therefore needs a trusted provisioning
-strategy for that internal UUID/profile row (or an existing Supabase Auth UUID
-link); the migration does not weaken or remove that foreign key and does not
-pretend that a Clerk ID is a UUID.
+## Local setup limit
 
-A Clerk user with no mapped profile receives no internal UUID from `current_profile_id()` and therefore cannot satisfy profile, table, or Storage ownership predicates. The migration intentionally does not auto-create profiles from an untrusted browser request.
-
-## Browser-safe runtime configuration
-
-Expose only these values through `/api/config` or the equivalent Vite runtime injection:
-
-- `CLERK_PUBLISHABLE_KEY`
-- `SUPABASE_URL`
-- `SUPABASE_PUBLISHABLE_KEY`
-
-Publishable keys and project URLs are not substitutes for service-role keys. Keep `SUPABASE_SERVICE_ROLE_KEY`, webhook signing secrets, Clerk secret keys, JWT signing secrets, and provider private keys server-side/Edge-Function-only. No credentials are committed by this setup.
-
-## Rollout limitations
-
-The adapter and migration are compatibility-layer work; existing portal login UI still needs to be wired to Clerk separately. Until that wiring and profile webhook are deployed, legacy Supabase Auth sessions continue to work through UUID-sub fallback, while Clerk sessions require a populated `clerk_user_id`. Migration application and live Clerk JWT verification require a configured Supabase/Clerk project and should be tested in a disposable environment before production rollout.
+The Faculty and Admin Vite apps can be opened in sample mode with `?demo=1`; that mode does not authenticate or write data. To test live sign-in, configure Clerk and Supabase as above and provision a test profile. The repository currently lacks `supabase/config.toml` and automatic Clerk provisioning, so it does not provide a turnkey local backend/auth stack.

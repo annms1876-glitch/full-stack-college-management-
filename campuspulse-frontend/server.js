@@ -6,6 +6,7 @@ const PORT = Number(process.env.PORT || 3000);
 const PUBLIC_DIR = path.join(__dirname, "public");
 const PORTAL_DIST_DIR = path.join(__dirname, "dist");
 const SUPABASE_RUNTIME_CONFIG = {
+  clerkPublishableKey: process.env.CLERK_PUBLISHABLE_KEY || "",
   supabaseUrl: process.env.SUPABASE_URL || "",
   publishableKey: process.env.SUPABASE_PUBLISHABLE_KEY || "",
 };

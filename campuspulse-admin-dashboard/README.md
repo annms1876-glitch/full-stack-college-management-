@@ -1,22 +1,18 @@
-# CampusPulse Admin Dashboard
+# Admin portal
 
-Responsive admin portal with a Supabase email/password sign-in gate. Before rendering, it reads the authenticated user's `public.profiles` row and requires the trusted `admin` role. Dashboard content and interactions remain local mock data; they do not write to Supabase.
+A responsive Vite single-page app for college administration. The portal contains live Supabase data operations for selected workflows and sample-only views for others.
 
-## Run locally and authenticate
-
-For working demo credentials, start and seed the **local** Supabase instance as described in the root [README](../README.md#run-locally-and-test-demo-logins). Then run with the local API URL and public publishable/anon key in the Vite process environment:
+## Preview locally
 
 ```bash
-SUPABASE_URL="http://127.0.0.1:54321" SUPABASE_PUBLISHABLE_KEY="<local publishable/anon key>" npm install
-SUPABASE_URL="http://127.0.0.1:54321" SUPABASE_PUBLISHABLE_KEY="<local publishable/anon key>" npm run dev
+npm ci
+npm run dev
 ```
 
-The app runs on `127.0.0.1:3002`. Its runtime plugin serves only `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` from `GET /api/config`; no service-role key is needed or accepted by the browser app. Sign in with the admin local demo account from the root README. Sessions are separate from the student and faculty origins. Use `npm run build` to create the static `dist/` output.
+Open <http://127.0.0.1:3002/?demo=1>. This is an anonymous, local-only sample view. It creates no Clerk session, does not call Supabase, and does not save changes. To run without sample data, open the URL without `?demo=1`.
 
-## Included screens
+## Connect a live project
 
-The single-page app includes the dashboard, student records, faculty management, timetable management, assignment management, scholarship tracker, fees and submissions, grievance management, student support, e-library, examination management, notices and announcements, course information, agentic workflow, and admin settings/security routes.
+Set `CLERK_PUBLISHABLE_KEY`, `SUPABASE_URL`, and `SUPABASE_PUBLISHABLE_KEY` in the environment before starting Vite. The Clerk instance must issue a Supabase-compatible token from a JWT template named `supabase`; Supabase must verify it; and each Clerk user must have a trusted matching `profiles` row and role. Profile provisioning is not automated by this repository. Read [Clerk/Supabase setup](../docs/backend/clerk-supabase-auth.md) before trying live sign-in.
 
-## Frontend behavior
-
-Navigation is route-aware, with a responsive mobile drawer, collapsible desktop sidebar, theme toggle, global search modal, creation modals, filters, table search, status badges, pagination affordances, toast feedback, student profile modal, and simulated agentic workflow execution with approval gating. A static production host must provide an equivalent runtime `GET /api/config` endpoint; do not bake keys into the build or commit `.env` files. All institutional data shown is illustrative mock content.
+The main source files are in `src/`: `app.js` renders screens, `data.js` contains data operations, and `portal-auth.js` handles sign-in/role checks. Some UI screens remain illustrative even when live auth is configured. See the [architecture and ERD](../docs/architecture.md).

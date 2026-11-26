@@ -1,5 +1,7 @@
 # CampusPulse Master Task Plan
 
+> **Historical plan:** The completion statuses below predate the current Clerk integration and are not a current project checklist. Use the root [README](README.md) and [BUG_TRACKER.md](BUG_TRACKER.md) for current setup and blockers.
+
 ## Objective
 
 Keep the working CampusPulse implementation secure and demonstrable while closing verified authorization gaps and adding a safe backend foundation for the requested academic modules.

@@ -1,24 +1,23 @@
-# CampusPulse Security Audit
+# CampusPulse security review summary
 
-## Verdict
+This is a source-level review summary, not a penetration test or production certification. No live Clerk/Supabase project was available for this review.
 
-**Source-level PASS with one medium authorization defect fixed.** No confirmed Critical/High vulnerability was found in the reviewed code. This is not a live penetration test and does not prove deployed configuration.
+## Controls visible in source
 
-## Controls verified
+- Browser sign-in uses Clerk. The shared adapter requests a JWT from the Clerk template named `supabase` for Supabase requests.
+- Student, Faculty, and Admin code checks trusted profile data and expected roles; protected data access must still be enforced by Supabase RLS.
+- Browser runtime configuration exposes only Clerk/Supabase publishable values. Service-role and AI-provider secrets belong in trusted server/Edge Function configuration.
+- Edge Functions authenticate callers and derive sensitive authority from trusted profile data.
+- Private coursework uploads use validation and Storage policies; signed download URLs are short-lived and ownership-scoped.
+- The migrations define RLS for application tables, including the academic foundation and identity compatibility changes.
 
-- Portal access uses Supabase password authentication and trusted `profiles.role`; client-selected roles are not accepted for signup/invitation.
-- Edge handlers require Bearer authentication and call `auth.getUser()`.
-- AI context is server-derived, college-scoped, bounded, and client context is ignored.
-- AI provider requests require HTTPS, an allowlisted host, and redirects disabled.
-- Service-role and AI credentials are absent from browser runtime configuration.
-- Private assignments/post media use authorized signed URL flow and constrained object paths.
-- RLS and privilege revocation cover all baseline tables; new academic tables are also RLS-enabled.
-- Assignment student reads now require active enrollment.
+## Important limitations
 
-## Residual risks
+- Clerk user/profile provisioning is not implemented in this repository. A user without a trusted `profiles.clerk_user_id` mapping cannot use protected data.
+- Live JWT verification, applied policies, schema drift, Storage permissions, deployed Edge Function secrets, rate limits, and production logs were not verified against a project.
+- Faculty/Admin `?demo=1` mode is a local, non-persistent UI preview; it must not be mistaken for a protected live account.
+- File signature checks do not provide malware scanning.
 
-Live ACLs, migration drift, Storage policies, function deployment, rate limiting, SMTP/password recovery, and production logging were not executable without Supabase CLI/project access. Faculty/Admin sample screens still contain illustrative data and local-only controls; they are not production workflows.
+## Before production
 
-## Required pre-production probes
-
-Apply migrations to a disposable project, inspect `relrowsecurity` and effective grants, test cross-college IDs, test non-enrolled assignment reads, test signed URL authorization, deploy functions with secrets, and execute authenticated browser smoke tests.
+Apply/review migrations in staging, configure Clerk JWT verification and trusted profile provisioning, execute cross-role and cross-college database tests, deploy Edge Functions with least-privilege secrets, and test Storage operations with real role-specific accounts. For setup, see the root [README](README.md) and [architecture guide](docs/architecture.md).

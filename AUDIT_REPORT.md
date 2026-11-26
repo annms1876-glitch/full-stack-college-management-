@@ -1,5 +1,7 @@
 # CampusPulse Initial Audit Report
 
+> **Historical snapshot:** This audit predates the current Clerk-based browser sign-in. Its auth assumptions and test counts are not current setup guidance. Use the root [README](README.md), [architecture guide](docs/architecture.md), and [security review](SECURITY_AUDIT.md) for current information.
+
 **Audit date:** 2026-11-26  
 **Scope:** repository source, migrations, Edge Functions, frontend portals, tests, build scripts, and deployment configuration.  
 **Method:** static source review plus executed local tests/builds. No live Supabase project was available.

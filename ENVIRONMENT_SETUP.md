@@ -1,27 +1,31 @@
-# CampusPulse Environment Setup
+# Environment setup
 
-## Local prerequisites
+For the simplest local run, see the root [README](README.md#quick-local-preview). The Student static site and Faculty/Admin sample previews can be opened without backend credentials; sample data is not saved.
 
-Node.js/npm, a Supabase project or local Supabase CLI stack, and (for migrations/pgTAP) Docker. Vercel CLI is optional for deployment.
+## Requirements
 
-## Install and verify
+- Node.js 20 or newer and npm.
+- Docker and the Supabase CLI only if you configure a local database yourself. This checkout has no `supabase/config.toml` yet, so it is not a one-command local Supabase stack.
 
-```sh
-npm install
+## Tests and build
+
+```bash
+npm ci
 npm test
 npm run scan:secrets
-npm run build:student-css
 npm run build:vercel
 ```
 
-## Runtime configuration
+## Live app configuration
 
-Portal hosts expose only `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` through `/api/config`. Service-role and AI provider keys belong only in Supabase Edge Function secrets or server-side deployment configuration. Do not place them in Vite client variables.
+Before starting the Student server or either Vite portal, configure these browser-safe values in its process environment:
 
-## Demo data
+```bash
+export CLERK_PUBLISHABLE_KEY="pk_test_your_key"
+export SUPABASE_URL="https://your-project.supabase.co"
+export SUPABASE_PUBLISHABLE_KEY="your_publishable_key"
+```
 
-Use `scripts/seed-demo-users.mjs` only on loopback or with its explicit opt-in guard. Demo accounts use non-production-looking domains. The deployed portals intentionally do not provide an anonymous authentication bypass.
+Live sign-in additionally requires a Clerk JWT template named `supabase`, Supabase verification for that JWT, and a trusted `public.profiles` row mapped to each Clerk ID with an approved role. The repository does not automate profile provisioning. See [Clerk/Supabase setup](docs/backend/clerk-supabase-auth.md).
 
-## Current environment limitation
-
-This audit environment did not have the Supabase CLI/Docker or live project credentials, so migration application and local Supabase integration were not verified.
+Never expose a Clerk secret key, Supabase service-role key, database password, JWT signing secret, or AI-provider key to a browser. Configure those only in trusted server/Edge Function secret stores. The local demo seeder is legacy Supabase Auth tooling and is not the current Clerk preview setup.

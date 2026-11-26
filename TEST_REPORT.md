@@ -1,19 +1,17 @@
-# CampusPulse Test Report
+# Test report
 
-## Executed local baseline
+## Verified in this checkout
 
-The inherited baseline run completed successfully:
+The following commands were run after updating the local runtime-config response and regression test:
 
-- `npm test`: API 6/6; security 35/35.
-- `npm run scan:secrets`: PASS (90 source/doc files).
-- `npm run build:student-css`: PASS.
-- `npm run build:vercel`: PASS; Faculty and Admin Vite production builds completed.
-- `supabase --version`: unavailable (`command not found`).
+- `npm ci --no-audit --no-fund` — passed.
+- `npm test` — passed: 12 API tests and 61 security/regression tests (73 total).
+- `npm run build:vercel` — passed: Student CSS plus Faculty and Admin production builds.
+- Student server smoke test — `/`, `/login`, `/feed`, `/faculty/`, and `/admin/` returned HTTP 200; `/api/config` returned the three configured publishable values, including the Clerk key.
+- Faculty and Admin Vite dev-server smoke tests — documented demo URLs returned HTTP 200.
 
-## Added coverage
+## Not verified
 
-`tests/security/academic-modules.test.mjs` verifies enrollment-scoped assignment reads, RLS/college-scoping markers for the eight new tables, and caller identity on self-service writes. It must be included in the next full `npm test` run.
+No live Clerk/Supabase credentials or database were used. This report does not verify profile provisioning, sign-in, database migrations, pgTAP/RLS behavior against a running database, Storage uploads/downloads, Edge Function deployment, email delivery, or production deployment. The checkout has no `supabase/config.toml`, and the local Supabase CLI/Docker integration was not run.
 
-## Not executed
-
-Live Supabase migrations/pgTAP, deployed Edge Functions, real Storage access, authenticated browser/responsive QA, and production deployment smoke tests require credentials, CLI/Docker, and test accounts not available in this environment.
+Passing source tests and build checks are regression protection, not a production security certification. See [testing instructions](docs/backend/testing.md).

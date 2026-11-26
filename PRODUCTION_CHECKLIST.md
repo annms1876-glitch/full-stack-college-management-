@@ -1,5 +1,7 @@
 # CampusPulse Production Checklist
 
+Use this as a release checklist, not as proof that a production release has occurred.
+
 ## Code and security
 
 - [x] API/security tests pass locally.
@@ -21,9 +23,11 @@
 
 ## Release
 
-- [ ] Configure production secrets and SMTP/password recovery.
+- [ ] Configure Clerk's Supabase JWT template, Supabase JWT verification, and trusted Clerk-to-profile provisioning.
+- [ ] Configure browser runtime values and server/Edge secrets in the appropriate secret stores.
 - [ ] Apply migrations and deploy Edge Functions.
-- [ ] Verify Vercel build and all portal routes.
+- [ ] Run `npm ci`, `npm test`, `npm run scan:secrets`, and `npm run build:vercel`.
+- [ ] Verify Vercel runtime config and all portal routes.
 - [ ] Verify Storage signed URLs and expiry.
 - [ ] Capture monitoring, backups, rollback, and incident contacts.
 
