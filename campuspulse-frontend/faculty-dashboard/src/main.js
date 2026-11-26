@@ -7,6 +7,8 @@ import {
   enrolStudent,
   gradeSubmission,
   loadFacultySnapshot,
+  loadTimetable,
+  updateOwnProfile,
   loadStudents,
   publishAssignment,
   publishNotice,
@@ -55,6 +57,7 @@ let collapsed = false
 const emptySnapshot = { courses: [], assignments: [], submissions: [], notices: [] }
 const state = {
   snapshot: emptySnapshot,
+  records: [],
   students: [],
   loading: false,
   error: '',
@@ -228,12 +231,14 @@ async function refresh() {
   if (!live()) { state.snapshot = demoSnapshot(); state.students = []; render(); return }
   state.loading = true
   try {
-    const [snapshot, students] = await Promise.all([
+    const [snapshot, students, records] = await Promise.all([
       loadFacultySnapshot(portalAuth.client, portalAuth.profile),
       loadStudents(portalAuth.client).catch(() => []),
+      loadTimetable(portalAuth.client).catch(() => []),
     ])
     state.snapshot = snapshot
     state.students = students
+    state.records = records
     state.error = ''
   } catch (error) {
     state.error = error.message || 'Live data could not load.'
@@ -251,6 +256,23 @@ const requireLive = () => {
 }
 
 function bindEvents() {
+  document.getElementById('profile-form')?.addEventListener('submit', async (event) => {
+    event.preventDefault()
+    const form = event.target
+    const button = form.querySelector('button[type="submit"]')
+    if (!requireLive()) return
+    button.disabled = true
+    try {
+      const saved = await updateOwnProfile(portalAuth.client, portalAuth.profile.id, { full_name: form.full_name.value, bio: form.bio.value })
+      portalAuth.profile = { ...portalAuth.profile, ...saved }
+      toast('Profile saved.')
+      render()
+    } catch (error) {
+      toast(error.message || 'Could not save your profile.')
+    } finally {
+      button.disabled = false
+    }
+  })
   document.querySelectorAll('[data-action="collapse"]').forEach(el => el.onclick = () => { collapsed = !collapsed; render() })
   document.querySelectorAll('[data-action="profile"]').forEach(el => el.onclick = () => navigate('profile'))
   document.querySelectorAll('[data-action="logout"]').forEach(el => el.onclick = async () => {
