@@ -79,3 +79,6 @@ create policy role_change_audit_read_admin on public.role_change_audit
         and subject.college_id = public.current_college_id()
     )
   );
+
+-- The RLS policy above decides which rows each admin may read.
+grant select on public.role_change_audit to authenticated;
