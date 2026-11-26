@@ -93,10 +93,38 @@ export async function listColleges(client) {
   return Array.isArray(data?.colleges) ? data.colleges : [];
 }
 
+/** Storage RLS authorises the read, so no Edge function is required. */
+export async function loadModuleRecords(client) {
+  return await unwrap(
+    client.from('module_records').select('id,module,title,status,details,created_at,created_by').order('created_at', { ascending: false }).limit(500),
+    'Module records could not load',
+  );
+}
+
+export async function createModuleRecord(client, profile, { module, title, status, details }) {
+  return await unwrap(
+    client.from('module_records')
+      .insert({ module, title, status: status || 'Open', details: details || '', college_id: profile.college_id, created_by: profile.id })
+      .select('id,module,title,status,details,created_at')
+      .single(),
+    'The record could not be saved',
+  );
+}
+
+export async function deleteModuleRecord(client, id) {
+  return await unwrap(client.from('module_records').delete().eq('id', id), 'The record could not be deleted');
+}
+
+export async function updateOwnProfile(client, id, { full_name, bio }) {
+  return await unwrap(
+    client.from('profiles').update({ full_name, bio }).eq('id', id).select('id,full_name,bio,role,college_id').single(),
+    'Your profile could not be saved',
+  );
+}
+
 export async function requestSignedUrl(client, bucket, path) {
-  const { data, error } = await client.functions.invoke('get-signed-url', { body: { bucket, path } });
-  if (error) throw new Error(data?.error || error.message || 'The download link could not be created');
-  if (data?.error) throw new Error(data.error);
+  const { data, error } = await client.storage.from(bucket).createSignedUrl(path, 300);
+  if (error) throw new Error(error.message || 'The download link could not be created');
   if (!data?.signedUrl) throw new Error('The download link could not be created');
   return data.signedUrl;
 }

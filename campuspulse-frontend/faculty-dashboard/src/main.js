@@ -168,10 +168,11 @@ function assignments() {
 }
 
 function timetable() {
-  const days = ['Mon 24', 'Tue 25', 'Wed 26', 'Thu 27', 'Fri 28']
-  return pageHeader('Teaching operations', 'Timetable & Hybrid Teaching', 'Timetable planning is illustrative in this build: no timetable table exists in the schema, so nothing here is persisted.', btn('Ask AI to plan a lesson', 'primary', 'link-workflow')) + `<div class="two-col timetable-cols">${card('Illustrative weekly board', `<div class="week-nav"><button class="icon-button" disabled aria-label="Previous week unavailable">‹</button><strong>24 – 28 November 2026 · sample</strong><button class="icon-button" disabled aria-label="Next week unavailable">›</button></div><div class="week-grid">${days.map((d, i) => `<div class="day-col"><div class="day-label ${i === 0 ? 'today' : ''}">${d}</div>${[['09:30', state.snapshot.courses[0]?.code || 'CS301', 'Lecture'], ['11:00', state.snapshot.courses[1]?.code || 'CS405', 'Lecture'], ['14:00', state.snapshot.courses[0]?.code || 'CS301', 'Tutorial']].slice(0, i === 2 ? 2 : 3).map(x => `<div class="lesson purple"><span class="mono">${x[0]}</span><strong>${escape(x[1])}</strong><span>${x[2]}</span></div>`).join('')}</div>`).join('')}</div>`)}${card('AI lesson planner', `<div class="ai-panel"><div class="ai-orb">✦</div><div><h3>Plan with the AI workflow</h3><p>The AI assistant runs as a Supabase Edge function with server-held provider keys. It uses your college course directory as context.</p></div></div>${emptyState('Open the AI Workflow page to draft a lesson plan. Generated text is advisory and is not saved automatically.')}<a class="btn secondary" href="${portalHref('workflow')}">Open AI workflow →</a>`)}</div>`
+  const records = state.records || []
+  const rows = records.map(record => `<div class="submission-row"><div><strong>${escape(record.title)}</strong><span class="muted"> · ${escape(record.status)}${record.details ? ` · ${escape(record.details)}` : ''}</span></div></div>`).join('')
+  return pageHeader('Teaching operations', 'Timetable & Hybrid Teaching', 'Sessions published for your college by the administration. Faculty cannot edit the timetable.', btn('Open assignments', 'secondary', 'link-assignments')) +
+    card('Published sessions', rows || emptyState('No timetable entries published for your college yet. An administrator can add them under Timetable Management.'))
 }
-
 function attendance() {
   const cohort = state.snapshot.courses.map(c => {
     const rows = (c.course_enrollments || []).filter(r => r.status === 'active')
@@ -192,13 +193,20 @@ function workflow() {
 }
 
 function profile() {
-  const profile = portalAuth?.profile || {}
-  const stats = `<div class="profile-stats"><div><strong>${state.snapshot.courses.length}</strong><span>active courses</span></div><div><strong>${state.snapshot.assignments.length}</strong><span>assignments</span></div><div><strong>${state.snapshot.submissions.length}</strong><span>submissions</span></div></div>`
-  return pageHeader('Faculty workspace', 'Faculty Profile', 'Your trusted CampusPulse profile. Role and college are server-controlled and cannot be edited here.', btn('Open AI workflow', 'primary', 'link-workflow')) + `<div class="profile-layout"><section class="profile-card card"><div class="profile-hero"><div class="avatar large">${escape(initialsFor(displayName()))}</div><div><h2>${escape(displayName())}</h2><p>${escape(portalAuth?.demo ? 'Anonymous demo · no session' : 'Verified faculty account')}</p><span class="mono muted">${escape(profile.id || 'no profile id')} · ${escape(portalAuth?.user?.email || 'no email')}</span></div></div>${stats}<div class="profile-section"><h3>Access</h3><p>Role: <strong>${escape(profile.role || 'faculty')}</strong><br />College: <span class="mono">${escape(profile.college_id || 'not assigned')}</span></p><p class="muted">Editing your name, avatar or bio uses the profile self-service columns only; role and college require a trusted admin action.</p></div></section><div class="cv-column">${card('Portfolio content', emptyState('CV, publications and teaching history are illustrative in this build — no portfolio tables exist in the schema. Nothing on this page is stored.'))}</div></div>`
+  const p = portalAuth?.profile || {}
+  const stats = `<div class="stat-row">${[['Courses', state.snapshot.courses.length], ['Assignments', state.snapshot.assignments.length], ['Submissions', state.snapshot.submissions.length]].map(([label, value]) => `<div class="stat"><span class="muted">${escape(label)}</span><strong>${escape(String(value))}</strong></div>`).join('')}</div>`
+  return pageHeader('Faculty workspace', 'Faculty Profile', 'Your trusted CampusPulse profile. Role and college are server-controlled and cannot be edited here.', btn('Open assignments', 'secondary', 'link-assignments')) +
+    `<div class="profile-layout"><section class="profile-card card"><div class="profile-hero"><div class="avatar large">${escape(initialsFor(displayName()))}</div><div><h2>${escape(displayName())}</h2><p>${escape(portalAuth?.demo ? 'Anonymous demo · no session' : 'Verified faculty account')}</p><span class="mono muted">${escape(portalAuth?.user?.email || 'no email')}</span></div></div>${stats}
+      <form id="profile-form" class="profile-section">
+        <h3>Edit profile</h3>
+        <label class="field-label" for="profile-name">Full name</label>
+        <input class="input" id="profile-name" name="full_name" maxlength="160" required value="${escape(p.full_name || '')}" />
+        <label class="field-label" for="profile-bio">Bio</label>
+        <textarea class="input textarea" id="profile-bio" name="bio" maxlength="2000">${escape(p.bio || '')}</textarea>
+        <div style="margin-top:12px"><button class="btn primary" type="submit">Save profile</button></div>
+        <p class="muted" style="margin-top:10px">Role: <strong>${escape(p.role || 'faculty')}</strong> · College: <span class="mono">${escape(p.college_id || 'not assigned')}</span></p>
+      </form></section></div>`
 }
-
-const pages = { dashboard, courses, timetable, attendance, assignments, workflow, profile }
-
 function render() {
   document.querySelector('#app').innerHTML = shell(pages[activeRoute]())
   bindEvents()

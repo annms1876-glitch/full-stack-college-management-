@@ -76,18 +76,13 @@ export const api = {
     if (row.error) throw new Error(`${row.error.message} (the uploaded object stays private and unreferenced)`);
     return row.data;
   },
-  /** Short-lived, RLS-checked, magic-byte-verified download URL from Edge code. */
+  /** Short-lived download URL; storage RLS re-checks ownership on every request. */
   signedUrl: async (bucket, path) => {
     await currentUser();
-    const { data, error } = await client().functions.invoke("get-signed-url", { body: { bucket, path } });
-    if (error) {
-      // Surface the function's own 403/422 message instead of the generic non-2xx text.
-      let message = data?.error || error.message || "Could not create a download link.";
-      try { const body = await error.context?.json?.(); if (body?.error) message = body.error; } catch {}
-      throw new Error(message);
-    }
-    if (data?.error) throw new Error(data.error);
-    return data;
+    const { data, error } = await client().storage.from(bucket).createSignedUrl(path, 300);
+    if (error) throw new Error(error.message || "Could not create a download link.");
+    if (!data?.signedUrl) throw new Error("Could not create a download link.");
+    return { signedUrl: data.signedUrl };
   },
   openSignedUrl: async (bucket, path) => { const { signedUrl } = await api.signedUrl(bucket, path); window.open(signedUrl, "_blank", "noopener,noreferrer"); return signedUrl; },
   // ---- Student social feed, stories and self-service profile ----

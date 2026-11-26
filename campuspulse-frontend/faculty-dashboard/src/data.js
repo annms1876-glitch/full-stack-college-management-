@@ -120,11 +120,24 @@ export async function gradeSubmission(client, submissionId, { grade, feedback })
   );
 }
 
-/** Ask Edge code for a short-lived, ownership-checked file URL. */
+/** Storage RLS authorises the read, so no Edge function is required. */
+export async function loadTimetable(client) {
+  return await unwrap(
+    client.from('module_records').select('id,title,status,details,created_at').eq('module', 'timetable').order('created_at', { ascending: false }).limit(200),
+    'The timetable could not be loaded',
+  );
+}
+
+export async function updateOwnProfile(client, id, { full_name, bio }) {
+  return await unwrap(
+    client.from('profiles').update({ full_name, bio }).eq('id', id).select('id,full_name,bio,role,college_id').single(),
+    'Your profile could not be saved',
+  );
+}
+
 export async function requestSignedUrl(client, bucket, path) {
-  const { data, error } = await client.functions.invoke('get-signed-url', { body: { bucket, path } });
-  if (error) throw new Error(data?.error || error.message || 'The download link could not be created');
-  if (data?.error) throw new Error(data.error);
+  const { data, error } = await client.storage.from(bucket).createSignedUrl(path, 300);
+  if (error) throw new Error(error.message || 'The download link could not be created');
   if (!data?.signedUrl) throw new Error('The download link could not be created');
   return data.signedUrl;
 }

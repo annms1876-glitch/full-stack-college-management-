@@ -105,7 +105,7 @@ const datasets = {
   },
 };
 
-const state = { sidebarCollapsed: false, searchOpen: false, theme: window.CampusPulseTheme.getTheme(), profileOpen: false, activeModule: 'dashboard', query: '', tableQuery: '', modal: null, snapshot: null, message: '', busy: false };
+const state = { sidebarCollapsed: false, searchOpen: false, theme: window.CampusPulseTheme.getTheme(), profileOpen: false, activeModule: 'dashboard', query: '', tableQuery: '', modal: null, snapshot: null, records: [], statusFilter: '', message: '', busy: false };
 window.addEventListener('campuspulse:theme-change', (event) => { state.theme = event.detail.theme; });
 
 function icon(name, size = 16) { return `<i data-lucide="${name}" width="${size}" height="${size}"></i>`; }
@@ -268,7 +268,92 @@ function renderFaculty() {
   document.querySelectorAll('.live-role').forEach(button => button.addEventListener('click', () => openRoleModal(button.dataset.person)));
 }
 
-function renderDataset(id) { const config = datasets[id]; renderTablePage(config, config.rows, id === 'notices-announcements' ? '<section class="card low"><div class="card-header"><h3 class="card-title">Publishing queue</h3><span class="card-note">Sample workflow only · no publication or approval is available</span></div><div class="timeline"><div class="timeline-item"><span class="timeline-dot"></span><div><p class="timeline-title">Draft → Department Review</p><p class="timeline-note">The department owner checks wording and audience.</p></div></div><div class="timeline-item"><span class="timeline-dot"></span><div><p class="timeline-title">Department Review → Admin Approval</p><p class="timeline-note">Super administrators approve high-reach notices.</p></div></div></div></section>' : ''); }
+const STATUS_TONES = { Paid: 'success', Approved: 'success', Published: 'success', Resolved: 'success', Closed: 'success', Scheduled: 'success', Open: 'info', Draft: 'warning', Pending: 'warning', 'Due Soon': 'warning', 'Under Review': 'info', Escalated: 'danger' };
+function statusTone(status) { return STATUS_TONES[status] || 'neutral'; }
+
+function datasetRecords(id) { return (state.records || []).filter(record => record.module === id); }
+
+function exportCsv(filename, rows) {
+  const csv = rows.map(row => row.map(cell => `"${String(cell ?? '').replace(/"/g, '""')}"`).join(',')).join('\r\n');
+  const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  const url = link.href;
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  showToast(`${filename} downloaded.`, false);
+}
+
+function openRecordModal(moduleId) {
+  const config = datasets[moduleId];
+  openModal(`<div class="modal-header"><h3 class="modal-title">${esc(config.action)}</h3><button class="icon-button" data-close-modal>${icon('x')}</button></div>
+    <form id="record-form" class="form-grid">
+      <label class="form-field full"><span class="form-label">Title</span><input class="field" name="title" maxlength="200" required placeholder="What is this record?" /></label>
+      <label class="form-field"><span class="form-label">Status</span><input class="field" name="status" maxlength="40" value="Open" /></label>
+      <label class="form-field full"><span class="form-label">Details</span><textarea class="field" name="details" rows="3" maxlength="10000" placeholder="Owner, amount, room, dates, anything the office needs."></textarea></label>
+      <div class="modal-footer" style="grid-column:1/-1"><button class="primary" type="submit">Save record</button></div>
+    </form>`);
+  document.getElementById('record-form')?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const form = event.target;
+    const button = form.querySelector('button[type="submit"]');
+    button.disabled = true;
+    try {
+      await createModuleRecord(portalAuth.client, portalAuth.profile, {
+        module: moduleId,
+        title: form.title.value,
+        status: form.status.value,
+        details: form.details.value,
+      });
+      closeModal();
+      showToast(`${config.title} record saved.`, false);
+      await refresh();
+    } catch (error) {
+      showToast(error.message || 'The record could not be saved.');
+      button.disabled = false;
+    }
+  });
+}
+
+function renderDataset(id) {
+  const config = datasets[id];
+  const records = datasetRecords(id);
+  const query = (state.tableQuery || '').trim().toLowerCase();
+  const statusFilter = state.statusFilter || '';
+  const filtered = records
+    .filter(record => !statusFilter || record.status === statusFilter)
+    .filter(record => !query || `${record.title} ${record.status} ${record.details}`.toLowerCase().includes(query));
+  const statuses = [...new Set(records.map(record => record.status))].sort();
+
+  const table = filtered.length
+    ? `<section class="card table-card"><div class="table-scroll"><table><thead><tr><th>Record</th><th>Status</th><th>Details</th><th>Created</th><th class="actions-cell">Actions</th></tr></thead><tbody>${filtered.map(record => `<tr><td><strong>${esc(record.title)}</strong></td><td>${badge(record.status, statusTone(record.status))}</td><td>${esc(record.details || '—')}</td><td>${esc(new Date(record.created_at).toLocaleDateString())}</td><td class="actions-cell"><button class="icon-small" data-delete="${esc(record.id)}" aria-label="Delete ${esc(record.title)}">${icon('trash-2', 14)}</button></td></tr>`).join('')}</tbody></table></div><div class="table-footer"><span>Showing ${filtered.length} of ${records.length} records</span></div></section>`
+    : `<section class="card table-card"><p class="subhead">${records.length ? 'No records match your search.' : `No ${esc(config.title.toLowerCase())} records in your college yet. Use “${esc(config.action)}” to add the first one.`}</p></section>`;
+
+  const content = `<main class="main"><section class="page-intro"><div><p class="eyebrow">CAMPUSPULSE OPERATIONS</p><h2 class="headline">${esc(config.title)}</h2><p class="subhead">${esc(config.subtitle)}</p></div><div class="inline-actions"><button class="secondary" id="export-csv">${icon('download', 14)}Export CSV</button><button class="primary" id="record-create">${icon(config.icon, 14)}${esc(config.action)}</button></div></section>
+    <p class="card-note" role="status">Live Supabase data · public.module_records, scoped to your college by row level security.</p>
+    <section class="toolbar"><div class="search-box">${icon('search', 16)}<input class="field" id="table-search" value="${esc(state.tableQuery || '')}" placeholder="Search ${esc(config.title.toLowerCase())}..." /></div><select class="select" id="status-filter" aria-label="Filter by status"><option value="">All statuses</option>${statuses.map(status => `<option value="${esc(status)}"${status === statusFilter ? ' selected' : ''}>${esc(status)}</option>`).join('')}</select></section>
+    ${table}</main>`;
+
+  renderShell(content, config.title);
+  document.getElementById('table-search')?.addEventListener('input', event => { state.tableQuery = event.target.value; renderDataset(id); });
+  document.getElementById('status-filter')?.addEventListener('change', event => { state.statusFilter = event.target.value; renderDataset(id); });
+  document.getElementById('record-create')?.addEventListener('click', () => openRecordModal(id));
+  document.getElementById('export-csv')?.addEventListener('click', () => exportCsv(`${id}.csv`, [['Title', 'Status', 'Details', 'Created'], ...filtered.map(record => [record.title, record.status, record.details || '', new Date(record.created_at).toISOString()])]));
+  document.querySelectorAll('[data-delete]').forEach(button => button.addEventListener('click', async () => {
+    button.disabled = true;
+    try {
+      await deleteModuleRecord(portalAuth.client, button.dataset.delete);
+      showToast('Record deleted.', false);
+      await refresh();
+    } catch (error) {
+      showToast(error.message || 'The record could not be deleted.');
+      button.disabled = false;
+    }
+  }));
+}
 
 function renderWorkflow() {
   const content = `<div class="workflow-layout"><section class="workflow-main"><div class="agent-strip"><span class="agent-label">Active Agents:</span>${['Student Data','Academic','Scholarship','Grievance','Examination','Notice'].map(a => `<span class="agent-chip">${a}</span>`).join('')}</div><div class="workflow-center"><div class="workflow-welcome"><span class="workflow-icon">${icon('workflow', 24)}</span><h2>What administrative workflow should we run?</h2><p>Instructions are decomposed across specialized agents. Consequential actions always pause for your approval.</p></div><div id="workflow-feed"><div class="prompt-grid">${[['Attendance < 75% Audit','Student Data + Notice Agents','Find all students with attendance below 75% and prepare notification drafts.'],['Scholarship Eligibility Match','Scholarship + Student Data Agents','Identify students who may qualify for available NSP and state scholarships.'],['Grievance Escalation Report','Grievance Agent · SLA > 7 days','Find grievances unresolved for more than seven days and prepare an escalation report.'],['Clash-Free CSE Timetable','Academic + Examination Agents','Generate a clash-free timetable for the Computer Science department.']].map(([t, s, p]) => `<button class="prompt-card workflow-prompt" data-prompt="${p}"><strong>${t}</strong><span>${s}</span></button>`).join('')}</div></div></div><form class="workflow-input" id="workflow-form"><textarea id="ai-prompt" placeholder="Instruct CampusPulse AI (e.g., 'Draft an official notice for the upcoming semester examinations' or 'Show students who have not submitted assignments')..."></textarea><div class="workflow-input-bottom"><span class="safety-note">${icon('shield-check', 14)}AI never deletes records or publishes notices without approval</span><button class="primary" type="submit">Run Workflow ${icon('arrow-up', 14)}</button></div></form></section><aside class="workflow-history"><div class="card-header"><h3 class="card-title">Workflow History & Audit</h3><span class="card-note">Sample history · not live</span></div><div class="history-list"><div class="history-item"><div class="history-head"><p class="history-title">Department Performance Summary</p>${badge('Completed','success')}</div><p class="history-meta">Student Data Agent · Approved by Dr. Rao</p><p class="card-note" style="margin-top:6px">24 Nov 2026 · 09:42 AM</p></div><div class="history-item"><div class="history-head"><p class="history-title">Exam Hall Availability Check</p>${badge('Completed','success')}</div><p class="history-meta">Examination Agent · 14 halls verified</p><p class="card-note" style="margin-top:6px">23 Nov 2026 · 04:15 PM</p></div><div class="history-item"><div class="history-head"><p class="history-title">MahaDBT Batch 08 Verification</p>${badge('Awaiting Approval','warning')}</div><p class="history-meta">Scholarship Agent · 18 applications matched</p><p class="card-note" style="margin-top:6px">22 Nov 2026 · 02:08 PM</p></div></div></aside></div>`;
@@ -294,10 +379,45 @@ async function runWorkflow(prompt) {
 }
 
 function renderSettings() {
-  const content = `<main class="main"><section class="page-intro"><div><p class="eyebrow">ADMINISTRATION · RBAC & SECURITY</p><h2 class="headline">Admin Settings & Security</h2><p class="subhead">Manage your profile, access controls, portal preferences, and active sessions.</p></div><button class="primary" data-toast="Settings were not saved; this is a local demo.">${icon('save',14)}Save Changes</button></section><section class="detail-grid"><article class="card"><div class="card-header"><h3 class="card-title">Profile</h3>${icon('user-cog',16)}</div><div class="form-grid"><label class="form-field"><span class="form-label">Full name</span><input class="field" value="Dr. Rajeshwar Rao" /></label><label class="form-field"><span class="form-label">Role</span><input class="field" value="Super Administrator" disabled /></label><label class="form-field full"><span class="form-label">Work email</span><input class="field" value="rajeshwar.rao@vanguard.edu.in" /></label><label class="form-field full"><span class="form-label">Phone</span><input class="field" value="+91 98230 11001" /></label></div></article><article class="card"><div class="card-header"><h3 class="card-title">Security</h3>${icon('shield-check',16)}</div><div class="approval-list"><div class="approval"><div class="approval-head"><p class="approval-title">Two-factor authentication</p>${badge('Enabled','success')}</div><p class="approval-meta">Authenticator app · Last verified 12 Nov 2026</p><button class="secondary" data-toast="Recovery-code rotation is unavailable in this local demo.">Rotate recovery codes</button></div><div class="approval"><div class="approval-head"><p class="approval-title">Password</p><span class="card-note">Updated 38 days ago</span></div><button class="secondary" data-toast="Password changes are unavailable in this local demo.">Change password</button></div></div></article><article class="card"><div class="card-header"><h3 class="card-title">Portal preferences</h3>${icon('sliders-horizontal',16)}</div><div class="approval-list"><div class="approval"><div class="approval-head"><p class="approval-title">Default academic year</p><select class="select"><option>AY 2026-27 · Odd Sem</option><option>AY 2025-26 · Even Sem</option></select></div></div><div class="approval"><div class="approval-head"><p class="approval-title">AI workflow approvals</p><label><input type="checkbox" checked /> Require approval</label></div><p class="approval-meta">Demo preference only; no actions can be committed.</p></div></div></article></section><section class="card"><div class="card-header"><h3 class="card-title">Recent sessions</h3><span class="card-note">3 active sessions</span></div><div class="table-scroll"><table><thead><tr><th>Device</th><th>Location</th><th>Last active</th><th>Status</th><th class="actions-cell">Actions</th></tr></thead><tbody><tr><td>Chrome on Windows</td><td>Pune, Maharashtra</td><td>Now</td><td>${badge('Current Session','success')}</td><td class="actions-cell"><button class="secondary" data-toast="Session management is unavailable in this local demo.">Current</button></td></tr><tr><td>Safari on iPad</td><td>Pune, Maharashtra</td><td>2 hours ago</td><td>${badge('Active','info')}</td><td class="actions-cell"><button class="secondary" data-toast="Session revocation is unavailable in this local demo.">Revoke</button></td></tr><tr><td>Chrome on macOS</td><td>Mumbai, Maharashtra</td><td>Yesterday</td><td>${badge('Expired','neutral')}</td><td class="actions-cell"><button class="secondary" data-toast="Session details are unavailable in this local demo.">Details</button></td></tr></tbody></table></div></section></main>`;
-  renderShell(content, 'Admin Settings & Security'); document.querySelectorAll('[data-toast]').forEach(el => el.addEventListener('click', () => showToast(el.dataset.toast)));
+  const profile = portalAuth?.profile || {};
+  const content = `<main class="main"><section class="page-intro"><div><p class="eyebrow">ADMINISTRATION · ACCOUNT</p><h2 class="headline">Admin Settings</h2><p class="subhead">Your own CampusPulse profile. Role and college are server-controlled and cannot be edited from this screen.</p></div></section>
+    <section class="detail-grid"><article class="card"><div class="card-header"><h3 class="card-title">Profile</h3>${icon('user-cog', 16)}</div>
+      <form id="profile-form" class="form-grid">
+        <label class="form-field full"><span class="form-label">Full name</span><input class="field" name="full_name" maxlength="160" required value="${esc(profile.full_name || '')}" /></label>
+        <label class="form-field full"><span class="form-label">Bio</span><textarea class="field" name="bio" rows="3" maxlength="2000">${esc(profile.bio || '')}</textarea></label>
+        <div class="form-field"><span class="form-label">Email</span><p class="subhead" style="margin:0">${esc(portalAuth?.user?.email || '—')}</p></div>
+        <div class="form-field"><span class="form-label">Role</span><p class="subhead" style="margin:0">${esc(profile.role || 'admin')}</p></div>
+        <div class="form-field full"><span class="form-label">College</span><p class="subhead mono" style="margin:0">${esc(profile.college_id || 'not assigned')}</p></div>
+        <div class="modal-footer" style="grid-column:1/-1"><button class="primary" type="submit">${icon('save', 14)}Save changes</button></div>
+      </form></article>
+      <article class="card"><div class="card-header"><h3 class="card-title">Session</h3>${icon('shield-check', 16)}</div>
+        <p class="subhead">Signed in with Supabase Auth as ${esc(portalAuth?.user?.email || 'an administrator')}. The session token lives in this browser; signing out clears it.</p>
+        <button class="secondary" id="settings-sign-out">Sign out</button></article></section>
+  </main>`;
+  renderShell(content, 'Admin Settings');
+  document.getElementById('profile-form')?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const form = event.target;
+    const button = form.querySelector('button[type="submit"]');
+    button.disabled = true;
+    try {
+      const saved = await updateOwnProfile(portalAuth.client, profile.id, { full_name: form.full_name.value, bio: form.bio.value });
+      portalAuth.profile = { ...profile, ...saved };
+      showToast('Profile saved.', false);
+      renderSettings();
+    } catch (error) {
+      showToast(error.message || 'Your profile could not be saved.');
+      button.disabled = false;
+    }
+  });
+  document.getElementById('settings-sign-out')?.addEventListener('click', async () => {
+    try {
+      const { error } = await portalAuth.client.auth.signOut();
+      if (error) throw error;
+      location.replace('/');
+    } catch (error) { showToast(error.message || 'Unable to sign out.'); }
+  });
 }
-
 function openStudent(person) {
   openModal(`<div class="modal-header"><div class="person"><span class="person-avatar" style="width:44px;height:44px">${esc(initials(person.full_name || 'Student'))}</span><span><h3 class="modal-title">${esc(person.full_name || 'Unnamed student')}</h3><p class="card-note">${esc(person.role)} profile</p></span></div><button class="icon-button" data-close-modal>${icon('x')}</button></div><div class="modal-body"><div class="detail-grid"><div class="info-block"><p class="info-label">Profile ID</p><p class="info-value mono">${esc(person.id)}</p></div><div class="info-block"><p class="info-label">Role</p><p class="info-value">${esc(person.role)}</p></div><div class="info-block"><p class="info-label">College</p><p class="info-value mono">${esc(person.college_id || 'not assigned')}</p></div><div class="info-block"><p class="info-label">Joined</p><p class="info-value">${esc(person.created_at ? new Date(person.created_at).toLocaleDateString() : '—')}</p></div></div><p class="card-note">Role and college are server-controlled. Use the grant-role Edge function from Faculty Management to change access.</p></div>`);
 }
@@ -532,6 +652,7 @@ async function refresh() {
   }
   try {
     state.snapshot = await loadAdminSnapshot(portalAuth.client);
+    state.records = await loadModuleRecords(portalAuth.client);
   } catch (error) {
     state.message = error.message || 'Live data could not load.';
   }
