@@ -123,7 +123,7 @@ export async function gradeSubmission(client, submissionId, { grade, feedback })
 /** Storage RLS authorises the read, so no Edge function is required. */
 export async function loadTimetable(client) {
   return await unwrap(
-    client.from('module_records').select('id,title,status,details,created_at').eq('module', 'timetable').order('created_at', { ascending: false }).limit(200),
+    client.from('module_records').select('id,title,status,details,created_at').eq('module', 'timetable-management').order('created_at', { ascending: false }).limit(200),
     'The timetable could not be loaded',
   );
 }
