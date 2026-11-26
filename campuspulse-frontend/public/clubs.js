@@ -209,11 +209,28 @@ function wireEvents() {
 }
 
 async function initClubs() {
+  let signedIn = false;
   try {
     const { data } = await supabase.auth.getUser();
+    signedIn = Boolean(data?.user);
     if (data?.user) me = await api.myProfile();
   } catch { /* the API call below reports the real problem */ }
   wireEvents();
+  if (!signedIn) {
+    const panel = document.getElementById("ce-panel-events");
+    if (panel) {
+      panel.querySelectorAll(".event-card").forEach((node) => node.remove());
+      const chips = panel.querySelector(".ecat-chip")?.parentElement;
+      const card = `
+        <article class="rounded-lg border ${C.card} p-gutter-lg flex flex-col gap-gutter-sm">
+          <p class="font-title text-title-md ${C.text}">Sign in to CampusPulse</p>
+          <p class="font-body text-body-sm ${C.muted}">Sign in to see your college's events, register with one tap and follow your clubs.</p>
+          <a href="/login" class="inline-flex items-center gap-1.5 self-start rounded-full px-4 py-2 font-label text-label-md ${C.primary}">Sign in</a>
+        </article>`;
+      if (chips) chips.insertAdjacentHTML("afterend", card); else panel.insertAdjacentHTML("beforeend", card);
+    }
+    return;
+  }
   try {
     await loadActivity();
     await loadEvents();

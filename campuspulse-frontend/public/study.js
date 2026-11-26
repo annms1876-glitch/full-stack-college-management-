@@ -208,6 +208,13 @@ function doubtCard(doubt) {
     </article>`;
 }
 
+const signInCard = (message) => `
+  <article class="rounded-lg border ${C.card} p-gutter-lg flex flex-col gap-gutter-sm">
+    <p class="font-title text-title-md ${C.text}">Sign in to CampusPulse</p>
+    <p class="font-body text-body-sm ${C.muted}">${esc(message)}</p>
+    <a href="/login" class="inline-flex items-center gap-1.5 self-start rounded-full px-4 py-2 font-label text-label-md ${C.primary}">Sign in</a>
+  </article>`;
+
 const emptyDoubts = () => `
   <article class="rounded-lg border ${C.card} p-gutter-lg flex flex-col gap-gutter-xs">
     <p class="font-title text-title-md ${C.text}">No questions in your college yet</p>
@@ -426,8 +433,10 @@ async function loadResources() {
 }
 
 async function initStudy() {
+  let signedIn = false;
   try {
     const { data } = await supabase.auth.getUser();
+    signedIn = Boolean(data?.user);
     if (data?.user) {
       me = await api.myProfile();
       const identityLabel = document.getElementById("identity-label");
@@ -449,6 +458,20 @@ async function initStudy() {
     const panel = document.getElementById(section.panel);
     if (panel) ensureUploadButton(panel, section.category, section.label);
   }
+
+  // A signed-out visitor gets a clear prompt instead of a permissions toast.
+  if (!signedIn) {
+    const list = document.getElementById("doubt-feed-list");
+    if (list) list.innerHTML = signInCard("Sign in to ask questions, vote and read your batchmates' solutions.");
+    for (const section of SECTIONS) {
+      const panel = document.getElementById(section.panel);
+      if (!panel) continue;
+      panel.querySelectorAll(":scope > article").forEach((node) => node.remove());
+      panel.insertAdjacentHTML("beforeend", emptySection("Sign in to download and share notes, summaries and e-library files."));
+    }
+    return;
+  }
+
   await Promise.all([loadDoubts(), loadResources()]);
 }
 
