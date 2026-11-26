@@ -1,7 +1,17 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+// The SDK is vendored at /vendor/supabase-js.js: one same-origin request instead
+// of ~15 cross-origin module fetches to esm.sh, which dominated login latency.
+import { createClient } from "/vendor/supabase-js.js";
 import { validateUploadFile, UPLOAD_ALLOWLIST } from "/file-signature.js";
+const configKey = "campuspulse:runtime-config";
 let config = {};
-try { const response = await fetch("/api/config", { cache: "no-store" }); if (response.ok) config = await response.json(); } catch {}
+try { config = JSON.parse(sessionStorage.getItem(configKey) || "{}") || {}; } catch { config = {}; }
+if (!config.supabaseUrl || !config.publishableKey) {
+  try {
+    const response = await fetch("/api/config", { cache: "no-store" });
+    if (response.ok) config = await response.json();
+    if (config.supabaseUrl && config.publishableKey) sessionStorage.setItem(configKey, JSON.stringify(config));
+  } catch { config = {}; }
+}
 export const configured = Boolean(config.supabaseUrl && config.publishableKey);
 export const supabase = configured ? createClient(config.supabaseUrl, config.publishableKey) : null;
 const client = () => { if (!supabase) throw new Error("Set SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY to enable backend features."); return supabase; };

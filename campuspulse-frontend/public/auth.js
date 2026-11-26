@@ -1,7 +1,7 @@
 // Optional Supabase Auth client helper. This module is intentionally not imported
 // by app.js; UI wiring remains a separate task. Provide runtime config through
 // window.CAMPUSPULSE_SUPABASE_CONFIG or window.CAMPUSPULSE_ENV before importing.
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "/vendor/supabase-js.js";
 
 const config = globalThis.CAMPUSPULSE_SUPABASE_CONFIG || globalThis.CAMPUSPULSE_ENV || {};
 const supabaseUrl = config.supabaseUrl || config.SUPABASE_URL;
