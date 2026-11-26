@@ -9,6 +9,10 @@ import {
   grantRole,
   listColleges,
   loadAdminSnapshot,
+  loadModuleRecords,
+  createModuleRecord,
+  deleteModuleRecord,
+  updateOwnProfile,
   publishNotice,
   requestSignedUrl,
 } from './data.js';
@@ -477,7 +481,7 @@ function openInfoModal(title, text) { openModal(`<div class="modal-header"><h3 c
 function openModal(inner) { const backdrop = document.getElementById('modal-backdrop'); if (!backdrop) return; backdrop.innerHTML = `<div class="modal">${inner}</div>`; backdrop.classList.add('open'); backdrop.querySelectorAll('[data-close-modal]').forEach(el => el.addEventListener('click', closeModal)); backdrop.querySelector('[data-save-modal]')?.addEventListener('click', () => { closeModal(); showToast('Local demo form closed. No record was saved or changed.'); }); setIcons(); }
 function closeModal() { document.getElementById('modal-backdrop')?.classList.remove('open'); }
 function openSearch() { openModal(`<div class="modal-header"><input class="field" id="global-search-input" placeholder="Jump to any module or record..." autofocus /><button class="secondary" data-close-modal>ESC</button></div><div class="search-results">${modules.map(m => `<a href="${portalPath(m.path)}" class="search-result">${icon(m.icon)}<span><strong>${m.label}</strong><small class="muted" style="display:block">Open module</small></span></a>`).join('')}</div>`); }
-function showToast(message, localOnly = true) { const stack = document.getElementById('toast-stack'); if (!stack) return; const toast = document.createElement('div'); toast.className = 'toast'; toast.setAttribute('role', 'status'); toast.setAttribute('aria-live', 'polite'); toast.innerHTML = `${icon('info', 16)}<span>${esc(message)}${localOnly ? ' Local demo only—no data was saved, changed, sent, imported, exported, synced, or approved.' : ''}</span>`; stack.appendChild(toast); setIcons(); setTimeout(() => toast.remove(), 3200); }
+function showToast(message, localOnly = !live()) { const stack = document.getElementById('toast-stack'); if (!stack) return; const toast = document.createElement('div'); toast.className = 'toast'; toast.setAttribute('role', 'status'); toast.setAttribute('aria-live', 'polite'); toast.innerHTML = `${icon('info', 16)}<span>${esc(message)}${localOnly ? ' Local demo only—no data was saved, changed, sent, imported, exported, synced, or approved.' : ''}</span>`; stack.appendChild(toast); setIcons(); setTimeout(() => toast.remove(), 3200); }
 
 
 // ---------------------------------------------------------------------------
