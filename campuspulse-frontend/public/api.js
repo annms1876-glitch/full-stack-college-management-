@@ -163,6 +163,74 @@ export const api = {
     if (!Object.keys(patch).length) throw new Error("Nothing to update.");
     return result(c.from("profiles").update(patch).eq("id", user.id).select("id,full_name,avatar_url,bio,role,college_id").single());
   },
+  // ---- Study hub: peer doubts, votes and shared study files ----
+  doubts: async (limit = 30) => result(client().from("doubts")
+    .select("id,title,body,category,anonymous,attachment_url,attachment_name,created_at,author:profiles!doubts_author_id_fkey(id,full_name,avatar_url),doubt_votes(user_id),doubt_answers(id,body,created_at,author:profiles!doubt_answers_author_id_fkey(id,full_name,avatar_url))")
+    .order("created_at", { ascending: false }).limit(Math.min(50, Math.max(1, limit)))),
+  addDoubtAnswer: async (doubtId, body) => {
+    const c = client(), user = await currentUser(), text = String(body || "").trim();
+    if (!text) throw new Error("Write your solution first.");
+    return result(c.from("doubt_answers").insert({ doubt_id: doubtId, author_id: user.id, body: text.slice(0, 3000) })
+      .select("id,body,created_at,author:profiles!doubt_answers_author_id_fkey(id,full_name,avatar_url)").single());
+  },
+  addDoubt: async ({ title, body, category, anonymous, file }) => {
+    const c = client(), user = await currentUser(), cleanTitle = String(title || "").trim();
+    if (!cleanTitle) throw new Error("Write a short question title first.");
+    const profile = await result(c.from("profiles").select("college_id").eq("id", user.id).single());
+    if (!profile?.college_id) throw new Error("Your profile has no college linked yet, so questions cannot be posted. Ask a college administrator to set your college.");
+    let attachmentUrl = null, attachmentName = null;
+    if (file) {
+      const checked = await validateUploadFile(file);
+      if (!checked.ok) throw new Error(checked.message);
+      const path = `${user.id}/notes/${crypto.randomUUID()}-${safeName(file.name).slice(0, 150)}`;
+      const up = await c.storage.from("campus-uploads").upload(path, file, { contentType: file.type, upsert: false });
+      if (up.error) throw /bucket/i.test(up.error.message || "") ? missingStorageMessage("campus-uploads") : up.error;
+      attachmentUrl = storagePublicUrl("campus-uploads", path);
+      attachmentName = safeName(file.name);
+    }
+    return result(c.from("doubts").insert({
+      author_id: user.id, college_id: profile.college_id, title: cleanTitle.slice(0, 200),
+      body: String(body || "").trim().slice(0, 5000),
+      category: String(category || "General").slice(0, 60),
+      anonymous: Boolean(anonymous), attachment_url: attachmentUrl, attachment_name: attachmentName,
+    }).select("id,title,body,category,anonymous,attachment_url,attachment_name,created_at").single());
+  },
+  voteDoubt: async (doubtId, enabled) => {
+    const user = await currentUser(), c = client();
+    return result(enabled
+      ? c.from("doubt_votes").upsert({ doubt_id: doubtId, user_id: user.id }, { onConflict: "doubt_id,user_id", ignoreDuplicates: true })
+      : c.from("doubt_votes").delete().match({ doubt_id: doubtId, user_id: user.id }));
+  },
+  studyResources: async (category) => {
+    let query = client().from("study_resources")
+      .select("id,title,description,category,course_code,file_path,file_name,file_size,mime_type,created_at,uploader:profiles!study_resources_uploader_id_fkey(id,full_name)")
+      .order("created_at", { ascending: false }).limit(60);
+    if (category) query = query.eq("category", category);
+    return result(query);
+  },
+  addStudyResource: async ({ title, description, category, courseCode, file }) => {
+    const c = client(), user = await currentUser(), cleanTitle = String(title || "").trim();
+    if (!cleanTitle) throw new Error("Give this material a title.");
+    if (!file) throw new Error("Choose a file to upload.");
+    const checked = await validateUploadFile(file);
+    if (!checked.ok) throw new Error(checked.message);
+    const profile = await result(c.from("profiles").select("college_id").eq("id", user.id).single());
+    if (!profile?.college_id) throw new Error("Your profile has no college linked yet, so files cannot be uploaded. Ask a college administrator to set your college.");
+    const path = `${user.id}/notes/${crypto.randomUUID()}-${safeName(file.name).slice(0, 150)}`;
+    const up = await c.storage.from("campus-uploads").upload(path, file, { contentType: file.type, upsert: false });
+    if (up.error) throw /bucket/i.test(up.error.message || "") ? missingStorageMessage("campus-uploads") : up.error;
+    const allowed = ["notes", "summary", "elibrary", "paper"];
+    return result(c.from("study_resources").insert({
+      uploader_id: user.id, college_id: profile.college_id,
+      title: cleanTitle.slice(0, 200),
+      description: String(description || "").trim().slice(0, 2000),
+      category: allowed.includes(category) ? category : "notes",
+      course_code: String(courseCode || "").trim().slice(0, 40),
+      file_path: path, file_name: safeName(file.name).slice(0, 255),
+      file_size: file.size, mime_type: file.type,
+    }).select("id,title,description,category,course_code,file_path,file_name,file_size,mime_type,created_at").single());
+  },
+  deleteStudyResource: async (id) => { const user = await currentUser(); return result(client().from("study_resources").delete().match({ id, uploader_id: user.id })); },
   storagePublicUrl,
   uploadLimits: () => ({ mime: [...UPLOAD_ALLOWLIST], maxBytes: 26214400 }),
 };

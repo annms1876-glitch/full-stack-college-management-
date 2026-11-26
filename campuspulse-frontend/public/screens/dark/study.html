@@ -428,14 +428,6 @@
       });
     });
 
-    // Questions are a preview only; this screen has no question-submission API.
-    document.getElementById('submit-doubt-btn').addEventListener('click', () => {
-      let status = document.getElementById('study-demo-status');
-      if (!status) { status = document.createElement('p'); status.id = 'study-demo-status';
-        status.setAttribute('role', 'status'); status.setAttribute('aria-live', 'polite');
-        document.getElementById('submit-doubt-btn').closest('article')?.append(status); }
-      status.textContent = 'Preview only: your question was not submitted or saved.';
-    });
     // Category Filter for Doubts
     document.querySelectorAll('.qcat-chip').forEach((chip) => {
       chip.addEventListener('click', () => {
@@ -456,29 +448,7 @@
       });
     });
 
-    // Sample vote counts are illustrative and cannot be changed persistently.
-    document.querySelectorAll('.upvote-btn').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        let status = document.getElementById('study-demo-status');
-        if (!status) { status = document.createElement('p'); status.id = 'study-demo-status';
-          status.setAttribute('role', 'status'); status.setAttribute('aria-live', 'polite');
-          document.querySelector('main')?.prepend(status); }
-        status.textContent = 'Unavailable: sample question votes are not connected and were not changed.';
-      });
-    });
-    // Attach, contribute, download, and solution controls have no backing files/API yet.
-    document.querySelectorAll('button[aria-label="Download PDF"], button[aria-label*="download" i], button').forEach((btn) => {
-      const label = (btn.textContent || btn.getAttribute('aria-label') || '').trim().toLowerCase();
-      if (!/attach|download|contribute|solution|add solution/.test(label)) return;
-      btn.addEventListener('click', () => {
-        let status = document.getElementById('study-demo-status');
-        if (!status) { status = document.createElement('p'); status.id = 'study-demo-status';
-          status.setAttribute('role', 'status'); status.setAttribute('aria-live', 'polite');
-          document.querySelector('main')?.prepend(status); }
-        status.textContent = 'Unavailable: this sample action is not connected to a file or backend.';
-      });
-    });
-
+    // Doubt posting, votes, solutions and study files are handled by /study.js.
   </script>
 
 

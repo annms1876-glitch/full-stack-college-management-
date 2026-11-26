@@ -115,3 +115,5 @@ document.querySelectorAll(".share-btn").forEach(b=>b.addEventListener("click",as
 window.CampusPulse=Object.freeze({theme:dark?"dark":"light",routes:Object.freeze(Object.fromEntries(screens.map(s=>[s,route(s)]))),api});
 // Live social layer: composer, posts, comments, stories and the profile editor.
 await import("/social.js");
+// Study hub: doubts, votes, solutions and shared study files.
+await import("/study.js");
