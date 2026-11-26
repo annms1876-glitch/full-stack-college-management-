@@ -1,5 +1,6 @@
-import { createClient } from '@supabase/supabase-js';
-
+// Kicked off at module load so it competes with the config request instead of
+// queueing behind it, while the login form paints from the small entry chunk.
+const sdkPromise = import('@supabase/supabase-js');
 const CONFIG_KEY = 'campuspulse:portal-config';
 const DEMO_KEY = 'campuspulse:faculty-demo';
 const AUTH_TIMEOUT_MS = 8000;
@@ -66,6 +67,7 @@ export async function startPortalAuth({ onAuthorized }) {
       config = { supabaseUrl: payload.supabaseUrl, publishableKey: payload.publishableKey };
       try { sessionStorage.setItem(CONFIG_KEY, JSON.stringify(config)); } catch { /* private mode */ }
     }
+    const [{ createClient }] = await Promise.all([sdkPromise]);
     const client = createClient(config.supabaseUrl, config.publishableKey);
     activeClient = client;
     const { data: { session }, error } = await withTimeout(client.auth.getSession(), 'Secure session restore timed out. Please retry sign-in.');
