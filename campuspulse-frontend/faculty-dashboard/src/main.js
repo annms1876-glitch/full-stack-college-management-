@@ -210,6 +210,7 @@ function profile() {
         <p class="muted" style="margin-top:10px">Role: <strong>${escape(p.role || 'faculty')}</strong> · College: <span class="mono">${escape(p.college_id || 'not assigned')}</span></p>
       </form></section></div>`
 }
+const pages = { dashboard, courses, timetable, attendance, assignments, workflow, profile }
 function render() {
   document.querySelector('#app').innerHTML = shell(pages[activeRoute]())
   bindEvents()
