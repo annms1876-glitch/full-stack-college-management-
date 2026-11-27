@@ -6,28 +6,53 @@ const sdkPromise = import('@supabase/supabase-js')
 const CONFIG_KEY = 'campuspulse:portal-config'
 const DEMO_KEY = 'campuspulse:admin-demo'
 const AUTH_TIMEOUT_MS = 8000
+const AUTH_TIMEOUT_SECONDS = AUTH_TIMEOUT_MS / 1000
 const LOCAL_DEV_BYPASS = import.meta.env.DEV
+
+function timeoutError(message) {
+  const error = new Error(message)
+  error.name = 'TimeoutError'
+  return error
+}
 
 function withTimeout(promise, message) {
   let timer
-  const timeout = new Promise((_, reject) => { timer = setTimeout(() => reject(new Error(message)), AUTH_TIMEOUT_MS) })
+  const timeout = new Promise((_, reject) => { timer = setTimeout(() => reject(timeoutError(message)), AUTH_TIMEOUT_MS) })
   return Promise.race([promise, timeout]).finally(() => clearTimeout(timer))
+}
+
+// Show what actually broke: a wrong password, a stalled Supabase project and a
+// profile row that is not linked to Clerk must not look the same on screen.
+function describeError(error) {
+  if (!error) return 'no error details were returned'
+  if (error.name === 'TimeoutError') return error.message
+  if (Array.isArray(error.errors) && error.errors.length) {
+    return error.errors
+      .map(({ message, longMessage, code }) => [longMessage || message, code ? `code ${code}` : ''].filter(Boolean).join(' ') || 'unknown Clerk error')
+      .join('; ')
+  }
+  const message = error.message || String(error)
+  const extra = []
+  if (error.code) extra.push(`code ${error.code}`)
+  if (error.details) extra.push(String(error.details))
+  if (error.hint) extra.push(`hint: ${error.hint}`)
+  return extra.length ? `${message} (${extra.join(', ')})` : message
 }
 
 async function loadClerk(config) {
   if (!config.clerkPublishableKey) throw new Error('Set CLERK_PUBLISHABLE_KEY to enable CampusPulse sign-in.')
   if (!window.Clerk) {
-    await new Promise((resolve, reject) => {
+    await withTimeout(new Promise((resolve, reject) => {
       const script = document.createElement('script')
       script.src = 'https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5/dist/clerk.browser.js'
       script.async = true
       script.onload = resolve
-      script.onerror = () => reject(new Error('Unable to load the CampusPulse sign-in service.'))
+      script.onerror = () => reject(new Error('Unable to load the CampusPulse sign-in service from cdn.jsdelivr.net.'))
       document.head.append(script)
-    })
+    }), `The sign-in service did not load within ${AUTH_TIMEOUT_SECONDS}s. Your network may be blocking cdn.jsdelivr.net.`)
   }
   const clerk = window.Clerk
-  await withTimeout(clerk.load({ publishableKey: config.clerkPublishableKey }), 'Secure sign-in setup timed out. Please retry.')
+  await withTimeout(clerk.load({ publishableKey: config.clerkPublishableKey }), `Secure sign-in setup timed out after ${AUTH_TIMEOUT_SECONDS}s. Check the Clerk publishable key and retry.`)
   return clerk
 }
 
@@ -45,8 +70,18 @@ function setMessage(text, isError = false) {
 }
 
 async function verifyRole(client, user) {
-  const { data, error } = await client.from('profiles').select('id, full_name, role, college_id, bio').eq('clerk_user_id', user.id).single()
-  if (error) throw new Error(`Could not verify your CampusPulse profile: ${error.message}. Confirm the Clerk identity mapping and profile provisioning.`)
+  let result
+  try {
+    result = await withTimeout(
+      client.from('profiles').select('id, full_name, role, college_id, bio').eq('clerk_user_id', user.id).single(),
+      `Profile check timed out after ${AUTH_TIMEOUT_SECONDS}s: Supabase did not answer the profiles request. Check the deployed SUPABASE_URL and publishable key, and that the project is not paused.`,
+    )
+  } catch (error) {
+    throw error?.name === 'TimeoutError' ? error : new Error(`Could not run the CampusPulse profile check: ${describeError(error)}.`)
+  }
+  const { data, error } = result
+  if (error) throw new Error(`Could not verify your CampusPulse profile: ${describeError(error)}. Confirm the Clerk identity mapping and profile provisioning.`)
+  if (!data) throw new Error('No CampusPulse profile is linked to this Clerk account. Confirm profiles.clerk_user_id is populated by the Clerk identity migration.')
   if (data?.role !== 'admin') throw new Error(`This account has the ${data?.role || 'unassigned'} role. The admin portal requires an admin profile.`)
   return data
 }
@@ -58,8 +93,13 @@ async function readConfig() {
     if (cached?.clerkPublishableKey && cached?.supabaseUrl && cached?.publishableKey) config = cached
   } catch { config = null }
   if (!config) {
-    const response = await fetch('/api/config', { cache: 'no-store', signal: AbortSignal.timeout(AUTH_TIMEOUT_MS) })
-    if (!response.ok) throw new Error('Runtime authentication configuration endpoint is unavailable.')
+    let response
+    try {
+      response = await fetch('/api/config', { cache: 'no-store', signal: AbortSignal.timeout(AUTH_TIMEOUT_MS) })
+    } catch (error) {
+      throw new Error(`Runtime configuration did not load within ${AUTH_TIMEOUT_SECONDS}s (${describeError(error)}). Check that this deployment serves /api/config.`)
+    }
+    if (!response.ok) throw new Error(`The runtime authentication configuration endpoint returned HTTP ${response.status}.`)
     const payload = await response.json()
     if (!payload.clerkPublishableKey || !payload.supabaseUrl || !payload.publishableKey) throw new Error('Set CLERK_PUBLISHABLE_KEY, SUPABASE_URL, and SUPABASE_PUBLISHABLE_KEY in this portal process, then restart Vite.')
     config = { clerkPublishableKey: payload.clerkPublishableKey, supabaseUrl: payload.supabaseUrl, publishableKey: payload.publishableKey }
@@ -89,7 +129,10 @@ export async function startPortalAuth({ onAuthorized }) {
   const clientPromise = (async () => {
     const config = await readConfig()
     clerk = await loadClerk(config)
-    const [{ createClient }] = await Promise.all([sdkPromise])
+    const [{ createClient }] = await withTimeout(
+      Promise.all([sdkPromise]),
+      `The Supabase browser bundle did not finish loading within ${AUTH_TIMEOUT_SECONDS}s. Reload the page; if this repeats, the deployed build is missing an asset.`,
+    )
     if (clerk.session) {
       client = createClerkSupabaseClient({ createClient, clerk, config })
       const profile = await verifyRole(client, clerk.user)
@@ -100,8 +143,9 @@ export async function startPortalAuth({ onAuthorized }) {
 
   clientPromise.catch((error) => {
     if (LOCAL_DEV_BYPASS && /configuration|CLERK_PUBLISHABLE_KEY|SUPABASE_URL/i.test(error.message || '')) { enterDemo(); return }
-    authView(error.message || 'Authentication setup failed.')
-    setMessage(error.message || 'Authentication setup failed.', true)
+    const message = describeError(error) || 'Authentication setup failed.'
+    authView(message)
+    setMessage(message, true)
     document.querySelector('#portal-anonymous-demo')?.addEventListener('click', enterDemo)
     wireForm()
   })
@@ -116,17 +160,28 @@ export async function startPortalAuth({ onAuthorized }) {
       button.disabled = true
       button.textContent = 'Checking…'
       setMessage('')
+      let attemptedClerk = null
       try {
         const { clerk: activeClerk, client: activeClient, config, createClient } = await clientPromise
+        attemptedClerk = activeClerk
         const formData = new FormData(form)
-        const result = await activeClerk.client.signIn.create({ identifier: String(formData.get('email')).trim().toLowerCase(), password: String(formData.get('password')) })
-        if (result.status !== 'complete' || !result.createdSessionId) throw new Error('Clerk could not complete sign-in. Check the account and try again.')
-        await activeClerk.setActive({ session: result.createdSessionId })
+        const result = await withTimeout(
+          activeClerk.client.signIn.create({ identifier: String(formData.get('email')).trim().toLowerCase(), password: String(formData.get('password')) }),
+          `Sign-in timed out after ${AUTH_TIMEOUT_SECONDS}s: the sign-in service did not answer. Check your connection and that the Clerk publishable key is correct.`,
+        )
+        if (result.status !== 'complete' || !result.createdSessionId) throw new Error(`Clerk could not complete sign-in (status: ${result.status || 'unknown'}). Check the account and try again.`)
+        await withTimeout(
+          activeClerk.setActive({ session: result.createdSessionId }),
+          `Activating your session timed out after ${AUTH_TIMEOUT_SECONDS}s. Please retry sign-in.`,
+        )
         const signedInClient = activeClient || createClerkSupabaseClient({ createClient, clerk: activeClerk, config })
         const profile = await verifyRole(signedInClient, activeClerk.user)
         onAuthorized({ user: userForPortal(activeClerk.user), profile, client: signedInClient, clerk: activeClerk })
       } catch (error) {
-        setMessage(error.message || 'Unable to sign in. Check the account and try again.', true)
+        // A failed role check leaves a live Clerk session behind; clear it so the
+        // next attempt starts clean, but never let that cleanup hang the form.
+        if (attemptedClerk?.session) await withTimeout(attemptedClerk.signOut(), `Sign-out did not answer within ${AUTH_TIMEOUT_SECONDS}s; continuing.`).catch(() => {})
+        setMessage(describeError(error) || 'Unable to sign in. Check the account and try again.', true)
       } finally {
         button.disabled = false
         button.textContent = 'Sign in'
