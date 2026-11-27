@@ -13,7 +13,8 @@ function syncControls(theme) {
     button.setAttribute('aria-pressed', String(theme === 'dark'));
     button.title = `Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`;
     const icon = button.querySelector('[data-theme-icon]');
-    if (icon) icon.textContent = theme === 'dark' ? '☀' : '☾';
+    const iconText = theme === 'dark' ? '☀' : '☾';
+    if (icon && icon.textContent !== iconText) icon.textContent = iconText;
   });
 }
 function radialReveal(event, theme) {

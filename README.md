@@ -1,107 +1,130 @@
 # CampusPulse
 
-CampusPulse is a college-management prototype with Student, Faculty, and Admin web portals. The Student site is mostly static HTML/CSS/JavaScript; Faculty and Admin are Vite apps. Supabase provides Postgres, Row-Level Security (RLS), file storage, and Edge Functions. Clerk handles sign-in and supplies the JWT used by Supabase.
+**A college-management platform with Student, Faculty, and Admin portals served from one origin.** The Student experience is static-first; Faculty and Admin are separate Vite applications; Supabase provides the data layer and Clerk provides identity.
 
-> **Preview is not live use.** Faculty/Admin preview mode uses sample content only; it does not sign in, read Supabase, or save changes. Live use requires an externally configured Clerk and Supabase project plus a trusted `public.profiles` row for each Clerk user. This repository does not provide a local Supabase stack or automatic Clerk-profile provisioning.
+![CampusPulse Student home](docs/screenshots/student-home.png)
 
-## Run a local preview
+## Run all three portals locally
 
-Requirements: Git, Node.js 20 or newer, and npm. For the UI preview, start each portal in a separate terminal.
-
-1. Clone the repository:
-
-   ```bash
-   git clone https://github.com/annms1876-glitch/full-stack-college-management-.git
-   cd full-stack-college-management-
-   ```
-
-2. Start the Student site:
-
-   ```bash
-   cd campuspulse-frontend
-   node server.js
-   ```
-
-   Open <http://127.0.0.1:3000/>. Static screens load without a backend; sign-in and saved data do not.
-
-3. Start the Faculty preview in a second terminal from the repository root:
-
-   ```bash
-   cd campuspulse-frontend/faculty-dashboard
-   npm ci
-   npm run dev
-   ```
-
-   Open <http://127.0.0.1:3001/?demo=1>.
-
-4. Start the Admin preview in a third terminal from the repository root:
-
-   ```bash
-   cd campuspulse-admin-dashboard
-   npm ci
-   npm run dev
-   ```
-
-   Open <http://127.0.0.1:3002/?demo=1>.
-
-The three preview servers have different browser origins, so their sessions are separate. Faculty/Admin `?demo=1` is read-only sample mode. Student has no anonymous demo sign-in.
-
-## Configure live Clerk/Supabase access
-
-Before starting each local server, provide these browser-safe values in that server's environment:
+Requirements: Git, Node.js 20 or newer, and npm. From a fresh clone, use the repository root for the combined preview:
 
 ```bash
-export CLERK_PUBLISHABLE_KEY="pk_test_your_clerk_publishable_key"
-export SUPABASE_URL="https://your-project.supabase.co"
-export SUPABASE_PUBLISHABLE_KEY="your_supabase_publishable_key"
+git clone https://github.com/annms1876-glitch/full-stack-college-management-.git
+cd full-stack-college-management-
+npm ci
+npm run preview
 ```
 
-The Faculty/Admin Vite apps read environment values from their process; the Student Node server returns them from its local `/api/config` route. Restart each server after changing the values.
+The preview command builds the Student, Faculty, and Admin outputs, then serves them from the same local server. Open **<http://127.0.0.1:3000/>**. The home page and both staff portals share one origin:
 
-Clerk must issue a Supabase-compatible JWT with the template name `supabase`, and Supabase must be configured to verify it. Each Clerk user must map to a trusted profile containing `clerk_user_id`, role, and (where applicable) college. This repo has no automatic Clerk-to-profile provisioning service; three environment values alone do not make sign-in operational. Follow [Clerk and Supabase setup](docs/backend/clerk-supabase-auth.md) before connecting a project.
+- Student home: `/`
+- Faculty portal: `/faculty/`
+- Admin portal: `/admin/`
 
-Migrations are in `supabase/migrations/`. `supabase/config.toml` is not included, so `supabase start` is not a working setup command for this checkout. Review the migrations and apply them to a disposable, configured Supabase project before attempting live tests. Never point seed scripts at production.
+For another local port, set `PORT=3001 npm run preview`. The server binds to loopback by default; use `HOST=0.0.0.0` only when you intentionally need LAN access. The first build installs the Faculty and Admin lockfile-pinned dependencies.
 
-Do not expose a Clerk secret key, Supabase service-role key, database password, or AI-provider key in browser code or `VITE_*` values. Keep privileged secrets in trusted server/Edge Function configuration.
+The root preview is the recommended workflow when testing the home-page portal links. The individual Vite servers on ports 3001 and 3002 are useful for isolated UI development, but they are separate origins and do not reproduce the deployed route layout.
 
-## What works, and what is still a placeholder
+## What the portals currently do
 
-A menu item or SQL table is not proof of a complete feature. The table below describes portal wiring in this repository; every live flow still depends on the external identity, migration, RLS, Storage, and Edge Function setup above.
+| Portal or workflow | Implemented behavior | Important boundary |
+|---|---|---|
+| Student | Static campus pages, with live data operations for enrolled courses, assignments, submissions, and signed file downloads. Some interactions remain presentation-only. | Sign-in and persisted data need a configured Clerk/Supabase project. |
+| Faculty | Live views and operations for assigned courses, enrolments, notices, assignments, submissions, grading, and attendance. | Access is checked using the trusted profile role and database row-level security (RLS). |
+| Admin core | Live profile, course, enrolment, notice, and role-management operations; assignment and submission oversight is read-only. | Role changes apply to already provisioned members in the administrator’s college. |
+| Admin modules | The schema includes timetable, scholarship, fee, grievance, support, library, and examination tables. | These Admin menu screens currently store generic `module_records` notes; they are not full workflows for those domains. |
+| AI assistant | Faculty/Admin can request advisory text from the configured `ai-assistant` Edge Function. | It does not execute a multi-agent workflow or modify, approve, or publish records. |
 
-| Area | Current status |
-|---|---|
-| Faculty coursework | Connected Supabase operations for assigned courses, enrolment, notices, assignments, submissions, and grading. |
-| Student coursework | Student API has live data operations for enrolled courses, assignments, file submissions, and signed downloads. Some screen actions remain presentation-only. |
-| Attendance | Faculty can load and save attendance for actively enrolled students by course/date. The write policy verifies college, assigned course staff or admin access, and active enrolment. The Student portal does not yet show attendance history. |
-| Admin core | Live views and operations for profiles, courses, enrolment, notices, and role changes for already provisioned users; assignment/submission oversight is read-only. |
-| Admin modules beyond core | Timetable, scholarships, fees, grievances, support, e-library, and examinations have SQL schemas, but the Admin menu pages are generic `module_records` notes—not dedicated domain workflows. Do not present them as working financial, scholarship, timetable, exam, library, grievance, or support systems. |
-| Community/study | Some Student data operations exist for feed, clubs/events, study resources, and questions; not every original screen interaction is connected to live data. |
-| AI | Faculty/Admin can call the configured `ai-assistant` function for advisory text. It does not run a multi-agent workflow or make database changes. |
-| Demo previews | Faculty/Admin sample screens are for UI exploration only. They do not contact Supabase or persist edits. |
+A menu item or database table does not mean the corresponding workflow is complete. See [frontend/backend wiring](docs/backend/frontend-wiring.md) for the implemented data calls and [architecture notes](docs/architecture.md) for current boundaries.
 
-See [architecture and ERD](docs/architecture.md) for app boundaries, relationships, and limitations. [Frontend/backend wiring](docs/backend/frontend-wiring.md) lists data operations by portal.
+## Screenshots
 
-## Technologies and credits
+These screenshots show the interface served by the combined local preview. The Faculty and Admin captures use the app’s explicitly labelled anonymous sample view; they demonstrate layout only and do not authenticate, read Supabase, or save changes.
 
-- **Languages and runtimes:** JavaScript (ES modules), TypeScript for Supabase Edge Functions (Deno runtime), HTML, CSS, Node.js, and SQL. The Student portal is served by a small Node server; Faculty/Admin use Vite.
-- **Frontend/build tools:** Vite 6, Tailwind CSS 3 with its forms and container-query plugins, and Lucide icons.
-- **Identity/data:** Clerk JS and `@supabase/supabase-js` v2; Supabase Postgres, RLS, Storage, and Edge Functions.
-- **Hosting:** Vercel configuration is included in `vercel.json`; deployment still needs the corresponding external project settings and secrets.
-- **External visual assets:** Some pages load DM Sans, Manrope, Material Symbols, and illustrative images from Google-hosted URLs. These are not the live campus/student records and may require an internet connection. Check each provider's current terms before reusing or redistributing assets.
-- **Open-source components:** The listed npm packages are third-party dependencies; their package manifests and lockfiles are in the repository. See the upstream projects and package metadata for licenses and notices.
-- **AI assistance:** AI assistance was used for this repository revision, including the attendance implementation, verification, and documentation. This statement does not verify which tools were used for earlier project work or for the presentation. The original source/history does not include a complete attribution record for any other templates or assets; add the team's own credits before submission if applicable.
+![Faculty portal sample view](docs/screenshots/faculty-portal.png)
 
-## Tests and production build
+![Admin portal sample view](docs/screenshots/admin-dashboard.png)
 
-From the repository root:
+## Architecture
+
+The Vercel project is configured at the repository root so its build emits all three portals into one output directory. The same route layout is used by `npm run preview` locally.
+
+```mermaid
+flowchart LR
+  B[Browser] -->|same origin| H{Node preview / Vercel}
+  H -->|/| S[Student pages]
+  H -->|/faculty/*| F[Faculty Vite app]
+  H -->|/admin/*| A[Admin Vite app]
+  H -->|/api/config| C[Publishable runtime config]
+  F --> CL[Clerk identity]
+  A --> CL
+  S --> CL
+  CL -->|JWT template: supabase| SB[Supabase API]
+  S --> SB
+  F --> SB
+  A --> SB
+  SB --> DB[(Postgres with RLS)]
+  SB --> ST[(Private Storage)]
+  SB --> EF[Edge Functions]
+  H -.->|one origin, separate paths| S
+```
+
+The database’s principal coursework relationships are:
+
+```mermaid
+erDiagram
+  COLLEGES ||--o{ PROFILES : contains
+  COLLEGES ||--o{ COURSES : offers
+  PROFILES ||--o{ COURSES : teaches
+  COURSES ||--o{ COURSE_ENROLLMENTS : has
+  PROFILES ||--o{ COURSE_ENROLLMENTS : enrols
+  COURSES ||--o{ ATTENDANCE_RECORDS : records
+  PROFILES ||--o{ ATTENDANCE_RECORDS : attends
+  COURSES ||--o{ ASSIGNMENTS : contains
+  ASSIGNMENTS ||--o{ ASSIGNMENT_SUBMISSIONS : receives
+  PROFILES ||--o{ ASSIGNMENT_SUBMISSIONS : submits
+  PROFILES ||--o{ NOTICES : authors
+  COLLEGES ||--o{ NOTICES : scopes
+```
+
+For additional community, study, and policy relationships, see the full [architecture and ERD document](docs/architecture.md).
+
+## Configure live sign-in and data
+
+The app expects these **publishable/browser-safe** values at runtime:
+
+```text
+CLERK_PUBLISHABLE_KEY
+SUPABASE_URL
+SUPABASE_PUBLISHABLE_KEY
+```
+
+Set them in the local process environment or in the Vercel project’s Production and Preview environment settings, then redeploy. The `/api/config` response contains only these publishable values. Never put a Clerk secret key, Supabase service-role key, database password, or AI provider key in browser code or a `VITE_*` variable.
+
+Before live access works, Clerk must issue a Supabase-compatible JWT using the `supabase` template and the Supabase project must verify it. Each Clerk user also needs a trusted `public.profiles` row linked through `clerk_user_id` with the correct role and college. This repository does not provide automatic profile provisioning. Apply and review the SQL migrations and configure the Edge Functions and their server-side secrets separately. Follow [Clerk/Supabase setup](docs/backend/clerk-supabase-auth.md) and [testing guidance](docs/backend/testing.md); use a disposable Supabase project before production data.
+
+Without those external settings, portal URLs can still be tested on the shared origin, but protected data operations are not live. Do not treat the anonymous sample view as a production sign-in path.
+
+## Build, test, and deploy
+
+Run from the repository root:
 
 ```bash
 npm ci
 npm test
+npm run scan:secrets
 npm run build:vercel
 ```
 
-`npm test` runs the Node.js API, security, and regression tests. `npm run build:vercel` builds the Student, Faculty, and Admin portals into `campuspulse-frontend/dist/`. The root Vercel configuration deploys that combined output. This build does not connect to or verify a live Clerk/Supabase project.
+`npm test` runs the API and security regression suites. `scan:secrets` is a heuristic scan, not a security certification. `build:vercel` outputs the Student site plus `/faculty/` and `/admin/` bundles under `campuspulse-frontend/dist/`.
+
+For Vercel, import the GitHub repository as one project and keep **Root Directory** at the repository root. The checked-in `vercel.json` selects the combined build and route rewrites. Do not deploy only the nested Student folder if all three portals need the same domain. The default `*.vercel.app` deployment hostname is sufficient for one-origin routing; a custom domain is optional. Vercel hosting does not deploy or configure your Clerk/Supabase project or database migrations.
+
+## Open-source patterns reviewed
+
+Two comparable repositories informed the route and authorization review: [Pranayy1/college-management-system](https://github.com/Pranayy1/college-management-system) uses role-oriented protected routes and backend authorization checks, while [SmitBorsadiya/CollegeERP](https://github.com/SmitBorsadiya/CollegeERP) makes Admin and Faculty paths explicit. CampusPulse follows the same core separation: role is read from a trusted profile, routes are role-specific, and RLS remains the data-access boundary. The single-origin local preview now mirrors the root Vercel path layout instead of asking developers to validate home-page links across unrelated servers.
+
+These projects are reference implementations, not proof that their security or completeness is suitable for this application. CampusPulse-specific remaining work is listed above and in the architecture document.
 
 ## Repository map
 
@@ -109,21 +132,18 @@ npm run build:vercel
 campuspulse-frontend/
   public/                  Student pages, auth, and browser data operations
   faculty-dashboard/       Faculty Vite app and data layer
-  server.js                Local Student server and runtime config endpoint
+  server.js                Combined local preview and runtime config endpoint
 campuspulse-admin-dashboard/
   src/                     Admin Vite app and data layer
+shared/auth/               Clerk-to-Supabase JWT adapter
 supabase/
   migrations/              Database schema, RLS, Storage, and policy changes
-  functions/               AI and other server-side endpoints
-shared/auth/               Clerk-to-Supabase JWT adapter
-docs/                      Setup, architecture, testing, and security notes
+  functions/               Server-side Edge Functions
+docs/                      Setup, architecture, screenshots, and security notes
 tests/                     Node-based API and security regression tests
 scripts/                   Build, scan, and maintenance scripts
 ```
 
-## Security reminders
+## Technology and attribution
 
-- Browser clients use publishable keys and the signed-in user's Clerk JWT only.
-- RLS—not hidden buttons or client route checks—must enforce data access.
-- Verify migrations, policies, Storage rules, and Edge Function secrets in a disposable project before production use.
-- A passing build/test suite is not a production-security certification. See [testing instructions](docs/backend/testing.md).
+JavaScript, HTML, CSS, Node.js, Vite, Tailwind CSS, Clerk, Supabase Postgres/RLS, Storage, and Edge Functions. Third-party package manifests and lockfiles are in the repository. External fonts or other third-party assets may have separate terms; review them before reuse or redistribution. The earlier source history does not include a complete asset/template attribution record, so add the team’s required credits before submission.

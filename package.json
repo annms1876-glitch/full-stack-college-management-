@@ -8,7 +8,8 @@
     "scan:secrets": "node scripts/secret-scan.mjs",
     "test": "npm run test:api && npm run test:security",
     "build:student-css": "tailwindcss -i campuspulse-frontend/public/tailwind-input.css -o campuspulse-frontend/public/campuspulse-tailwind.css --config tailwind.config.cjs --minify",
-    "build:vercel": "node scripts/build-vercel.mjs"
+    "build:vercel": "node scripts/build-vercel.mjs",
+    "preview": "npm run build:vercel && node campuspulse-frontend/server.js"
   },
   "devDependencies": {
     "@tailwindcss/container-queries": "0.1.1",
