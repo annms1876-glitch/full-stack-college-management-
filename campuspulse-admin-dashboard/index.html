@@ -15,6 +15,39 @@
   </head>
   <body>
     <div id="app"><main class="startup-state" aria-live="polite"><section class="startup-card"><p class="startup-brand">CampusPulse · Admin Portal</p><p class="startup-kicker">Administration</p><h1>Loading your workspace</h1><p>Preparing your secure sign-in and portal tools…</p><div class="startup-spinner" aria-hidden="true"></div></section></main></div>
+    <script>
+      // The card above is static so it paints before any module runs. If the entry
+      // module cannot load (stale cache, dev-server restart, blocked import), say
+      // why and offer a retry instead of spinning forever.
+      (function () {
+        var reported = false;
+        function fail(detail) {
+          if (reported) return;
+          var card = document.querySelector('.startup-card');
+          if (!card) return;
+          reported = true;
+          var note = document.createElement('p');
+          note.setAttribute('role', 'alert');
+          note.style.color = '#a63d2a';
+          note.textContent = 'The portal application did not load' + (detail ? ': ' + detail : '') + '. If the dev server was restarted or rebuilt, reload this tab.';
+          var button = document.createElement('button');
+          button.type = 'button';
+          button.textContent = 'Reload portal';
+          button.style.cssText = 'margin-top:14px;border:0;border-radius:8px;padding:10px 16px;background:#345f47;color:#fffefa;font:600 13px "DM Sans",sans-serif;cursor:pointer';
+          button.onclick = function () { location.reload(); };
+          var spinner = card.querySelector('.startup-spinner');
+          if (spinner) spinner.remove();
+          card.appendChild(note);
+          card.appendChild(button);
+        }
+        window.addEventListener('error', function (event) {
+          if (event.target && event.target.tagName === 'SCRIPT') fail('a script failed to load');
+          else if (event.message) fail(event.message);
+        }, true);
+        window.addEventListener('unhandledrejection', function () { fail('startup failed'); });
+        setTimeout(function () { fail('timed out after 10s'); }, 10000);
+      })();
+    </script>
     <script type="module" src="/src/app.js"></script>
     <script async src="/vendor/lucide.min.js" onload="window.__lucideReady && window.__lucideReady()"></script>
   </body>

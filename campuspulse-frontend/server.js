@@ -16,7 +16,9 @@ try { SUPABASE_HOST = new URL(SUPABASE_RUNTIME_CONFIG.supabaseUrl).hostname; } c
 const DEMO_MODE_ENABLED = process.env.NODE_ENV !== "production"
   && process.env.CAMPUSPULSE_DEMO_MODE === "true"
   && ["localhost", "127.0.0.1", "::1"].includes(SUPABASE_HOST);
-const LISTEN_HOST = DEMO_MODE_ENABLED ? "127.0.0.1" : "0.0.0.0";
+// Local preview only: bind loopback so the OS never prompts to open a firewall
+// port. Set HOST=0.0.0.0 explicitly when LAN access is actually needed.
+const LISTEN_HOST = process.env.HOST || "127.0.0.1";
 const ROUTES = {
   "/": "/home.html",
   "/home": "/home.html",

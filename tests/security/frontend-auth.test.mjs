@@ -44,7 +44,10 @@ test('password recovery invokes Clerk reset email and update flows', () => {
 test('demo credentials are served and seeded only behind loopback development guards', () => {
   assert.match(server, /CAMPUSPULSE_DEMO_MODE === "true"/);
   assert.match(server, /process\.env\.NODE_ENV !== "production"/);
-  assert.match(server, /DEMO_MODE_ENABLED \? "127\.0\.0\.1"/);
+  // Loopback by default so a local run never opens a firewall port; only an explicit
+  // HOST override may widen the bind.
+  assert.match(server, /const LISTEN_HOST = process\.env\.HOST \|\| "127\.0\.0\.1"/);
+  assert.doesNotMatch(server, /"0\.0\.0\.0"/);
   assert.match(server, /\["localhost", "127\.0\.0\.1", "::1"\]/);
   assert.match(server, /if \(!DEMO_MODE_ENABLED\)/);
   assert.match(seed, /CAMPUSPULSE_ALLOW_DEMO_SEED === 'true'/);

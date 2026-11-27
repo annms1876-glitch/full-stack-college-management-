@@ -1,3 +1,6 @@
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 function runtimeSupabaseConfig() {
   const handler = (req, res, next) => {
     if (req.url?.split('?')[0] !== '/api/config') return next();
@@ -24,4 +27,14 @@ function runtimeSupabaseConfig() {
   };
 }
 
-export default { plugins: [runtimeSupabaseConfig()] };
+const projectDir = path.dirname(fileURLToPath(import.meta.url));
+// The portal imports the shared Clerk adapter from the repository root, which is
+// outside this app directory; allow it explicitly so the dev-server file guard
+// never blocks it on a fresh clone.
+const repoRoot = path.resolve(projectDir, '..');
+
+export default {
+  plugins: [runtimeSupabaseConfig()],
+  server: { fs: { allow: [projectDir, repoRoot] } },
+  preview: { fs: { allow: [projectDir, repoRoot] } },
+};
