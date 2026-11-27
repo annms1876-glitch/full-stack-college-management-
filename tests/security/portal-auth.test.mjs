@@ -18,6 +18,7 @@ const [facultyAuth, adminAuth, facultyMain, adminApp, facultyVite, adminVite, fa
   read('../../vercel.json'),
   read('../../api/config.js'),
 ]);
+const adminData = await read('../../campuspulse-admin-dashboard/src/data.js');
 
 for (const [label, source, role] of [['faculty', facultyAuth, 'faculty'], ['admin', adminAuth, 'admin']]) {
   test(`${label} portal uses Clerk password auth and gates rendering on the trusted profile role`, () => {
@@ -88,4 +89,11 @@ test('same-origin portal subpaths are built, served locally, and rewritten witho
   assert.match(rootConfig, /"source": "\/faculty\/attendance"/);
   assert.match(rootConfig, /"source": "\/admin\/student-records"/);
   assert.doesNotMatch(rootConfig, /"source": "\/(?:faculty|admin)\/\*"/);
+});
+
+test('production preview demo is explicit and keeps the sample enrolment join valid', () => {
+  assert.match(facultyAuth, /import\.meta\.env\.DEV \|\| new URLSearchParams\(location\.search\)\.get\('demo'\) === '1'/);
+  assert.match(adminAuth, /import\.meta\.env\.DEV \|\| new URLSearchParams\(location\.search\)\.get\('demo'\) === '1'/);
+  assert.match(adminData, /student_id: 'demo-student-1'/);
+  assert.doesNotMatch(adminData, /student_id: 'deme-1'/);
 });

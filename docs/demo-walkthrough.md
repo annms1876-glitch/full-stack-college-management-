@@ -2,7 +2,28 @@
 
 This guide is for a local interface preview, not a live-data or security demonstration. Faculty and Admin sample screens use placeholder data and do not persist changes. Student anonymous login was removed; live student login needs a configured Clerk/Supabase project and a trusted provisioned profile.
 
-## Start the pages
+## Start one unified preview
+
+From the repository root, build and serve all three portals from one origin:
+
+```bash
+npm ci
+npm run build:vercel
+PORT=3000 node campuspulse-frontend/server.js
+```
+
+Open these URLs in the same server. The `demo=1` query is an explicit, read-only
+sample mode for Faculty and Admin; it never creates a Supabase client or writes data.
+
+- Student: <http://127.0.0.1:3000/>
+- Faculty: <http://127.0.0.1:3000/faculty/?demo=1>
+- Admin: <http://127.0.0.1:3000/admin/?demo=1>
+
+Nested routes work on the same origin, for example `/faculty/attendance?demo=1`,
+`/faculty/assignments?demo=1`, `/admin/student-records?demo=1`, and
+`/admin/faculty-management?demo=1`.
+
+## Start the pages separately (development)
 
 From the repository root, start the Student static server:
 

@@ -15,7 +15,7 @@ export const DEMO_SNAPSHOT = {
     { id: 'demo-faculty-1', full_name: 'Dr. Ananya Deshmukh', role: 'faculty', college_id: 'demo-college' },
   ],
   courses: [
-    { id: 'demo-course-1', code: 'CS301', title: 'Data Structures & Algorithms', term: 'Odd 2026-27', faculty: { full_name: 'Dr. Ananya Deshmukh' }, course_enrollments: [{ student_id: 'deme-1', status: 'active' }] },
+    { id: 'demo-course-1', code: 'CS301', title: 'Data Structures & Algorithms', term: 'Odd 2026-27', faculty: { full_name: 'Dr. Ananya Deshmukh' }, course_enrollments: [{ student_id: 'demo-student-1', status: 'active' }] },
     { id: 'demo-course-2', code: 'CS405', title: 'Database Management Systems', term: 'Odd 2026-27', faculty: { full_name: 'Dr. Ananya Deshmukh' }, course_enrollments: [] },
   ],
   assignments: [{ id: 'demo-assignment-1', title: 'AVL Tree Rotations', due_at: new Date(Date.now() + 6 * 864e5).toISOString(), course: { code: 'CS301' } }],

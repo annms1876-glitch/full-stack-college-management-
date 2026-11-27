@@ -7,7 +7,10 @@ const CONFIG_KEY = 'campuspulse:portal-config'
 const DEMO_KEY = 'campuspulse:admin-demo'
 const AUTH_TIMEOUT_MS = 8000
 const AUTH_TIMEOUT_SECONDS = AUTH_TIMEOUT_MS / 1000
-const LOCAL_DEV_BYPASS = import.meta.env.DEV
+// Demo is opt-in by query string, so a production preview can be reviewed without
+// credentials. The demo session has no Supabase client and every write is gated by
+// `live()`. Normal visits still use Clerk/Supabase authentication.
+const LOCAL_DEV_BYPASS = import.meta.env.DEV || new URLSearchParams(location.search).get('demo') === '1'
 
 function timeoutError(message) {
   const error = new Error(message)
